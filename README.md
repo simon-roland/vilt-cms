@@ -79,54 +79,24 @@ This creates:
 - `app/Cms/Blocks/HeroBlock.php` — Filament form schema
 - `resources/js/cms/blocks/HeroBlock.vue` — Vue front-end component
 
-Then register both:
+Both files are **discovered automatically** — no registration needed. The PHP class is picked up by the CMS service provider at boot, and the Vue component is loaded via a glob import in `app.ts`.
 
-**`app/Providers/AppServiceProvider.php`**
-
-```php
-use RolandSolutions\ViltCms\CmsServiceProvider;
-use App\Cms\Blocks\HeroBlock;
-
-public function boot(): void
-{
-    CmsServiceProvider::registerBlocks([
-        HeroBlock::make(),
-    ]);
-}
-```
-
-**`resources/js/app.ts`**
-
-```typescript
-import { createCms } from "@cms/plugin";
-import HeroBlock from "@/cms/blocks/HeroBlock.vue";
-
-createApp(App)
-    .use(
-        createCms({
-            blocks: { hero: HeroBlock },
-            layouts: { default: DefaultLayout },
-        }),
-    )
-    .mount("#app");
-```
-
-The key in the `blocks` map must match the block's `->name()` in the PHP class.
+Edit the generated files to define your block's fields and template.
 
 ---
 
 ## Adding layouts
 
 ```bash
-php artisan cms:make-layout Default
+php artisan cms:make-layout TwoColumn
 ```
 
 Creates:
 
-- `app/Cms/Layouts/DefaultLayout.php`
-- `resources/js/cms/layouts/DefaultLayout.vue`
+- `app/Cms/Layouts/TwoColumnLayout.php`
+- `resources/js/cms/layouts/TwoColumnLayout.vue`
 
-Register the same way as blocks, using `CmsServiceProvider::registerLayouts([...])` and the `layouts` key in `createCms()`.
+Same as blocks — both are discovered automatically.
 
 ---
 

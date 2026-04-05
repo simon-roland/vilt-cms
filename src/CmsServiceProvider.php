@@ -9,6 +9,7 @@ use RolandSolutions\ViltCms\Commands\CmsInstallCommand;
 use RolandSolutions\ViltCms\Commands\CmsPublishCommand;
 use RolandSolutions\ViltCms\Commands\MakeCmsBlockCommand;
 use RolandSolutions\ViltCms\Commands\MakeCmsLayoutCommand;
+use RolandSolutions\ViltCms\Filament\Blocks\BaseBlock;
 use RolandSolutions\ViltCms\Livewire\MediaPickerField;
 
 class CmsServiceProvider extends ServiceProvider
@@ -16,16 +17,6 @@ class CmsServiceProvider extends ServiceProvider
     protected static array $blocks = [];
 
     protected static array $layouts = [];
-
-    public static function registerBlocks(array $blocks): void
-    {
-        static::$blocks = array_merge(static::$blocks, $blocks);
-    }
-
-    public static function registerLayouts(array $layouts): void
-    {
-        static::$layouts = array_merge(static::$layouts, $layouts);
-    }
 
     public static function getBlocks(): array
     {
@@ -105,7 +96,44 @@ class CmsServiceProvider extends ServiceProvider
 
         Livewire::component('media-picker-field', MediaPickerField::class);
 
+        $this->discoverBlocks();
+        $this->discoverLayouts();
+
         // Filament resources and pages are registered via CmsPlugin::make()
         // added to the panel in AdminPanelProvider.
+    }
+
+    private function discoverBlocks(): void
+    {
+        $dir = app_path('Cms/Blocks');
+
+        if (! is_dir($dir)) {
+            return;
+        }
+
+        foreach (glob($dir . '/*.php') as $file) {
+            $class = 'App\\Cms\\Blocks\\' . basename($file, '.php');
+
+            if (class_exists($class) && is_subclass_of($class, BaseBlock::class)) {
+                static::$blocks[] = $class::make();
+            }
+        }
+    }
+
+    private function discoverLayouts(): void
+    {
+        $dir = app_path('Cms/Layouts');
+
+        if (! is_dir($dir)) {
+            return;
+        }
+
+        foreach (glob($dir . '/*.php') as $file) {
+            $class = 'App\\Cms\\Layouts\\' . basename($file, '.php');
+
+            if (class_exists($class) && is_subclass_of($class, BaseBlock::class)) {
+                static::$layouts[] = $class::make();
+            }
+        }
     }
 }

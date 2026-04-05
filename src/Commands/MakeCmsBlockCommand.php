@@ -22,9 +22,6 @@ class MakeCmsBlockCommand extends Command
 
         $this->newLine();
         $this->info("Block '{$class}' created.");
-        $this->line("  Register it in your app.ts CmsPlugin <fg=cyan>blocks</> array:");
-        $this->line("  <fg=cyan>import {$class}Block from '@/cms/blocks/{$class}Block.vue'</>");
-        $this->line("  <fg=cyan>blocks: { {$blockName}: {$class}Block }</>");
 
         return self::SUCCESS;
     }

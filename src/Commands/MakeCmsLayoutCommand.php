@@ -22,9 +22,6 @@ class MakeCmsLayoutCommand extends Command
 
         $this->newLine();
         $this->info("Layout '{$class}' created.");
-        $this->line("  Register it in your app.ts CmsPlugin <fg=cyan>layouts</> array:");
-        $this->line("  <fg=cyan>import {$class}Layout from '@/cms/layouts/{$class}Layout.vue'</>");
-        $this->line("  <fg=cyan>layouts: { {$layoutName}: {$class}Layout }</>");
 
         return self::SUCCESS;
     }

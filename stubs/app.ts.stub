@@ -4,12 +4,6 @@ import { createInertiaApp } from '@inertiajs/vue3'
 import { createCms } from '@cms/plugin'
 import { createApp, h } from 'vue'
 
-import DefaultLayout from '@/cms/layouts/DefaultLayout.vue'
-import HeroBlock from '@/cms/blocks/HeroBlock.vue'
-import TextBlock from '@/cms/blocks/TextBlock.vue'
-import GalleryBlock from '@/cms/blocks/GalleryBlock.vue'
-import VideoBlock from '@/cms/blocks/VideoBlock.vue'
-
 createInertiaApp({
     resolve: async (name) => {
         const pages = import.meta.glob('./pages/**/*.vue')
@@ -21,15 +15,8 @@ createInertiaApp({
             .use(plugin)
             .use(
                 createCms({
-                    blocks: {
-                        Hero: HeroBlock,
-                        Text: TextBlock,
-                        Gallery: GalleryBlock,
-                        Video: VideoBlock,
-                    },
-                    layouts: {
-                        default: DefaultLayout,
-                    },
+                    blocks: import.meta.glob('./cms/blocks/*.vue', { eager: true }),
+                    layouts: import.meta.glob('./cms/layouts/*.vue', { eager: true }),
                 }),
             )
             .mount(el)

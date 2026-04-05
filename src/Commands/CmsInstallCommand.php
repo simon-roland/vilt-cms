@@ -40,7 +40,6 @@ class CmsInstallCommand extends Command
         $this->createFilamentTheme($fresh);
         $this->addFilamentUserToModel($fresh);
         $this->publishStarterPhpClasses();
-        $this->registerCmsInAppServiceProvider($fresh);
         $this->publishAppTs($fresh);
         $this->publishVueComponents();
         $this->publishTsConfig();
@@ -347,78 +346,6 @@ PHP;
                 '    use Filament\\Panel;' . PHP_EOL .
                 '    class User extends Authenticatable implements FilamentUser' . PHP_EOL .
                 '    public function canAccessPanel(Panel $panel): bool { return true; }'
-            );
-        }
-    }
-
-    private function registerCmsInAppServiceProvider(bool $fresh): void
-    {
-        $this->step('Registering CMS blocks and layouts in AppServiceProvider');
-        $path = app_path('Providers/AppServiceProvider.php');
-
-        if (!file_exists($path)) {
-            $this->skip('AppServiceProvider not found — skipping');
-
-            return;
-        }
-
-        $content = file_get_contents($path);
-
-        if (str_contains($content, 'CmsServiceProvider::registerBlocks')) {
-            $this->skip('CMS already registered in AppServiceProvider');
-
-            return;
-        }
-
-        $uses = <<<'PHP'
-use RolandSolutions\ViltCms\CmsServiceProvider;
-use App\Cms\Blocks\HeroBlock;
-use App\Cms\Blocks\TextBlock;
-use App\Cms\Blocks\GalleryBlock;
-use App\Cms\Blocks\VideoBlock;
-use App\Cms\Layouts\DefaultLayout;
-PHP;
-
-        $bootCall = <<<'PHP'
-        CmsServiceProvider::registerBlocks([
-            HeroBlock::make(),
-            TextBlock::make(),
-            GalleryBlock::make(),
-            VideoBlock::make(),
-        ]);
-        CmsServiceProvider::registerLayouts([
-            DefaultLayout::make(),
-        ]);
-PHP;
-
-        if ($fresh) {
-            // Inject use statement before the class declaration
-            $content = preg_replace(
-                '/(^use\s+Illuminate\\\\Support\\\\ServiceProvider;\s*)/m',
-                "$1{$uses}",
-                $content,
-                1
-            );
-
-            // Inject into boot() method body
-            $content = preg_replace(
-                '/(public function boot\(\): void\s*\{\s*)(\/\/\s*)?(\})/s',
-                "$1{$bootCall}\n    $3",
-                $content,
-                1
-            );
-
-            file_put_contents($path, $content);
-            $this->done('CMS registered in AppServiceProvider');
-        } else {
-            $this->manual(
-                'Add to app/Providers/AppServiceProvider.php:' . PHP_EOL .
-                '    use RolandSolutions\\Cms\\CmsServiceProvider;' . PHP_EOL .
-                '    use App\\Cms\\Blocks\\{HeroBlock, TextBlock, GalleryBlock, VideoBlock};' . PHP_EOL .
-                '    use App\\Cms\\Layouts\\DefaultLayout;' . PHP_EOL .
-                '    // in boot():' . PHP_EOL .
-                '    CmsServiceProvider::registerBlocks([HeroBlock::make(), TextBlock::make(), GalleryBlock::make(), VideoBlock::make()]);' . PHP_EOL .
-                '    CmsServiceProvider::registerLayouts([DefaultLayout::make()]);'
             );
         }
     }
