@@ -20,15 +20,15 @@ A CMS package for the **VILT stack** — Vue · Inertia · Laravel · Tailwind. 
 
 ## Requirements
 
-| Dependency | Version |
-|---|---|
-| PHP | ^8.3 |
-| Laravel | ^13.0 |
-| Filament | ^5.0 |
-| Inertia Laravel | ^3.0 |
-| Vue | 3 |
-| Tailwind CSS | 4 |
-| Ziggy | ^2.3 |
+| Dependency      | Version |
+| --------------- | ------- |
+| PHP             | ^8.3    |
+| Laravel         | ^13.0   |
+| Filament        | ^5.0    |
+| Inertia Laravel | ^3.0    |
+| Vue             | 3       |
+| Tailwind CSS    | 4       |
+| Ziggy           | ^2.3    |
 
 ---
 
@@ -75,6 +75,7 @@ php artisan cms:make-block Hero
 ```
 
 This creates:
+
 - `app/Cms/Blocks/HeroBlock.php` — Filament form schema
 - `resources/js/cms/blocks/HeroBlock.vue` — Vue front-end component
 
@@ -97,15 +98,17 @@ public function boot(): void
 **`resources/js/app.ts`**
 
 ```typescript
-import { createCms } from '@cms/plugin'
-import HeroBlock from '@/cms/blocks/HeroBlock.vue'
+import { createCms } from "@cms/plugin";
+import HeroBlock from "@/cms/blocks/HeroBlock.vue";
 
 createApp(App)
-    .use(createCms({
-        blocks: { hero: HeroBlock },
-        layouts: { default: DefaultLayout },
-    }))
-    .mount('#app')
+    .use(
+        createCms({
+            blocks: { hero: HeroBlock },
+            layouts: { default: DefaultLayout },
+        }),
+    )
+    .mount("#app");
 ```
 
 The key in the `blocks` map must match the block's `->name()` in the PHP class.
@@ -119,6 +122,7 @@ php artisan cms:make-layout Default
 ```
 
 Creates:
+
 - `app/Cms/Layouts/DefaultLayout.php`
 - `resources/js/cms/layouts/DefaultLayout.vue`
 
@@ -143,13 +147,13 @@ php artisan cms:publish --force
 
 Available groups:
 
-| Group | What it publishes |
-|---|---|
-| `ts` | `resources/js/app.ts` |
-| `vue` | Vue components and pages |
-| `css` | `resources/css/app.css` |
-| `config` | `config/cms.php` |
-| `php` | Starter PHP block and layout classes |
+| Group    | What it publishes                    |
+| -------- | ------------------------------------ |
+| `ts`     | `resources/js/app.ts`                |
+| `vue`    | Vue components and pages             |
+| `css`    | `resources/css/app.css`              |
+| `config` | `config/cms.php`                     |
+| `php`    | Starter PHP block and layout classes |
 
 ---
 
@@ -261,4 +265,3 @@ class LatestPosts implements BlockResource
 
 MIT — see [LICENSE](LICENSE).  
 © 2025–2026 [Roland Solutions](https://simonroland.dk)
-
