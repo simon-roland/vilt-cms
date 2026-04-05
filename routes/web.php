@@ -1,7 +1,7 @@
 <?php
 
-use RolandSolutions\Cms\Http\Controllers\MediaController;
-use RolandSolutions\Cms\Http\Controllers\PageController;
+use RolandSolutions\ViltCms\Http\Controllers\MediaController;
+use RolandSolutions\ViltCms\Http\Controllers\PageController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PageController::class, 'frontpage'])

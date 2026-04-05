@@ -434,7 +434,7 @@
 
     {{-- Replace media modal --}}
     @if($replacingMediaUuid !== null)
-        @php $replacingMedia = \RolandSolutions\Cms\Models\Media::where('uuid', $replacingMediaUuid)->first(); @endphp
+        @php $replacingMedia = \RolandSolutions\ViltCms\Models\Media::where('uuid', $replacingMediaUuid)->first(); @endphp
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div class="absolute inset-0 bg-black/50" wire:click="cancelReplacingMedia"></div>
             <div
@@ -537,7 +537,7 @@
 
     {{-- Folder delete confirmation modal --}}
     @if($confirmingDeleteFolderId !== null)
-        @php $confirmingDeleteFolder = \RolandSolutions\Cms\Models\MediaFolder::find($confirmingDeleteFolderId); @endphp
+        @php $confirmingDeleteFolder = \RolandSolutions\ViltCms\Models\MediaFolder::find($confirmingDeleteFolderId); @endphp
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div class="absolute inset-0 bg-black/50" wire:click="cancelDeleteFolder"></div>
             <div class="relative z-10 w-full max-w-sm bg-white dark:bg-gray-900 rounded-xl shadow-xl p-6">
@@ -617,7 +617,7 @@
                         <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
                             Uploader til:
                             @if($activeFolderId !== null)
-                                @php $uploadFolder = \RolandSolutions\Cms\Models\MediaFolder::find($activeFolderId); @endphp
+                                @php $uploadFolder = \RolandSolutions\ViltCms\Models\MediaFolder::find($activeFolderId); @endphp
                                 <span class="font-medium text-gray-700 dark:text-gray-300">{{ $uploadFolder?->name ?? 'Rod' }}</span>
                             @else
                                 <span class="font-medium text-gray-700 dark:text-gray-300">Hjem</span>

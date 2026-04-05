@@ -105,7 +105,7 @@
                         $currentFolder = $this->getPickerCurrentFolder();
                         $subfolders = $currentFolder
                             ? $currentFolder->children()->orderBy('name')->get()
-                            : \RolandSolutions\Cms\Models\MediaFolder::whereNull('parent_id')->orderBy('name')->get();
+                            : \RolandSolutions\ViltCms\Models\MediaFolder::whereNull('parent_id')->orderBy('name')->get();
                     @endphp
                     @if($subfolders->isNotEmpty())
                         <div class="flex flex-wrap gap-1.5">
