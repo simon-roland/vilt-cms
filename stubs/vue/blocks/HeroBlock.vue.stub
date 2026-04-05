@@ -1,0 +1,39 @@
+<script setup lang="ts">
+import type { Media } from '@cms/types'
+
+defineProps({
+  block: {
+    type: Object as () => {
+      headline: string
+      text?: string
+      image_media?: Media[]
+    },
+    required: true,
+  },
+})
+</script>
+
+<template>
+  <section class="py-16 lg:py-24">
+    <div class="container max-w-5xl">
+      <div class="grid gap-8 lg:grid-cols-2 items-center">
+        <div class="grid gap-4">
+          <h1>{{ block.headline }}</h1>
+          <p v-if="block.text" class="text-muted-foreground text-lg">{{ block.text }}</p>
+        </div>
+        <div v-if="block.image_media?.[0]" class="rounded-lg overflow-hidden">
+          <img
+            :src="block.image_media[0].src"
+            :srcset="block.image_media[0].srcset"
+            :sizes="block.image_media[0].sizes"
+            :alt="block.headline"
+            class="w-full h-auto"
+          />
+        </div>
+        <div v-else class="rounded-lg bg-secondary flex items-center justify-center h-64 text-muted-foreground text-sm">
+          Add an image in the admin panel
+        </div>
+      </div>
+    </div>
+  </section>
+</template>

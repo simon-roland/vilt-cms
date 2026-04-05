@@ -1,0 +1,19 @@
+<?php
+
+namespace App\Cms\Layouts;
+
+use Filament\Forms\Components\Builder\Block;
+use RolandSolutions\ViltCms\Filament\Blocks\BaseBlock;
+use RolandSolutions\ViltCms\Filament\Fields\ID;
+
+class DefaultLayout extends BaseBlock
+{
+    public function setup(): Block
+    {
+        return Block::make('default')
+            ->label('Default')
+            ->schema([
+                ID::make(),
+            ]);
+    }
+}

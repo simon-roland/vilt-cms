@@ -1,0 +1,25 @@
+<script setup lang="ts">
+defineProps({
+  block: {
+    type: Object as () => {
+      headline?: string
+      video_media?: string[]
+    },
+    required: true,
+  },
+})
+</script>
+
+<template>
+  <section class="py-12 lg:py-16">
+    <div class="container max-w-5xl">
+      <h2 v-if="block.headline" class="mb-8">{{ block.headline }}</h2>
+      <div v-if="block.video_media?.[0]" class="rounded-lg overflow-hidden">
+        <video :src="block.video_media[0]" controls class="w-full" />
+      </div>
+      <div v-else class="rounded-lg bg-secondary flex items-center justify-center h-48 text-muted-foreground text-sm">
+        Add a video in the admin panel
+      </div>
+    </div>
+  </section>
+</template>

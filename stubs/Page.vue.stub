@@ -1,0 +1,24 @@
+<script setup lang="ts">
+import type { Component } from 'vue'
+import { inject } from 'vue'
+
+import Wrapper from '@/layouts/Wrapper.vue'
+import type { CmsPage } from '@cms/types'
+
+defineOptions({
+    layout: [Wrapper],
+})
+
+defineProps({
+    page: {
+        type: Object as () => CmsPage,
+        required: true,
+    },
+})
+
+const layouts = inject<Record<string, Component>>('cmsLayouts', {})
+</script>
+
+<template>
+    <component :is="layouts[page.layout.type]" :page="page" />
+</template>

@@ -1,0 +1,25 @@
+<?php
+
+namespace App\Cms\Blocks;
+
+use Filament\Forms\Components\Builder\Block;
+use Filament\Forms\Components\TextInput;
+use RolandSolutions\ViltCms\Filament\Blocks\BaseBlock;
+use RolandSolutions\ViltCms\Filament\Fields\ID;
+use RolandSolutions\ViltCms\Filament\Fields\MediaPicker;
+
+class VideoBlock extends BaseBlock
+{
+    public function setup(): Block
+    {
+        return Block::make('video')
+            ->label(__('cms::cms.block_video'))
+            ->schema([
+                ID::make(),
+                TextInput::make('headline')
+                    ->label(__('cms::cms.block_headline')),
+                MediaPicker::make('video')
+                    ->label(__('cms::cms.block_video')),
+            ]);
+    }
+}

@@ -1,0 +1,9 @@
+<script setup lang="ts">
+defineProps<{ block: { id: string; headline?: string } }>()
+</script>
+
+<template>
+    <section>
+        <h2>{{ block.headline }}</h2>
+    </section>
+</template>

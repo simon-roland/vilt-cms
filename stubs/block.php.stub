@@ -1,0 +1,21 @@
+<?php
+
+namespace App\Cms\Blocks;
+
+use Filament\Forms\Components\Builder\Block;
+use Filament\Forms\Components\TextInput;
+use RolandSolutions\ViltCms\Filament\Blocks\BaseBlock;
+use RolandSolutions\ViltCms\Filament\Fields\ID;
+
+class {{ class }}Block extends BaseBlock
+{
+    public function setup(): Block
+    {
+        return Block::make('{{ name }}')
+            ->label('{{ label }}')
+            ->schema([
+                ID::make(),
+                TextInput::make('headline')->label('Headline'),
+            ]);
+    }
+}

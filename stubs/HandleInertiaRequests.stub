@@ -1,0 +1,16 @@
+<?php
+
+namespace App\Http\Middleware;
+
+use Illuminate\Http\Request;
+use RolandSolutions\ViltCms\Http\Middleware\HandleInertiaRequests as BaseHandleInertiaRequests;
+
+class HandleInertiaRequests extends BaseHandleInertiaRequests
+{
+    protected function extraProps(Request $request): array
+    {
+        return [
+            // site-specific shared props
+        ];
+    }
+}

@@ -1,0 +1,12 @@
+<script setup lang="ts">
+import type { CmsPage } from '@cms/types'
+
+defineProps<{ page: CmsPage }>()
+</script>
+
+<template>
+    <main>
+        <!-- {{ label }} layout -->
+        <slot />
+    </main>
+</template>

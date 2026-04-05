@@ -1,0 +1,112 @@
+@import 'tailwindcss';
+
+@source '../**/*.vue';
+@source '../../vendor/roland-solutions/cms/resources/js/**/*.vue';
+
+@theme {
+  --color-primary: oklch(0.45 0.02 120);
+  --color-primary-foreground: oklch(0.98 0 0);
+  --color-secondary: oklch(0.96 0 0);
+  --color-secondary-foreground: oklch(0.25 0 0);
+  --color-muted: oklch(0.96 0 0);
+  --color-muted-foreground: oklch(0.55 0 0);
+  --color-border: oklch(0.92 0 0);
+  --color-background: oklch(1 0 0);
+  --color-foreground: oklch(0.15 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+  h1 { @apply text-3xl; }
+  h2 { @apply text-xl; }
+  h3 { @apply text-lg; }
+  button { @apply cursor-pointer; }
+}
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 1rem;
+
+  @variant md {
+    padding-inline: 1.5rem;
+  }
+}
+
+/* Rich text content (from Filament Rich Editor) */
+.rich-text {
+  @apply text-sm lg:text-base;
+
+  & > p,
+  ol,
+  ul {
+    @apply not-last:pb-4;
+  }
+  & > h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply first:pb-4 not-first:not-last:py-4 leading-normal;
+  }
+  & > p > a {
+    @apply font-bold;
+  }
+  & > ol {
+    @apply list-decimal;
+  }
+  & > ul {
+    @apply list-disc;
+  }
+  & > ol,
+  & > ul {
+    @apply ml-5 pb-2 md:pb-4;
+  }
+  & > ul > li,
+  & > ol > li {
+    @apply not-last:pb-1 md:not-last:pb-2;
+  }
+
+  /* Nested lists */
+  & ul ul {
+    @apply list-circle ml-5 mt-1 md:mt-2;
+  }
+  & ol ol {
+    @apply list-decimal ml-5 mt-1 md:mt-2;
+  }
+  & ul ol {
+    @apply list-decimal ml-5 mt-1 md:mt-2;
+  }
+  & ol ul {
+    @apply list-circle ml-5 mt-1 md:mt-2;
+  }
+  & ul ul > li,
+  & ol ol > li,
+  & ul ol > li,
+  & ol ul > li {
+    @apply not-last:pb-1 md:not-last:pb-2;
+  }
+}
+
+@utility list-circle {
+  list-style-type: circle;
+}
+
+/* Accordion animation */
+.accordion {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease;
+}
+
+.accordion--expanded {
+  grid-template-rows: 1fr;
+}

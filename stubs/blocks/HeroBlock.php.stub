@@ -1,0 +1,30 @@
+<?php
+
+namespace App\Cms\Blocks;
+
+use Filament\Forms\Components\Builder\Block;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use RolandSolutions\ViltCms\Filament\Blocks\BaseBlock;
+use RolandSolutions\ViltCms\Filament\Fields\ID;
+use RolandSolutions\ViltCms\Filament\Fields\MediaPicker;
+
+class HeroBlock extends BaseBlock
+{
+    public function setup(): Block
+    {
+        return Block::make('hero')
+            ->label('Hero')
+            ->schema([
+                ID::make(),
+                TextInput::make('headline')
+                    ->label(__('cms::cms.block_headline'))
+                    ->required(),
+                Textarea::make('text')
+                    ->label(__('cms::cms.block_text'))
+                    ->rows(3),
+                MediaPicker::make('image')
+                    ->label(__('cms::cms.block_image')),
+            ]);
+    }
+}

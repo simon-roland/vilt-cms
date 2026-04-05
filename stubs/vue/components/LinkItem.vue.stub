@@ -1,0 +1,34 @@
+<script setup lang="ts">
+import { Link } from '@inertiajs/vue3'
+import { useHref } from '@cms/composables/href'
+import type { Link as LinkType } from '@cms/types'
+
+defineProps({
+  item: {
+    type: Object as () => LinkType,
+    required: true,
+  },
+  active: {
+    type: Boolean,
+    default: false,
+  },
+})
+</script>
+
+<template>
+  <Link
+    v-if="item.link_type === 'page'"
+    :class="[{ 'font-medium': active }]"
+    :href="useHref(item)"
+  >
+    {{ item.label }}
+  </Link>
+  <a
+    v-else
+    :class="[{ 'font-medium': active }]"
+    :href="useHref(item)"
+    :target="item.target"
+  >
+    {{ item.label }}
+  </a>
+</template>

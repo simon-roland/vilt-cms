@@ -1,0 +1,18 @@
+<script setup lang="ts">
+defineProps({
+  block: {
+    type: Object as () => {
+      content: string
+    },
+    required: true,
+  },
+})
+</script>
+
+<template>
+  <section class="py-12 lg:py-16">
+    <div class="container max-w-3xl">
+      <div class="rich-text" v-html="block.content" />
+    </div>
+  </section>
+</template>

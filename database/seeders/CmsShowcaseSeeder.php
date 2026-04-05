@@ -1,0 +1,157 @@
+<?php
+
+namespace RolandSolutions\ViltCms\Database\Seeders;
+
+use RolandSolutions\ViltCms\Enum\PageStatus;
+use RolandSolutions\ViltCms\Models\Navigation;
+use RolandSolutions\ViltCms\Models\Page;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
+
+class CmsShowcaseSeeder extends Seeder
+{
+    public function run(): void
+    {
+        if (Page::count() > 0 || Navigation::count() > 0) {
+            return;
+        }
+
+        $frontpage = Page::create([
+            'status' => PageStatus::Published,
+            'title' => 'Home',
+            'slug' => 'frontpage',
+            'is_frontpage' => true,
+            'layout' => [['type' => 'default', 'data' => ['id' => Str::uuid()->toString()]]],
+            'blocks' => [
+                [
+                    'type' => 'hero',
+                    'data' => [
+                        'id' => Str::uuid()->toString(),
+                        'headline' => 'Welcome to Your New Site',
+                        'text' => 'This is a showcase of your CMS. Edit this page in the admin panel to start building your site.',
+                        'image' => [],
+                    ],
+                ],
+                [
+                    'type' => 'text',
+                    'data' => [
+                        'id' => Str::uuid()->toString(),
+                        'content' => '<h2>Getting Started</h2><p>This text block uses the rich text editor. You can format content with <strong>bold</strong>, <em>italic</em>, and more. Head to the admin panel to edit this content and explore the available blocks.</p><p>The CMS comes with a flexible block-based editor, a media library for managing images and videos, and customizable navigation menus.</p>',
+                    ],
+                ],
+                [
+                    'type' => 'gallery',
+                    'data' => [
+                        'id' => Str::uuid()->toString(),
+                        'headline' => 'Gallery',
+                        'images' => [],
+                    ],
+                ],
+                [
+                    'type' => 'video',
+                    'data' => [
+                        'id' => Str::uuid()->toString(),
+                        'headline' => 'Featured Video',
+                        'video' => [],
+                    ],
+                ],
+            ],
+        ]);
+
+        $about = Page::create([
+            'status' => PageStatus::Published,
+            'title' => 'About',
+            'slug' => 'about',
+            'layout' => [['type' => 'default', 'data' => ['id' => Str::uuid()->toString()]]],
+            'blocks' => [
+                [
+                    'type' => 'hero',
+                    'data' => [
+                        'id' => Str::uuid()->toString(),
+                        'headline' => 'About Us',
+                        'text' => 'Learn more about what we do and how we can help.',
+                        'image' => [],
+                    ],
+                ],
+                [
+                    'type' => 'text',
+                    'data' => [
+                        'id' => Str::uuid()->toString(),
+                        'content' => '<p>This is the about page. Replace this content with information about your organization, project, or whatever suits your site.</p><p>You can add more blocks below this one, reorder them, or remove them entirely from the admin panel.</p>',
+                    ],
+                ],
+            ],
+        ]);
+
+        Navigation::create([
+            'type' => 'header',
+            'items' => [
+                [
+                    'type' => 'link',
+                    'data' => [
+                        'id' => Str::uuid()->toString(),
+                        'label' => 'Home',
+                        'link_type' => 'page',
+                        'page_id' => $frontpage->id,
+                        'target' => '_self',
+                    ],
+                ],
+                [
+                    'type' => 'link',
+                    'data' => [
+                        'id' => Str::uuid()->toString(),
+                        'label' => 'About',
+                        'link_type' => 'page',
+                        'page_id' => $about->id,
+                        'target' => '_self',
+                    ],
+                ],
+                [
+                    'type' => 'dropdown',
+                    'data' => [
+                        'id' => Str::uuid()->toString(),
+                        'label' => 'More',
+                        'items' => [
+                            [
+                                'type' => 'link',
+                                'data' => [
+                                    'id' => Str::uuid()->toString(),
+                                    'label' => 'Example',
+                                    'link_type' => 'url',
+                                    'url' => 'https://example.com',
+                                    'target' => '_blank',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        Navigation::create([
+            'type' => 'footer',
+            'items' => [
+                [
+                    'type' => 'link',
+                    'data' => [
+                        'id' => Str::uuid()->toString(),
+                        'label' => 'Home',
+                        'link_type' => 'page',
+                        'page_id' => $frontpage->id,
+                        'target' => '_self',
+                    ],
+                ],
+                [
+                    'type' => 'link',
+                    'data' => [
+                        'id' => Str::uuid()->toString(),
+                        'label' => 'About',
+                        'link_type' => 'page',
+                        'page_id' => $about->id,
+                        'target' => '_self',
+                    ],
+                ],
+            ],
+        ]);
+    }
+}

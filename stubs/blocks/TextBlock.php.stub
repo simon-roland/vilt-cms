@@ -1,0 +1,23 @@
+<?php
+
+namespace App\Cms\Blocks;
+
+use Filament\Forms\Components\Builder\Block;
+use Filament\Forms\Components\RichEditor;
+use RolandSolutions\ViltCms\Filament\Blocks\BaseBlock;
+use RolandSolutions\ViltCms\Filament\Fields\ID;
+
+class TextBlock extends BaseBlock
+{
+    public function setup(): Block
+    {
+        return Block::make('text')
+            ->label('Text')
+            ->schema([
+                ID::make(),
+                RichEditor::make('content')
+                    ->label(__('cms::cms.block_content'))
+                    ->required(),
+            ]);
+    }
+}

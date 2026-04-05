@@ -1,0 +1,40 @@
+<script setup lang="ts">
+import { usePage } from '@inertiajs/vue3'
+import Blocks from '@cms/components/Blocks.vue'
+import type { CmsPage, PageProps } from '@cms/types'
+import Navigation from '@/cms/components/Navigation.vue'
+import { computed } from 'vue'
+
+const props = defineProps({
+  page: {
+    type: Object as () => CmsPage,
+    required: true,
+  },
+})
+
+const pageProps = usePage<PageProps>().props
+const activeSlug = computed(() => props.page.is_frontpage ? null : props.page.slug)
+</script>
+
+<template>
+  <div class="min-h-screen flex flex-col">
+    <header class="border-b border-border">
+      <div class="container flex items-center justify-between h-16 max-w-5xl">
+        <a href="/" class="text-lg font-semibold">{{ pageProps.title }}</a>
+        <nav class="flex items-center gap-6">
+          <Navigation :items="pageProps.header" :active-slug="activeSlug" />
+        </nav>
+      </div>
+    </header>
+
+    <main class="flex-1">
+      <Blocks :blocks="page.blocks" />
+    </main>
+
+    <footer class="border-t border-border bg-secondary/50">
+      <div class="container flex items-center justify-center gap-6 h-16 max-w-5xl text-sm text-muted-foreground">
+        <Navigation :items="pageProps.footer" :active-slug="activeSlug" />
+      </div>
+    </footer>
+  </div>
+</template>
