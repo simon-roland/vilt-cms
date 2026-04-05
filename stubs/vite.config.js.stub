@@ -17,7 +17,7 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': path.resolve(__dirname, 'resources/js'),
-            '@cms': path.resolve(__dirname, 'vendor/roland-solutions/cms/resources/js'),
+            '@cms': path.resolve(__dirname, 'vendor/roland-solutions/vilt-cms/resources/js'),
         },
         preserveSymlinks: true,
     },

@@ -237,14 +237,14 @@ PHP;
 
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*';
-@source '../../../../vendor/roland-solutions/cms/resources/views/**/*';
+@source '../../../../vendor/roland-solutions/vilt-cms/resources/views/**/*';
 CSS);
             $this->done('resources/css/filament/admin/theme.css created');
         } else {
             // Ensure CMS @source is present even if theme already exists
             $content = file_get_contents($themePath);
-            if (!str_contains($content, 'roland-solutions/cms')) {
-                file_put_contents($themePath, rtrim($content) . PHP_EOL . "@source '../../../../vendor/roland-solutions/cms/resources/views/**/*';" . PHP_EOL);
+            if (!str_contains($content, 'roland-solutions/vilt-cms')) {
+                file_put_contents($themePath, rtrim($content) . PHP_EOL . "@source '../../../../vendor/roland-solutions/vilt-cms/resources/views/**/*';" . PHP_EOL);
                 $this->done('CMS @source added to existing Filament theme');
             } else {
                 $this->skip('Filament theme already includes CMS @source');
@@ -486,7 +486,7 @@ PHP;
 
             $this->manual(
                 'Add to your vite.config resolve.alias:' . PHP_EOL .
-                "    '@cms': path.resolve(__dirname, 'vendor/roland-solutions/cms/resources/js')," . PHP_EOL .
+                "    '@cms': path.resolve(__dirname, 'vendor/roland-solutions/vilt-cms/resources/js')," . PHP_EOL .
                 'And set: preserveSymlinks: true'
             );
         }
@@ -501,7 +501,7 @@ PHP;
             $this->manual(
                 'Add to resources/css/app.css:' . PHP_EOL .
                 "    @source '../**/*.vue';" . PHP_EOL .
-                "    @source '../../vendor/roland-solutions/cms/resources/js/**/*.vue';"
+                "    @source '../../vendor/roland-solutions/vilt-cms/resources/js/**/*.vue';"
             );
 
             return;
@@ -509,14 +509,14 @@ PHP;
 
         $content = file_get_contents($path);
 
-        if (str_contains($content, 'vendor/roland-solutions/cms')) {
+        if (str_contains($content, 'vendor/roland-solutions/vilt-cms')) {
             $this->skip('Tailwind CMS @source directive already present');
 
             return;
         }
 
         $directives = PHP_EOL . "@source '../**/*.vue';" . PHP_EOL
-            . "@source '../../vendor/roland-solutions/cms/resources/js/**/*.vue';" . PHP_EOL;
+            . "@source '../../vendor/roland-solutions/vilt-cms/resources/js/**/*.vue';" . PHP_EOL;
 
         file_put_contents($path, $content . $directives);
         $this->done('Tailwind @source directives added to app.css');
@@ -682,8 +682,11 @@ PHP;
         if (file_exists(base_path('yarn.lock'))) {
             return 'yarn';
         }
+        if (file_exists(base_path('package-lock.json'))) {
+            return 'npm';
+        }
 
-        return 'npm';
+        return 'yarn';
     }
 
     private function manual(string $step): void

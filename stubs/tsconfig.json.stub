@@ -8,7 +8,7 @@
         "types": ["vite/client"],
         "paths": {
             "@/*": ["./resources/js/*"],
-            "@cms/*": ["./vendor/roland-solutions/cms/resources/js/*"]
+            "@cms/*": ["./vendor/roland-solutions/vilt-cms/resources/js/*"]
         }
     },
     "include": ["resources/js/**/*"]

@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 
 @source '../**/*.vue';
-@source '../../vendor/roland-solutions/cms/resources/js/**/*.vue';
+@source '../../vendor/roland-solutions/vilt-cms/resources/js/**/*.vue';
 
 @theme {
   --color-primary: oklch(0.45 0.02 120);
