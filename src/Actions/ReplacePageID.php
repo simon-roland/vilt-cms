@@ -18,6 +18,26 @@ class ReplacePageID extends Action
     protected function replacePageID(&$items, $pages)
     {
         foreach ($items as &$item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            // Flat repeater item (e.g. ActionsField): { label, link_type, page_id, ... }
+            if (!empty($item['page_id']) && !array_key_exists('data', $item)) {
+                $page = $pages->firstWhere('id', $item['page_id']);
+
+                if ($page) {
+                    $item['page'] = [
+                        'slug' => $page->slug,
+                        'frontpage' => (bool) $page->is_frontpage,
+                    ];
+                }
+
+                unset($item['page_id']);
+                continue;
+            }
+
+            // Block / layout item: { type, data: { ... } }
             if (empty($item['data']) || !is_array($item['data'])) {
                 continue;
             }
@@ -28,7 +48,7 @@ class ReplacePageID extends Action
                 if ($page) {
                     $item['data']['page'] = [
                         'slug' => $page->slug,
-                        'frontpage' => $page->layout[0]['type'] === 'frontpage',
+                        'frontpage' => (bool) $page->is_frontpage,
                     ];
                 }
 

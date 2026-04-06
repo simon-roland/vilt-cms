@@ -41,6 +41,7 @@ class PageController extends Controller
         AddMediaToPage::make()->handle($page);
         ResolveBlockResources::make()->handle($page);
         $page->blocks = ReplacePageID::make()->handle($page->blocks);
+        $page->layout = ReplacePageID::make()->handle($page->layout);
 
         return inertia('Page', [
             'page' => PageResource::make($page),
