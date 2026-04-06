@@ -167,14 +167,14 @@ php artisan cms:publish --force
 
 Available groups:
 
-| Group             | What it publishes                              |
-| ----------------- | ---------------------------------------------- |
-| `ts`              | `resources/js/app.ts`                          |
-| `vue`             | Vue components and pages                       |
-| `css`             | `resources/css/app.css`                        |
-| `config`          | `config/cms.php`                               |
-| `php`             | Starter PHP block, layout, and field classes  |
-| `settings-schema` | `app/Cms/SiteSettingsSchema.php` (see below)   |
+| Group             | What it publishes                            |
+| ----------------- | -------------------------------------------- |
+| `ts`              | `resources/js/app.ts`                        |
+| `vue`             | Vue components and pages                     |
+| `css`             | `resources/css/app.css`                      |
+| `config`          | `config/cms.php`                             |
+| `php`             | Starter PHP block, layout, and field classes |
+| `settings-schema` | `app/Cms/SiteSettingsSchema.php` (see below) |
 
 ---
 
@@ -186,16 +186,16 @@ Settings are saved in a single database row and shared automatically on every In
 
 ### Default fields
 
-| Section      | Field            | Type         |
-| ------------ | ---------------- | ------------ |
-| General      | `logo`           | MediaPicker  |
-| General      | `favicon`        | MediaPicker  |
-| Social Media | `facebook_url`   | URL input    |
-| Social Media | `instagram_url`  | URL input    |
-| Social Media | `linkedin_url`   | URL input    |
-| Social Media | `x_url`          | URL input    |
-| Social Media | `youtube_url`    | URL input    |
-| SEO          | `og_image`       | MediaPicker  |
+| Section      | Field           | Type        |
+| ------------ | --------------- | ----------- |
+| General      | `logo`          | MediaPicker |
+| General      | `favicon`       | MediaPicker |
+| Social Media | `facebook_url`  | URL input   |
+| Social Media | `instagram_url` | URL input   |
+| Social Media | `linkedin_url`  | URL input   |
+| Social Media | `x_url`         | URL input   |
+| Social Media | `youtube_url`   | URL input   |
+| SEO          | `og_image`      | MediaPicker |
 
 ### Customising settings fields
 
@@ -226,9 +226,9 @@ The file is auto-discovered at boot — no registration needed.
 ### Using settings in Vue
 
 ```ts
-import { usePage } from '@inertiajs/vue3'
+import { usePage } from "@inertiajs/vue3";
 
-const { settings } = usePage().props
+const { settings } = usePage().props;
 
 // settings.logo_media?.[0]?.src  — resolved media URL
 // settings.facebook_url          — plain string
