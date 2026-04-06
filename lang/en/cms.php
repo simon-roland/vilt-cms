@@ -34,6 +34,16 @@ return [
     'user_password'          => 'Password',
     'user_confirm_password'  => 'Confirm password',
 
+    // Settings
+    'settings_title'            => 'Site Settings',
+    'settings_saved'            => 'Settings saved',
+    'settings_section_general'  => 'General',
+    'settings_section_social'   => 'Social Media',
+    'settings_section_seo'      => 'SEO',
+    'settings_logo'             => 'Logo',
+    'settings_favicon'          => 'Favicon',
+    'settings_og_image'         => 'Default share image (OG)',
+
     // Media library
     'media_title'               => 'Media Library',
     'media_upload'              => 'Upload files',

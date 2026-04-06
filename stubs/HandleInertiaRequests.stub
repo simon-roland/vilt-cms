@@ -10,7 +10,10 @@ class HandleInertiaRequests extends BaseHandleInertiaRequests
     protected function extraProps(Request $request): array
     {
         return [
-            // site-specific shared props
+            // Add site-specific shared props here.
+            // Note: 'settings' is already shared automatically from the CMS SiteSettings model.
+            // You can override it here if needed:
+            // 'settings' => array_merge($this->resolveSettings(), ['my_extra_key' => 'value']),
         ];
     }
 }

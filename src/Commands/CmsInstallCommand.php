@@ -40,6 +40,7 @@ class CmsInstallCommand extends Command
         $this->createFilamentTheme($fresh);
         $this->addFilamentUserToModel($fresh);
         $this->publishStarterPhpClasses();
+        $this->publishSiteSettingsSchema();
         $this->publishAppTs($fresh);
         $this->publishVueComponents();
         $this->publishTsConfig();
@@ -513,6 +514,17 @@ PHP;
         foreach ($this->groupFiles('php') as [$stub, $dest]) {
             $this->publishFile($stub, $dest, force: false, confirmOverwrite: false);
         }
+    }
+
+    private function publishSiteSettingsSchema(): void
+    {
+        $this->step('Publishing SiteSettingsSchema');
+        $this->publishFile(
+            __DIR__ . '/../../stubs/SiteSettingsSchema.php.stub',
+            app_path('Cms/SiteSettingsSchema.php'),
+            force: false,
+            confirmOverwrite: false,
+        );
     }
 
 

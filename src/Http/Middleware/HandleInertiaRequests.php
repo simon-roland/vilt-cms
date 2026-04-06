@@ -3,7 +3,9 @@
 namespace RolandSolutions\ViltCms\Http\Middleware;
 
 use RolandSolutions\ViltCms\Actions\ReplacePageID;
+use RolandSolutions\ViltCms\Actions\ResolveSettingsMedia;
 use RolandSolutions\ViltCms\Models\Navigation;
+use RolandSolutions\ViltCms\Models\SiteSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
 use Inertia\Middleware;
@@ -41,6 +43,9 @@ class HandleInertiaRequests extends Middleware
             'title' => config('app.name'),
             'header' => $this->loadNavigation('header'),
             'footer' => $this->loadNavigation('footer'),
+            'settings' => ResolveSettingsMedia::make()->handle(
+                SiteSettings::getSingleton()->data ?? []
+            ),
         ], $this->extraProps($request));
     }
 }

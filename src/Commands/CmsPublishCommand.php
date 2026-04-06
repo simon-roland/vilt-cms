@@ -10,7 +10,7 @@ class CmsPublishCommand extends Command
     use PublishesStubs;
 
     protected $signature = 'cms:publish
-        {--only=* : Asset groups to publish: ts, vue, css, config, php (default: all)}
+        {--only=* : Asset groups to publish: ts, vue, css, config, php, settings-schema (default: all)}
         {--force : Overwrite existing files without confirmation}';
 
     protected $description = 'Republish CMS frontend assets (stubs) to the application';
@@ -20,7 +20,7 @@ class CmsPublishCommand extends Command
         $only = $this->option('only');
         $force = $this->option('force');
 
-        $allGroups = ['ts', 'vue', 'css', 'config', 'php'];
+        $allGroups = ['ts', 'vue', 'css', 'config', 'php', 'settings-schema'];
         $groups = empty($only) ? $allGroups : array_intersect($allGroups, $only);
 
         if (empty($groups)) {
@@ -33,11 +33,12 @@ class CmsPublishCommand extends Command
         $this->newLine();
 
         $groupLabels = [
-            'ts'     => 'TypeScript entrypoint',
-            'vue'    => 'Vue components',
-            'css'    => 'CSS entrypoint',
-            'config' => 'Config files',
-            'php'    => 'Starter PHP classes',
+            'ts'              => 'TypeScript entrypoint',
+            'vue'             => 'Vue components',
+            'css'             => 'CSS entrypoint',
+            'config'          => 'Config files',
+            'php'             => 'Starter PHP classes',
+            'settings-schema' => 'Site settings schema',
         ];
 
         $total = 0;

@@ -34,6 +34,16 @@ return [
     'user_password'          => 'Adgangskode',
     'user_confirm_password'  => 'Bekræft adgangskode',
 
+    // Settings
+    'settings_title'            => 'Webstedsindstillinger',
+    'settings_saved'            => 'Indstillinger gemt',
+    'settings_section_general'  => 'Generelt',
+    'settings_section_social'   => 'Sociale medier',
+    'settings_section_seo'      => 'SEO',
+    'settings_logo'             => 'Logo',
+    'settings_favicon'          => 'Favicon',
+    'settings_og_image'         => 'Standard delingsbillede (OG)',
+
     // Media library
     'media_title'               => 'Mediebibliotek',
     'media_upload'              => 'Upload filer',

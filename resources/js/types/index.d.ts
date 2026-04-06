@@ -10,6 +10,7 @@ export interface PageProps {
   title: string
   header: NavigationItem[]
   footer: NavigationItem[]
+  settings: SiteSettings
   page: CmsPage
 }
 
@@ -79,6 +80,22 @@ export interface Dropdown {
 export interface PageLink {
   slug: string
   frontpage: boolean
+}
+
+// Site settings — default fields resolved server-side; custom fields vary by project
+export interface SiteSettings {
+  logo?: string
+  logo_media?: Media[]
+  favicon?: string
+  favicon_media?: Media[]
+  og_image?: string
+  og_image_media?: Media[]
+  facebook_url?: string
+  instagram_url?: string
+  linkedin_url?: string
+  x_url?: string
+  youtube_url?: string
+  [key: string]: unknown
 }
 
 // Media

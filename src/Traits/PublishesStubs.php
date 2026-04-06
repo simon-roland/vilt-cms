@@ -28,6 +28,9 @@ trait PublishesStubs
                 ["{$s}/Page.vue.stub",    base_path('resources/js/pages/Page.vue')],
                 ["{$s}/Wrapper.vue.stub", base_path('resources/js/layouts/Wrapper.vue')],
             ],
+            'settings-schema' => [
+                ["{$s}/SiteSettingsSchema.php.stub", app_path('Cms/SiteSettingsSchema.php')],
+            ],
         ];
     }
 

@@ -1,0 +1,24 @@
+<?php
+
+namespace App\Cms;
+
+use Filament\Forms\Components\TextInput;
+
+class SiteSettingsSchema
+{
+    public static function fields(): array
+    {
+        return [
+            // Define your site settings fields here.
+            // These override the built-in defaults (logo, favicon, social media links, og_image).
+            //
+            // Any valid Filament field or schema component is accepted.
+            // Media fields (logo, favicon, og_image) are resolved to full media objects
+            // on every page request and shared as `settings` in Inertia props.
+            //
+            // Examples:
+            //   \RolandSolutions\ViltCms\Filament\Fields\MediaPicker::make('logo')->label('Logo'),
+            //   \Filament\Forms\Components\TextInput::make('facebook_url')->label('Facebook')->url(),
+        ];
+    }
+}

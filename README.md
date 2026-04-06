@@ -12,6 +12,7 @@ A CMS package for the **VILT stack** — Vue · Inertia · Laravel · Tailwind. 
 - **Page builder** — pages with a layout slot + N content blocks, draft/published status, frontpage flag, and SEO meta
 - **Media library** — uploads, folder organisation, grid/list browser, responsive WebP conversions, bulk operations
 - **Navigation** — header and footer nav builder with links and dropdowns
+- **Site settings** — singleton key/value store with a Filament admin page; fields auto-discovered from your app; shared on every Inertia request
 - **User management** — admin user CRUD
 - **Filament 5 admin** — all resources wired up and ready via `CmsPlugin`
 - **Inertia middleware base** — shared props (title, ziggy, navigation) with overridable hooks
@@ -117,13 +118,76 @@ php artisan cms:publish --force
 
 Available groups:
 
-| Group    | What it publishes                    |
-| -------- | ------------------------------------ |
-| `ts`     | `resources/js/app.ts`                |
-| `vue`    | Vue components and pages             |
-| `css`    | `resources/css/app.css`              |
-| `config` | `config/cms.php`                     |
-| `php`    | Starter PHP block and layout classes |
+| Group             | What it publishes                              |
+| ----------------- | ---------------------------------------------- |
+| `ts`              | `resources/js/app.ts`                          |
+| `vue`             | Vue components and pages                       |
+| `css`             | `resources/css/app.css`                        |
+| `config`          | `config/cms.php`                               |
+| `php`             | Starter PHP block and layout classes           |
+| `settings-schema` | `app/Cms/SiteSettingsSchema.php` (see below)   |
+
+---
+
+## Site settings
+
+The CMS ships with a **Site Settings** admin page for storing global values that should be available on every frontend page — things like a site logo, favicon, social media links, and a default Open Graph image.
+
+Settings are saved in a single database row and shared automatically on every Inertia request as `$page.props.settings`.
+
+### Default fields
+
+| Section      | Field            | Type         |
+| ------------ | ---------------- | ------------ |
+| General      | `logo`           | MediaPicker  |
+| General      | `favicon`        | MediaPicker  |
+| Social Media | `facebook_url`   | URL input    |
+| Social Media | `instagram_url`  | URL input    |
+| Social Media | `linkedin_url`   | URL input    |
+| Social Media | `x_url`          | URL input    |
+| Social Media | `youtube_url`    | URL input    |
+| SEO          | `og_image`       | MediaPicker  |
+
+### Customising settings fields
+
+Publish the schema stub to define your own fields (replaces the defaults entirely):
+
+```bash
+php artisan cms:publish --only=settings-schema
+```
+
+This creates `app/Cms/SiteSettingsSchema.php`:
+
+```php
+class SiteSettingsSchema
+{
+    public static function fields(): array
+    {
+        return [
+            \RolandSolutions\ViltCms\Filament\Fields\MediaPicker::make('logo')->label('Logo'),
+            \Filament\Forms\Components\TextInput::make('phone')->label('Phone'),
+            // ... any Filament field or schema component
+        ];
+    }
+}
+```
+
+The file is auto-discovered at boot — no registration needed.
+
+### Using settings in Vue
+
+```ts
+import { usePage } from '@inertiajs/vue3'
+
+const { settings } = usePage().props
+
+// settings.logo_media?.[0]?.src  — resolved media URL
+// settings.facebook_url          — plain string
+```
+
+Media fields (any field whose value is a UUID from the media library) are resolved server-side. A field `logo` stored as a UUID gets an additional `logo_media` key containing the full media object array — the same shape as block media fields.
+
+The `SiteSettings` TypeScript interface is exported from the CMS types and already applied to `PageProps.settings`.
 
 ---
 

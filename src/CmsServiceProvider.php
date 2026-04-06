@@ -10,6 +10,7 @@ use RolandSolutions\ViltCms\Commands\CmsPublishCommand;
 use RolandSolutions\ViltCms\Commands\MakeCmsBlockCommand;
 use RolandSolutions\ViltCms\Commands\MakeCmsLayoutCommand;
 use RolandSolutions\ViltCms\Filament\Blocks\BaseBlock;
+use RolandSolutions\ViltCms\Filament\Pages\Schemas\DefaultSiteSettingsSchema;
 use RolandSolutions\ViltCms\Livewire\MediaPickerField;
 
 class CmsServiceProvider extends ServiceProvider
@@ -17,6 +18,8 @@ class CmsServiceProvider extends ServiceProvider
     protected static array $blocks = [];
 
     protected static array $layouts = [];
+
+    protected static string $siteSettingsSchema = DefaultSiteSettingsSchema::class;
 
     public static function getBlocks(): array
     {
@@ -26,6 +29,11 @@ class CmsServiceProvider extends ServiceProvider
     public static function getLayouts(): array
     {
         return static::$layouts;
+    }
+
+    public static function getSiteSettingsFields(): array
+    {
+        return (static::$siteSettingsSchema)::fields();
     }
 
     public function register(): void
@@ -98,9 +106,19 @@ class CmsServiceProvider extends ServiceProvider
 
         $this->discoverBlocks();
         $this->discoverLayouts();
+        $this->discoverSiteSettingsSchema();
 
         // Filament resources and pages are registered via CmsPlugin::make()
         // added to the panel in AdminPanelProvider.
+    }
+
+    private function discoverSiteSettingsSchema(): void
+    {
+        $class = 'App\\Cms\\SiteSettingsSchema';
+
+        if (class_exists($class) && method_exists($class, 'fields')) {
+            static::$siteSettingsSchema = $class;
+        }
     }
 
     private function discoverBlocks(): void

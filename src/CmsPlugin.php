@@ -5,6 +5,7 @@ namespace RolandSolutions\ViltCms;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 use RolandSolutions\ViltCms\Filament\Pages\ManageMediaLibrary;
+use RolandSolutions\ViltCms\Filament\Pages\ManageSiteSettings;
 use RolandSolutions\ViltCms\Filament\Resources\Navigations\NavigationResource;
 use RolandSolutions\ViltCms\Filament\Resources\Pages\PageResource;
 use RolandSolutions\ViltCms\Filament\Resources\User\UserResource;
@@ -31,8 +32,11 @@ class CmsPlugin implements Plugin
             ])
             ->pages([
                 ManageMediaLibrary::class,
+                ManageSiteSettings::class,
             ]);
     }
 
-    public function boot(Panel $panel): void {}
+    public function boot(Panel $panel): void
+    {
+    }
 }
