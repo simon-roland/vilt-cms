@@ -2,23 +2,47 @@
 
 namespace App\Cms;
 
+use RolandSolutions\ViltCms\Filament\Fields\MediaPicker;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section;
 
 class SiteSettingsSchema
 {
     public static function fields(): array
     {
         return [
-            // Define your site settings fields here.
-            // These override the built-in defaults (logo, favicon, social media links, og_image).
-            //
-            // Any valid Filament field or schema component is accepted.
-            // Media fields (logo, favicon, og_image) are resolved to full media objects
-            // on every page request and shared as `settings` in Inertia props.
-            //
-            // Examples:
-            //   \RolandSolutions\ViltCms\Filament\Fields\MediaPicker::make('logo')->label('Logo'),
-            //   \Filament\Forms\Components\TextInput::make('facebook_url')->label('Facebook')->url(),
+            Section::make(__('cms::cms.settings_section_general'))
+                ->schema([
+                    MediaPicker::make('logo')
+                        ->label(__('cms::cms.settings_logo')),
+                    MediaPicker::make('favicon')
+                        ->label(__('cms::cms.settings_favicon')),
+                ]),
+
+            Section::make(__('cms::cms.settings_section_social'))
+                ->schema([
+                    TextInput::make('facebook_url')
+                        ->label('Facebook')
+                        ->url(),
+                    TextInput::make('instagram_url')
+                        ->label('Instagram')
+                        ->url(),
+                    TextInput::make('linkedin_url')
+                        ->label('LinkedIn')
+                        ->url(),
+                    TextInput::make('x_url')
+                        ->label('X (Twitter)')
+                        ->url(),
+                    TextInput::make('youtube_url')
+                        ->label('YouTube')
+                        ->url(),
+                ]),
+
+            Section::make(__('cms::cms.settings_section_seo'))
+                ->schema([
+                    MediaPicker::make('og_image')
+                        ->label(__('cms::cms.settings_og_image')),
+                ]),
         ];
     }
 }
