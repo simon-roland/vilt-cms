@@ -32,10 +32,11 @@ class MakeCmsBlockCommand extends Command
 
         if (file_exists($dest)) {
             $this->warn("  {$dest} already exists — skipping");
+
             return;
         }
 
-        if (! is_dir(dirname($dest))) {
+        if (!is_dir(dirname($dest))) {
             mkdir(dirname($dest), 0755, true);
         }
 
@@ -52,10 +53,11 @@ class MakeCmsBlockCommand extends Command
 
         if (file_exists($dest)) {
             $this->warn("  {$dest} already exists — skipping");
+
             return;
         }
 
-        if (! is_dir(dirname($dest))) {
+        if (!is_dir(dirname($dest))) {
             mkdir(dirname($dest), 0755, true);
         }
 

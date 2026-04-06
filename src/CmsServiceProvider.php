@@ -107,7 +107,7 @@ class CmsServiceProvider extends ServiceProvider
     {
         $dir = app_path('Cms/Blocks');
 
-        if (! is_dir($dir)) {
+        if (!is_dir($dir)) {
             return;
         }
 
@@ -124,7 +124,7 @@ class CmsServiceProvider extends ServiceProvider
     {
         $dir = app_path('Cms/Layouts');
 
-        if (! is_dir($dir)) {
+        if (!is_dir($dir)) {
             return;
         }
 
