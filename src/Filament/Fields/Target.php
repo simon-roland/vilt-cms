@@ -2,13 +2,13 @@
 
 namespace RolandSolutions\ViltCms\Filament\Fields;
 
-use Filament\Forms\Components\Field;
+use Filament\Forms\Components\Component;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Schemas\Components\Utilities\Get;
 
 class Target extends BaseField
 {
-    public function setup($options): Field
+    public function setup($options): Component
     {
         return ToggleButtons::make('target')
             ->label(__('cms::cms.field_target'))

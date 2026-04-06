@@ -2,12 +2,12 @@
 
 namespace RolandSolutions\ViltCms\Filament\Fields;
 
-use Filament\Forms\Components\Field;
+use Filament\Forms\Components\Component;
 use Filament\Forms\Components\Hidden;
 
 class Resource extends BaseField
 {
-    public function setup($options): Field
+    public function setup($options): Component
     {
         return Hidden::make('_resource')
             ->default(fn () => $options['default'] ?? null)

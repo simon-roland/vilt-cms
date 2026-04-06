@@ -2,12 +2,12 @@
 
 namespace RolandSolutions\ViltCms\Filament\Fields;
 
-use Filament\Forms\Components\Field;
+use Filament\Forms\Components\Component;
 use Filament\Forms\Components\ToggleButtons;
 
 class LinkType extends BaseField
 {
-    public function setup($options): Field
+    public function setup($options): Component
     {
         return ToggleButtons::make('link_type')
             ->label(__('cms::cms.field_link_type'))

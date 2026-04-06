@@ -2,14 +2,14 @@
 
 namespace RolandSolutions\ViltCms\Filament\Fields;
 
-use Filament\Forms\Components\Field;
+use Filament\Forms\Components\Component;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Utilities\Get;
 use RolandSolutions\ViltCms\Models\Page as PageModel;
 
 class Page extends BaseField
 {
-    public function setup($options): Field
+    public function setup($options): Component
     {
         return Select::make('page_id')
             ->label(__('cms::cms.field_page'))

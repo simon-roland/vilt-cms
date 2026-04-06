@@ -2,14 +2,14 @@
 
 namespace RolandSolutions\ViltCms\Filament\Fields;
 
-use Filament\Forms\Components\Field;
+use Filament\Forms\Components\Component;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Schemas\Components\Utilities\Get;
 use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
 
 class Image extends BaseField
 {
-    public function setup($options): Field
+    public function setup($options): Component
     {
         return SpatieMediaLibraryFileUpload::make($options['name'] ?? 'image')
             ->disk(config('cms.media_disk'))
