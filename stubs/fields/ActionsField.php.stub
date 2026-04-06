@@ -1,0 +1,33 @@
+<?php
+
+namespace App\Cms\Fields;
+
+use Filament\Forms\Components\Component;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\TextInput;
+use RolandSolutions\ViltCms\Filament\Fields\BaseField;
+use RolandSolutions\ViltCms\Filament\Fields\LinkType;
+use RolandSolutions\ViltCms\Filament\Fields\Page;
+use RolandSolutions\ViltCms\Filament\Fields\Target;
+use RolandSolutions\ViltCms\Filament\Fields\URL;
+
+class ActionsField extends BaseField
+{
+    public function setup($options): Component
+    {
+        return Repeater::make($options['name'] ?? 'actions')
+            ->label($options['label'] ?? __('cms::cms.field_actions'))
+            ->schema([
+                TextInput::make('label')
+                    ->label(__('cms::cms.field_label'))
+                    ->required(),
+                LinkType::make(),
+                URL::make(),
+                Target::make(),
+                Page::make(),
+            ])
+            ->collapsible()
+            ->defaultItems(0)
+            ->addActionLabel(__('cms::cms.field_add_action'));
+    }
+}

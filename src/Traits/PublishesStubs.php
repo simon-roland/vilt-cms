@@ -50,6 +50,7 @@ trait PublishesStubs
             'php' => [
                 ['blocks',  app_path('Cms/Blocks')],
                 ['layouts', app_path('Cms/Layouts')],
+                ['fields',  app_path('Cms/Fields')],
             ],
         ];
     }

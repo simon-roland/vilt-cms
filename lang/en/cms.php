@@ -92,4 +92,7 @@ return [
     'field_target'           => 'Open in',
     'field_new_window'       => 'New window',
     'field_current_window'   => 'Current window',
+    'field_actions'          => 'Actions',
+    'field_label'            => 'Label',
+    'field_add_action'       => 'Add action',
 ];

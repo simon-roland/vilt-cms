@@ -17,7 +17,7 @@ A CMS package for the **VILT stack** — Vue · Inertia · Laravel · Tailwind. 
 - **Filament 5 admin** — all resources wired up and ready via `CmsPlugin`
 - **Inertia middleware base** — shared props (title, ziggy, navigation) with overridable hooks
 - **Vue plugin + components** — `createCms()`, `Wrapper`, `Head`, `Navigation`, `LinkItem`, `Blocks`, `Accordion`
-- **Block / layout generators** — `cms:make-block` and `cms:make-layout`
+- **Block / layout / field generators** — `cms:make-block`, `cms:make-layout`, and `cms:make-field`
 
 ## Requirements
 
@@ -101,6 +101,55 @@ Same as blocks — both are discovered automatically.
 
 ---
 
+## Adding fields
+
+Fields are **reusable PHP form components** — they wrap one or more Filament inputs into a single class so you can share the same field configuration across multiple blocks, layouts, or the site settings schema.
+
+Scaffold a new field:
+
+```bash
+php artisan cms:make-field Actions
+```
+
+This creates a single PHP file:
+
+- `app/Cms/Fields/ActionsField.php` — extends `BaseField`, returns any Filament `Component`
+
+No Vue component is needed — fields are PHP-only.
+
+### When to use a field
+
+Use a field when the same configuration appears in more than one block. For example, an `ActionsField` that wraps a `Repeater` of labeled buttons with link targets can be reused in a Hero block, a Banner block, and a Card block without duplicating the schema.
+
+### The starter `ActionsField`
+
+`cms:install` publishes `app/Cms/Fields/ActionsField.php` as a working example. It returns a `Repeater` where each item has a label and a link (internal page or external URL). It is immediately used in the `HeroBlock` starter.
+
+### Using a field in a block
+
+```php
+use App\Cms\Fields\ActionsField;
+
+Block::make('hero')
+    ->schema([
+        ID::make(),
+        TextInput::make('headline')->label('Headline'),
+        ActionsField::make(),
+    ]);
+```
+
+Pass an options array to override the field name or label:
+
+```php
+ActionsField::make(['name' => 'cta', 'label' => 'Call to actions'])
+```
+
+### Returning a non-Field component
+
+Because `BaseField::setup()` returns `Filament\Forms\Components\Component`, your field can return anything — a `Repeater`, `Group`, `Fieldset`, or a plain `Field`. The generated stub starts with a `TextInput` as a simple baseline.
+
+---
+
 ## Updating frontend files after a package upgrade
 
 Use `cms:publish` to selectively re-publish stub files:
@@ -124,7 +173,7 @@ Available groups:
 | `vue`             | Vue components and pages                       |
 | `css`             | `resources/css/app.css`                        |
 | `config`          | `config/cms.php`                               |
-| `php`             | Starter PHP block and layout classes           |
+| `php`             | Starter PHP block, layout, and field classes  |
 | `settings-schema` | `app/Cms/SiteSettingsSchema.php` (see below)   |
 
 ---

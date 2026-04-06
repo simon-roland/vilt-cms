@@ -1,0 +1,16 @@
+<?php
+
+namespace App\Cms\Fields;
+
+use Filament\Forms\Components\Component;
+use Filament\Forms\Components\TextInput;
+use RolandSolutions\ViltCms\Filament\Fields\BaseField;
+
+class {{ class }}Field extends BaseField
+{
+    public function setup($options): Component
+    {
+        return TextInput::make($options['name'] ?? '{{ name }}')
+            ->label($options['label'] ?? '{{ label }}');
+    }
+}

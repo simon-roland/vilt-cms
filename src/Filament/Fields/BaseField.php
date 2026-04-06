@@ -2,13 +2,13 @@
 
 namespace RolandSolutions\ViltCms\Filament\Fields;
 
-use Filament\Forms\Components\Field;
+use Filament\Forms\Components\Component;
 
 abstract class BaseField
 {
-    abstract public function setup($options): Field;
+    abstract public function setup($options): Component;
 
-    public static function make($options = []): Field
+    public static function make($options = []): Component
     {
         return (new static())->setup($options);
     }

@@ -92,4 +92,7 @@ return [
     'field_target'           => 'Åbn i',
     'field_new_window'       => 'Nyt vindue',
     'field_current_window'   => 'Nuværende vindue',
+    'field_actions'          => 'Handlinger',
+    'field_label'            => 'Tekst',
+    'field_add_action'       => 'Tilføj handling',
 ];

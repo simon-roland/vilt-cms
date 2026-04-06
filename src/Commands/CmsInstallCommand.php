@@ -509,7 +509,7 @@ PHP;
 
     private function publishStarterPhpClasses(): void
     {
-        $this->step('Publishing starter block and layout classes');
+        $this->step('Publishing starter block, layout, and field classes');
 
         foreach ($this->groupFiles('php') as [$stub, $dest]) {
             $this->publishFile($stub, $dest, force: false, confirmOverwrite: false);

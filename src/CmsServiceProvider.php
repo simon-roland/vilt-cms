@@ -8,6 +8,7 @@ use Livewire\Livewire;
 use RolandSolutions\ViltCms\Commands\CmsInstallCommand;
 use RolandSolutions\ViltCms\Commands\CmsPublishCommand;
 use RolandSolutions\ViltCms\Commands\MakeCmsBlockCommand;
+use RolandSolutions\ViltCms\Commands\MakeCmsFieldCommand;
 use RolandSolutions\ViltCms\Commands\MakeCmsLayoutCommand;
 use RolandSolutions\ViltCms\Filament\Blocks\BaseBlock;
 use RolandSolutions\ViltCms\Filament\Pages\Schemas\DefaultSiteSettingsSchema;
@@ -98,6 +99,7 @@ class CmsServiceProvider extends ServiceProvider
                 CmsInstallCommand::class,
                 CmsPublishCommand::class,
                 MakeCmsBlockCommand::class,
+                MakeCmsFieldCommand::class,
                 MakeCmsLayoutCommand::class,
             ]);
         }

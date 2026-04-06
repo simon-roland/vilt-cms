@@ -2,6 +2,7 @@
 
 namespace App\Cms\Blocks;
 
+use App\Cms\Fields\ActionsField;
 use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -25,6 +26,7 @@ class HeroBlock extends BaseBlock
                     ->rows(3),
                 MediaPicker::make('image')
                     ->label(__('cms::cms.block_image')),
+                ActionsField::make(),
             ]);
     }
 }
