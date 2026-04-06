@@ -2,7 +2,7 @@
 
 namespace App\Cms\Fields;
 
-use Filament\Forms\Components\Component;
+use Filament\Schemas\Components\Component;
 use Filament\Forms\Components\TextInput;
 use RolandSolutions\ViltCms\Filament\Fields\BaseField;
 

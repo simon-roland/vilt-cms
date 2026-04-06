@@ -2,7 +2,7 @@
 
 namespace RolandSolutions\ViltCms\Filament\Fields;
 
-use Filament\Forms\Components\Component;
+use Filament\Schemas\Components\Component;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Schemas\Components\Utilities\Get;
 use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;

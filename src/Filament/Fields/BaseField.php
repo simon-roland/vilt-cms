@@ -2,7 +2,7 @@
 
 namespace RolandSolutions\ViltCms\Filament\Fields;
 
-use Filament\Forms\Components\Component;
+use Filament\Schemas\Components\Component;
 
 abstract class BaseField
 {
