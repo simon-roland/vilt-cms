@@ -131,7 +131,7 @@ Available groups:
 
 ## Site settings
 
-The CMS ships with a **Site Settings** admin page for storing global values that should be available on every frontend page — things like a site logo, favicon, social media links, and a default Open Graph image.
+The CMS ships with a **Settings** admin page for storing global values that should be available on every frontend page — things like a site logo, favicon, social media links, and a default Open Graph image.
 
 Settings are saved in a single database row and shared automatically on every Inertia request as `$page.props.settings`.
 

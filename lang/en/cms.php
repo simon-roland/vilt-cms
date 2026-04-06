@@ -35,7 +35,8 @@ return [
     'user_confirm_password'  => 'Confirm password',
 
     // Settings
-    'settings_title'            => 'Site Settings',
+    'settings_title'            => 'Settings',
+    'settings_save'             => 'Save',
     'settings_saved'            => 'Settings saved',
     'settings_section_general'  => 'General',
     'settings_section_social'   => 'Social Media',

@@ -70,7 +70,7 @@ class ManageSiteSettings extends Page
     {
         return [
             Action::make('save')
-                ->label(__('filament-panels::pages/settings.actions.save.label'))
+                ->label(__('cms::cms.settings_save'))
                 ->submit('save'),
         ];
     }

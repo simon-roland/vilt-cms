@@ -35,7 +35,8 @@ return [
     'user_confirm_password'  => 'Bekræft adgangskode',
 
     // Settings
-    'settings_title'            => 'Webstedsindstillinger',
+    'settings_title'            => 'Indstillinger',
+    'settings_save'             => 'Gem',
     'settings_saved'            => 'Indstillinger gemt',
     'settings_section_general'  => 'Generelt',
     'settings_section_social'   => 'Sociale medier',

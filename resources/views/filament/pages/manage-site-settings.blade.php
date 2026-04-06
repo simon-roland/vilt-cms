@@ -4,7 +4,7 @@
 
         <div class="mt-6 flex items-center gap-4">
             <x-filament::button type="submit">
-                {{ __('filament-panels::pages/settings.actions.save.label') }}
+                {{ __('cms::cms.settings_save') }}
             </x-filament::button>
         </div>
     </form>
