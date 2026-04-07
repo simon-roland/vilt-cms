@@ -34,6 +34,7 @@ class ReplacePageID extends Action
                 }
 
                 unset($item['page_id']);
+
                 continue;
             }
 
