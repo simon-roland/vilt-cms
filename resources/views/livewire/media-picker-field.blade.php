@@ -17,7 +17,7 @@
                         <img
                             src="{{ $thumb }}"
                             alt="{{ $media['name'] }}"
-                            class="w-24 h-24 object-cover rounded-lg border border-gray-200 dark:border-white/10"
+                            class="w-24 h-24 object-contain rounded-lg border border-gray-200 dark:border-white/10 bg-gray-100 dark:bg-white/5"
                         />
                     @else
                         <div class="w-24 h-24 flex flex-col items-center justify-center rounded-lg border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 gap-1">
@@ -169,7 +169,7 @@
                                         <img
                                             src="{{ $thumb }}"
                                             alt="{{ $media->name }}"
-                                            class="w-full h-full object-cover bg-gray-100 dark:bg-white/5"
+                                            class="w-full h-full object-contain bg-gray-100 dark:bg-white/5"
                                             loading="lazy"
                                         />
                                     @else
@@ -191,7 +191,14 @@
 
                 {{-- Footer --}}
                 @if($multiple)
-                    <div class="px-6 py-4 border-t border-gray-200 dark:border-white/10 flex justify-end">
+                    <div class="px-6 py-4 border-t border-gray-200 dark:border-white/10 flex items-center justify-between">
+                        <x-filament::button
+                            type="button"
+                            color="gray"
+                            wire:click="selectAllInFolder"
+                        >
+                            Vælg alle i mappen
+                        </x-filament::button>
                         <x-filament::button
                             type="button"
                             wire:click="closePicker"

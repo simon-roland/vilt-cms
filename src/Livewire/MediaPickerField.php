@@ -58,6 +58,17 @@ class MediaPickerField extends Component
         $this->open = false;
     }
 
+    public function selectAllInFolder(): void
+    {
+        if (!$this->multiple) {
+            return;
+        }
+
+        $uuids = $this->getPickerMedia()->pluck('uuid')->toArray();
+        $current = is_array($this->state) ? $this->state : [];
+        $this->state = array_values(array_unique(array_merge($current, $uuids)));
+    }
+
     public function setPickerFolder(?int $id): void
     {
         $this->pickerFolderId = $id;
