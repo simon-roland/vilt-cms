@@ -40,7 +40,7 @@ class EditPage extends EditRecord
                 ->label(__('cms::cms.page_publish'))
                 ->icon('heroicon-o-arrow-up-circle')
                 ->color('success')
-                ->visible(fn ($record) => $record && !$record->trashed() && !($record->isPublished() && !$record->hasDraftChanges()))
+                ->visible(fn ($record) => $record && !$record->trashed() && $record->isPublished() && $record->hasDraftChanges())
                 ->action(function ($record) {
                     PublishPage::make()->handle($record);
 
@@ -101,18 +101,22 @@ class EditPage extends EditRecord
 
         if ($isInSync) {
             return [
+                Action::make('save_as_draft')
+                    ->label(__('cms::cms.page_save_as_draft'))
+                    ->color('warning')
+                    ->submit('save')
+                    ->keyBindings(['mod+s']),
                 Action::make('save')
                     ->label(__('cms::cms.page_save'))
                     ->color('success')
-                    ->action(fn () => $this->saveAndPublish())
-                    ->keyBindings(['mod+s']),
+                    ->action(fn () => $this->saveAndPublish()),
                 $this->getCancelFormAction(),
             ];
         }
 
         return [
-            Action::make('save_as_draft')
-                ->label(__('cms::cms.page_save_as_draft'))
+            Action::make('save')
+                ->label(__('cms::cms.page_save'))
                 ->color('warning')
                 ->submit('save')
                 ->keyBindings(['mod+s']),
