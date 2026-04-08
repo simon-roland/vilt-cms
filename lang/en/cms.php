@@ -40,6 +40,7 @@ return [
     'page_edit_published_back'          => 'Back to draft',
     'page_save_as_draft'                => 'Save as draft',
     'page_save_and_publish'             => 'Save & publish',
+    'page_save'                         => 'Save',
 
     // Navigation resource
     'navigation_label'        => 'Navigation',

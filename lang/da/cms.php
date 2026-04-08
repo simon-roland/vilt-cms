@@ -40,6 +40,7 @@ return [
     'page_edit_published_back'          => 'Tilbage til kladde',
     'page_save_as_draft'                => 'Gem som kladde',
     'page_save_and_publish'             => 'Gem og udgiv',
+    'page_save'                         => 'Gem',
 
     // Navigation resource
     'navigation_label'        => 'Navigation',
