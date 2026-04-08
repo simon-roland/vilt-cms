@@ -38,6 +38,8 @@ return [
     'page_edit_published_button'        => 'Rediger udgivet version',
     'page_edit_published_save_success'  => 'Udgivet version opdateret.',
     'page_edit_published_back'          => 'Tilbage til kladde',
+    'page_save_as_draft'                => 'Gem som kladde',
+    'page_save_and_publish'             => 'Gem og udgiv',
 
     // Navigation resource
     'navigation_label'        => 'Navigation',

@@ -16,6 +16,8 @@ class EditPage extends EditRecord
 {
     protected static string $resource = PageResource::class;
 
+    public bool $publishAfterSave = false;
+
     public function getHeading(): string|Htmlable
     {
         $record = $this->getRecord();
@@ -54,7 +56,7 @@ class EditPage extends EditRecord
                 ->label(__('cms::cms.page_edit_published_button'))
                 ->icon('heroicon-o-bolt')
                 ->color('danger')
-                ->visible(fn ($record) => $record && $record->isPublished() && !$record->trashed())
+                ->visible(fn ($record) => $record && $record->isPublished() && $record->hasDraftChanges() && !$record->trashed())
                 ->url(fn ($record) => PageResource::getUrl('edit-published', ['record' => $record])),
 
             Action::make('discard_draft')
@@ -90,5 +92,40 @@ class EditPage extends EditRecord
             ForceDeleteAction::make()
                 ->visible(fn ($record) => $record && $record->trashed()),
         ];
+    }
+
+    protected function getFormActions(): array
+    {
+        return [
+            Action::make('save_as_draft')
+                ->label(__('cms::cms.page_save_as_draft'))
+                ->submit('save')
+                ->keyBindings(['mod+s']),
+
+            Action::make('save_and_publish')
+                ->label(__('cms::cms.page_save_and_publish'))
+                ->color('success')
+                ->submit('saveAndPublish'),
+
+            $this->getCancelFormAction(),
+        ];
+    }
+
+    public function saveAndPublish(): void
+    {
+        $this->publishAfterSave = true;
+        $this->save();
+    }
+
+    protected function handleRecordUpdate(\Illuminate\Database\Eloquent\Model $record, array $data): \Illuminate\Database\Eloquent\Model
+    {
+        $record->update($data);
+
+        if ($this->publishAfterSave) {
+            PublishPage::make()->handle($record);
+            $this->publishAfterSave = false;
+        }
+
+        return $record;
     }
 }

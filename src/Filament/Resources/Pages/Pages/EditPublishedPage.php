@@ -62,7 +62,7 @@ class EditPublishedPage extends EditRecord
 
     protected function getRedirectUrl(): string
     {
-        return PageResource::getUrl('edit', ['record' => $this->getRecord()]);
+        return PageResource::getUrl('edit-published', ['record' => $this->getRecord()]);
     }
 
     protected function getHeaderActions(): array
