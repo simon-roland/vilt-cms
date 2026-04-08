@@ -59,7 +59,7 @@ class PageForm
                 TextInput::make('title')
                     ->label(__('cms::cms.title'))
                     ->live(onBlur: true)
-                    ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', str($state)->slug()))
+                    ->afterStateUpdated(fn (Set $set, ?string $state, ?Page $record) => $record === null ? $set('slug', str($state)->slug()) : null)
                     ->required(),
                 TextInput::make('slug')
                     ->unique(modifyRuleUsing: function (Unique $rule, ?Page $record) {
@@ -69,6 +69,7 @@ class PageForm
                 Builder::make('layout')
                     ->blocks(CmsServiceProvider::getLayouts())
                     ->collapsible()
+                    ->collapsed(fn (?Page $record) => $record !== null)
                     ->columnSpan(2)
                     ->required()
                     ->reorderable(false)
@@ -79,6 +80,7 @@ class PageForm
                     ->label(__('cms::cms.page_content_blocks'))
                     ->columnSpan(2)
                     ->collapsible()
+                    ->collapsed(fn (?Page $record) => $record !== null)
                     ->blockPickerColumns(2)
                     ->addAction(fn (Action $action) => $action->label(__('cms::cms.page_add_content')))
                     ->addBetweenAction(fn (Action $action) => $action->label(__('cms::cms.insert_between')))
