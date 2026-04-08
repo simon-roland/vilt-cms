@@ -12,6 +12,7 @@ export interface PageProps {
   footer: NavigationItem[]
   settings: SiteSettings
   page: CmsPage
+  cmsToolbar?: CmsToolbarData | null
 }
 
 export interface MinimalPage {
@@ -25,10 +26,21 @@ export interface CmsPage {
   id: number
   title: string
   slug: string
+  status: number
   is_frontpage: boolean | null
   layout: Layout
   blocks: Block[]
   meta?: Meta
+  updated_at: string
+}
+
+export interface CmsToolbarData {
+  status: number
+  updatedAt: string
+  hasDraft: boolean
+  hasPublished: boolean
+  previewMode: 'draft' | 'published'
+  editUrl: string
 }
 
 export interface Meta {

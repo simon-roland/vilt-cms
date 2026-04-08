@@ -17,12 +17,15 @@ class PageResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->id,
             'title' => $this->title,
             'slug' => $this->slug,
+            'status' => $this->status->value,
             'layout' => $this->layout[0] ?? null,
             'is_frontpage' => $this->is_frontpage,
             'meta' => $this->meta,
             'blocks' => $this->blocks,
+            'updated_at' => $this->updated_at,
         ];
     }
 }

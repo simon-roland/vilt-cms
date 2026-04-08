@@ -19,6 +19,16 @@ return [
     'page_select_layout'     => 'Select layout',
     'page_content_blocks'    => 'Content blocks',
     'page_add_content'       => 'Add content',
+    'page_status'            => 'Status',
+    'page_status_draft'      => 'Draft',
+    'page_status_published'  => 'Published',
+    'page_tab_all'           => 'All',
+    'page_publish'           => 'Publish',
+    'page_publish_success'   => 'Page published!',
+    'page_delete_both'       => 'Delete page',
+    'page_delete_both_body'  => 'This will delete both the draft and the published version.',
+    'page_restore'           => 'Restore',
+    'page_trashed'           => 'Trashed',
 
     // Navigation resource
     'navigation_label'        => 'Navigation',

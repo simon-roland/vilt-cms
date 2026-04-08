@@ -19,6 +19,16 @@ return [
     'page_select_layout'     => 'Vælg layout',
     'page_content_blocks'    => 'Indholdsblokke',
     'page_add_content'       => 'Tilføj indhold',
+    'page_status'            => 'Status',
+    'page_status_draft'      => 'Kladde',
+    'page_status_published'  => 'Udgivet',
+    'page_tab_all'           => 'Alle',
+    'page_publish'           => 'Udgiv',
+    'page_publish_success'   => 'Side udgivet!',
+    'page_delete_both'       => 'Slet side',
+    'page_delete_both_body'  => 'Dette sletter både kladden og den udgivne version.',
+    'page_restore'           => 'Gendan',
+    'page_trashed'           => 'Papirkurv',
 
     // Navigation resource
     'navigation_label'        => 'Navigation',
