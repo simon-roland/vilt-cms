@@ -19,7 +19,7 @@ use Illuminate\Validation\Rules\Unique;
 
 class PageForm
 {
-    public static function configure(Schema $schema): Schema
+    public static function configure(Schema $schema, string $mode = 'draft'): Schema
     {
         return $schema
             ->components([
@@ -29,9 +29,18 @@ class PageForm
                     ->columnSpan(2)
                     ->html()
                     ->hiddenOn('create')
-                    ->content(function (?Page $record): HtmlString {
+                    ->content(function (?Page $record) use ($mode): HtmlString {
                         if (!$record) {
                             return new HtmlString('');
+                        }
+
+                        if ($mode === 'published') {
+                            return new HtmlString(
+                                '<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:12px 16px;color:#7f1d1d;font-size:14px;">'
+                                . '<strong>' . __('cms::cms.page_edit_published_heading') . '</strong> — '
+                                . __('cms::cms.page_edit_published_notice')
+                                . '</div>'
+                            );
                         }
 
                         if (!$record->isPublished()) {
@@ -39,6 +48,15 @@ class PageForm
                                 '<div style="background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:12px 16px;color:#92400e;font-size:14px;">'
                                 . '<strong>' . __('cms::cms.page_status_draft') . '</strong> — '
                                 . __('cms::cms.page_never_published_notice')
+                                . '</div>'
+                            );
+                        }
+
+                        if ($record->hasDraftChanges()) {
+                            return new HtmlString(
+                                '<div style="background:#fff7ed;border:1px solid #fdba74;border-radius:8px;padding:12px 16px;color:#7c2d12;font-size:14px;">'
+                                . '<strong>' . __('cms::cms.page_status_draft') . '</strong> — '
+                                . __('cms::cms.page_draft_changes_notice')
                                 . '</div>'
                             );
                         }

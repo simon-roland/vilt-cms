@@ -4,7 +4,6 @@ namespace RolandSolutions\ViltCms\Filament\Resources\Pages\Pages;
 
 use RolandSolutions\ViltCms\Actions\PublishPage;
 use RolandSolutions\ViltCms\Filament\Resources\Pages\PageResource;
-use RolandSolutions\ViltCms\Models\Page;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
@@ -22,6 +21,10 @@ class EditPage extends EditRecord
         $record = $this->getRecord();
 
         if ($record && $record->isPublished()) {
+            if ($record->hasDraftChanges()) {
+                return __('cms::cms.page_edit_heading_draft_changes');
+            }
+
             return __('cms::cms.page_edit_heading_published');
         }
 
@@ -46,6 +49,13 @@ class EditPage extends EditRecord
 
                     $this->refreshFormData(['published_content', 'published_at']);
                 }),
+
+            Action::make('edit_published')
+                ->label(__('cms::cms.page_edit_published_button'))
+                ->icon('heroicon-o-bolt')
+                ->color('danger')
+                ->visible(fn ($record) => $record && $record->isPublished() && !$record->trashed())
+                ->url(fn ($record) => PageResource::getUrl('edit-published', ['record' => $record])),
 
             Action::make('discard_draft')
                 ->label(__('cms::cms.page_discard_draft'))

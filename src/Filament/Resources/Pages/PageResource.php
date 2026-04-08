@@ -4,6 +4,7 @@ namespace RolandSolutions\ViltCms\Filament\Resources\Pages;
 
 use RolandSolutions\ViltCms\Filament\Resources\Pages\Pages\CreatePage;
 use RolandSolutions\ViltCms\Filament\Resources\Pages\Pages\EditPage;
+use RolandSolutions\ViltCms\Filament\Resources\Pages\Pages\EditPublishedPage;
 use RolandSolutions\ViltCms\Filament\Resources\Pages\Pages\ListPages;
 use RolandSolutions\ViltCms\Filament\Resources\Pages\Schemas\PageForm;
 use RolandSolutions\ViltCms\Filament\Resources\Pages\Tables\PagesTable;
@@ -63,9 +64,10 @@ class PageResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ListPages::route('/'),
-            'create' => CreatePage::route('/create'),
-            'edit' => EditPage::route('/{record}/edit'),
+            'index'          => ListPages::route('/'),
+            'create'         => CreatePage::route('/create'),
+            'edit'           => EditPage::route('/{record}/edit'),
+            'edit-published' => EditPublishedPage::route('/{record}/edit-published'),
         ];
     }
 }
