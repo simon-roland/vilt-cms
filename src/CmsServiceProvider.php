@@ -12,6 +12,7 @@ use RolandSolutions\ViltCms\Commands\MakeCmsFieldCommand;
 use RolandSolutions\ViltCms\Commands\MakeCmsLayoutCommand;
 use RolandSolutions\ViltCms\Filament\Blocks\BaseBlock;
 use RolandSolutions\ViltCms\Filament\Pages\Schemas\DefaultSiteSettingsSchema;
+use RolandSolutions\ViltCms\Filament\Resources\Navigations\Schemas\DefaultNavigationFormSchema;
 use RolandSolutions\ViltCms\Livewire\MediaPickerField;
 
 class CmsServiceProvider extends ServiceProvider
@@ -21,6 +22,8 @@ class CmsServiceProvider extends ServiceProvider
     protected static array $layouts = [];
 
     protected static string $siteSettingsSchema = DefaultSiteSettingsSchema::class;
+
+    protected static string $navigationFormSchema = DefaultNavigationFormSchema::class;
 
     public static function getBlocks(): array
     {
@@ -35,6 +38,11 @@ class CmsServiceProvider extends ServiceProvider
     public static function getSiteSettingsFields(): array
     {
         return (static::$siteSettingsSchema)::fields();
+    }
+
+    public static function getNavigationFormBlocks(): array
+    {
+        return (static::$navigationFormSchema)::blocks();
     }
 
     public function register(): void
@@ -109,6 +117,7 @@ class CmsServiceProvider extends ServiceProvider
         $this->discoverBlocks();
         $this->discoverLayouts();
         $this->discoverSiteSettingsSchema();
+        $this->discoverNavigationFormSchema();
 
         // Filament resources and pages are registered via CmsPlugin::make()
         // added to the panel in AdminPanelProvider.
@@ -120,6 +129,15 @@ class CmsServiceProvider extends ServiceProvider
 
         if (class_exists($class) && method_exists($class, 'fields')) {
             static::$siteSettingsSchema = $class;
+        }
+    }
+
+    private function discoverNavigationFormSchema(): void
+    {
+        $class = 'App\\Cms\\NavigationFormSchema';
+
+        if (class_exists($class) && method_exists($class, 'blocks')) {
+            static::$navigationFormSchema = $class;
         }
     }
 

@@ -2,9 +2,8 @@
 
 namespace RolandSolutions\ViltCms\Filament\Resources\Navigations\Schemas;
 
+use RolandSolutions\ViltCms\CmsServiceProvider;
 use RolandSolutions\ViltCms\Enum\NavigationType;
-use RolandSolutions\ViltCms\Filament\Blocks\Dropdown;
-use RolandSolutions\ViltCms\Filament\Blocks\Link;
 use Filament\Forms\Components\Builder;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Schema;
@@ -23,10 +22,7 @@ class NavigationForm
                     ->required(),
                 Builder::make('items')
                     ->label(__('cms::cms.navigation_menu_items'))
-                    ->blocks([
-                        Link::make(),
-                        Dropdown::make(),
-                    ])
+                    ->blocks(CmsServiceProvider::getNavigationFormBlocks())
                     ->collapsible()
                     ->columnSpan(2)
                     ->required()

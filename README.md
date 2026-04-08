@@ -11,7 +11,7 @@ A CMS package for the **VILT stack** — Vue · Inertia · Laravel · Tailwind. 
 
 - **Page builder** — pages with a layout slot + N content blocks, draft/published status, frontpage flag, and SEO meta
 - **Media library** — uploads, folder organisation, grid/list browser, responsive WebP conversions, bulk operations
-- **Navigation** — header and footer nav builder with links and dropdowns
+- **Navigation** — header and footer nav builder with links and dropdowns (block types are customisable)
 - **Site settings** — singleton key/value store with a Filament admin page; fields auto-discovered from your app; shared on every Inertia request
 - **User management** — admin user CRUD
 - **Filament 5 admin** — all resources wired up and ready via `CmsPlugin`
@@ -304,6 +304,31 @@ protected function extraProps(Request $request): array
     ];
 }
 ```
+
+---
+
+## Customising navigation form blocks
+
+By default the navigation builder offers two block types: **Link** and **Dropdown**. You can replace this set by creating `app/Cms/NavigationFormSchema.php`:
+
+```php
+namespace App\Cms;
+
+use RolandSolutions\ViltCms\Filament\Blocks\Link;
+
+class NavigationFormSchema
+{
+    public static function blocks(): array
+    {
+        return [
+            Link::make(),
+            // add or remove block types here
+        ];
+    }
+}
+```
+
+The file is auto-discovered at boot — no registration needed. Return any array of `Block` instances built from the classes in `RolandSolutions\ViltCms\Filament\Blocks\`.
 
 ---
 
