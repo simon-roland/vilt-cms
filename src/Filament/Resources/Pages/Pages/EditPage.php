@@ -2,7 +2,7 @@
 
 namespace RolandSolutions\ViltCms\Filament\Resources\Pages\Pages;
 
-use RolandSolutions\ViltCms\Enum\PageStatus;
+use RolandSolutions\ViltCms\Actions\PublishPage;
 use RolandSolutions\ViltCms\Filament\Resources\Pages\PageResource;
 use RolandSolutions\ViltCms\Models\Page;
 use Filament\Actions\Action;
@@ -11,10 +11,22 @@ use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Contracts\Support\Htmlable;
 
 class EditPage extends EditRecord
 {
     protected static string $resource = PageResource::class;
+
+    public function getHeading(): string|Htmlable
+    {
+        $record = $this->getRecord();
+
+        if ($record && $record->isPublished()) {
+            return __('cms::cms.page_edit_heading_published');
+        }
+
+        return __('cms::cms.page_edit_heading_draft');
+    }
 
     protected function getHeaderActions(): array
     {
@@ -23,59 +35,50 @@ class EditPage extends EditRecord
                 ->label(__('cms::cms.page_publish'))
                 ->icon('heroicon-o-arrow-up-circle')
                 ->color('success')
-                ->visible(fn ($record) => $record && !$record->trashed() && $record->status === PageStatus::Draft)
+                ->visible(fn ($record) => $record && !$record->trashed())
                 ->action(function ($record) {
-                    $this->publishDraft($record);
+                    PublishPage::make()->handle($record);
 
                     Notification::make()
                         ->title(__('cms::cms.page_publish_success'))
                         ->success()
                         ->send();
+
+                    $this->refreshFormData(['published_content', 'published_at']);
+                }),
+
+            Action::make('discard_draft')
+                ->label(__('cms::cms.page_discard_draft'))
+                ->icon('heroicon-o-arrow-uturn-left')
+                ->color('gray')
+                ->requiresConfirmation()
+                ->modalHeading(__('cms::cms.page_discard_draft'))
+                ->modalDescription(__('cms::cms.page_discard_draft_confirm'))
+                ->visible(fn ($record) => $record && $record->isPublished() && $record->hasDraftChanges() && !$record->trashed())
+                ->action(function ($record) {
+                    $record->update([
+                        'title'  => $record->published_content['title'],
+                        'layout' => $record->published_content['layout'],
+                        'blocks' => $record->published_content['blocks'] ?? null,
+                        'meta'   => $record->published_content['meta'] ?? null,
+                    ]);
+
+                    $this->fillForm();
+
+                    Notification::make()
+                        ->title(__('cms::cms.page_discard_draft_success'))
+                        ->success()
+                        ->send();
                 }),
 
             DeleteAction::make()
-                ->modalHeading(__('cms::cms.page_delete_both'))
-                ->modalDescription(__('cms::cms.page_delete_both_body'))
-                ->action(function ($record) {
-                    Page::where('slug', $record->slug)->delete();
-                    $this->redirect(PageResource::getUrl('index'));
-                }),
+                ->visible(fn ($record) => $record && !$record->trashed()),
 
             RestoreAction::make()
-                ->action(function ($record) {
-                    Page::withTrashed()->where('slug', $record->slug)->restore();
-                    $this->redirect(PageResource::getUrl('index'));
-                }),
+                ->visible(fn ($record) => $record && $record->trashed()),
 
             ForceDeleteAction::make()
-                ->action(function ($record) {
-                    Page::withTrashed()->where('slug', $record->slug)->forceDelete();
-                    $this->redirect(PageResource::getUrl('index'));
-                }),
+                ->visible(fn ($record) => $record && $record->trashed()),
         ];
-    }
-
-    private function publishDraft(Page $draft): void
-    {
-        $published = Page::where('slug', $draft->slug)
-            ->where('status', PageStatus::Published)
-            ->first();
-
-        $data = [
-            'title'        => $draft->title,
-            'layout'       => $draft->layout,
-            'blocks'       => $draft->blocks,
-            'meta'         => $draft->meta,
-            'is_frontpage' => $draft->is_frontpage,
-        ];
-
-        if ($published) {
-            $published->update($data);
-        } else {
-            Page::create(array_merge($data, [
-                'slug'   => $draft->slug,
-                'status' => PageStatus::Published,
-            ]));
-        }
     }
 }

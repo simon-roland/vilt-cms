@@ -2,9 +2,6 @@
 
 namespace RolandSolutions\ViltCms\Filament\Resources\Pages\Tables;
 
-use RolandSolutions\ViltCms\Enum\PageStatus;
-use RolandSolutions\ViltCms\Models\Page;
-use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -15,7 +12,6 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Collection;
 
 class PagesTable
 {
@@ -29,12 +25,12 @@ class PagesTable
                     ->boolean()
                     ->getStateUsing(fn ($record) => (bool) $record->is_frontpage)
                     ->sortable(),
-                BadgeColumn::make('status')
+                BadgeColumn::make('published_content')
                     ->label(__('cms::cms.page_status'))
-                    ->getStateUsing(fn ($record) => $record->status === PageStatus::Draft
-                        ? __('cms::cms.page_status_draft')
-                        : __('cms::cms.page_status_published'))
-                    ->color(fn ($record) => $record->status === PageStatus::Draft ? 'warning' : 'success'),
+                    ->getStateUsing(fn ($record) => $record->isPublished()
+                        ? __('cms::cms.page_status_published')
+                        : __('cms::cms.page_status_draft'))
+                    ->color(fn ($record) => $record->isPublished() ? 'success' : 'warning'),
                 TextColumn::make('title')
                     ->label(__('cms::cms.title'))
                     ->sortable()
@@ -59,28 +55,9 @@ class PagesTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    BulkAction::make('delete')
-                        ->label(__('filament-actions::delete.multiple.label'))
-                        ->icon('heroicon-o-trash')
-                        ->color('danger')
-                        ->requiresConfirmation()
-                        ->modalHeading(__('cms::cms.page_delete_both'))
-                        ->modalDescription(__('cms::cms.page_delete_both_body'))
-                        ->action(function (Collection $records) {
-                            $slugs = $records->pluck('slug')->unique()->all();
-                            Page::whereIn('slug', $slugs)->delete();
-                        })
-                        ->deselectRecordsAfterCompletion(),
-                    RestoreBulkAction::make()
-                        ->action(function (Collection $records) {
-                            $slugs = $records->pluck('slug')->unique()->all();
-                            Page::withTrashed()->whereIn('slug', $slugs)->restore();
-                        }),
-                    ForceDeleteBulkAction::make()
-                        ->action(function (Collection $records) {
-                            $slugs = $records->pluck('slug')->unique()->all();
-                            Page::withTrashed()->whereIn('slug', $slugs)->forceDelete();
-                        }),
+                    DeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
                 ]),
             ]);
     }

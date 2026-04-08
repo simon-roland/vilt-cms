@@ -26,7 +26,6 @@ export interface CmsPage {
   id: number
   title: string
   slug: string
-  status: number
   is_frontpage: boolean | null
   layout: Layout
   blocks: Block[]

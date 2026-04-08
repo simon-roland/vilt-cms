@@ -2,10 +2,11 @@
 
 namespace RolandSolutions\ViltCms\Filament\Resources\Pages\Schemas;
 
-use RolandSolutions\ViltCms\Enum\PageStatus;
 use RolandSolutions\ViltCms\CmsServiceProvider;
+use RolandSolutions\ViltCms\Models\Page;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Builder;
+use Filament\Forms\Components\Placeholder;
 use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -13,6 +14,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Illuminate\Support\HtmlString;
 use Illuminate\Validation\Rules\Unique;
 
 class PageForm
@@ -21,6 +23,34 @@ class PageForm
     {
         return $schema
             ->components([
+                // Status notice — only shown when editing an existing record
+                Placeholder::make('status_notice')
+                    ->label('')
+                    ->columnSpan(2)
+                    ->html()
+                    ->hiddenOn('create')
+                    ->content(function (?Page $record): HtmlString {
+                        if (!$record) {
+                            return new HtmlString('');
+                        }
+
+                        if (!$record->isPublished()) {
+                            return new HtmlString(
+                                '<div style="background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:12px 16px;color:#92400e;font-size:14px;">'
+                                . '<strong>' . __('cms::cms.page_status_draft') . '</strong> — '
+                                . __('cms::cms.page_never_published_notice')
+                                . '</div>'
+                            );
+                        }
+
+                        return new HtmlString(
+                            '<div style="background:#dcfce7;border:1px solid #86efac;border-radius:8px;padding:12px 16px;color:#14532d;font-size:14px;">'
+                            . '<strong>' . __('cms::cms.page_status_published') . '</strong> — '
+                            . __('cms::cms.page_is_live_notice')
+                            . '</div>'
+                        );
+                    }),
+
                 Toggle::make('is_frontpage')
                     ->label(__('cms::cms.page_frontpage'))
                     ->columnSpan(2)
@@ -32,8 +62,8 @@ class PageForm
                     ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', str($state)->slug()))
                     ->required(),
                 TextInput::make('slug')
-                    ->unique(modifyRuleUsing: function (Unique $rule) {
-                        return $rule->where('status', PageStatus::Draft);
+                    ->unique(modifyRuleUsing: function (Unique $rule, ?Page $record) {
+                        return $rule->ignore($record?->id);
                     })
                     ->required(),
                 Builder::make('layout')

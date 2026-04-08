@@ -2,7 +2,6 @@
 
 namespace RolandSolutions\ViltCms\Models;
 
-use RolandSolutions\ViltCms\Enum\PageStatus;
 use RolandSolutions\ViltCms\Traits\CleansUpOrphanedMedia;
 use RolandSolutions\ViltCms\Traits\DeletesTempFilesOnSave;
 use RolandSolutions\ViltCms\Traits\RegistersWebpConversions;
@@ -23,11 +22,12 @@ class Page extends Model implements HasMedia
     protected $guarded = [];
 
     protected $casts = [
-        'layout' => 'array',
-        'meta' => 'array',
-        'blocks' => 'array',
-        'status' => PageStatus::class,
-        'is_frontpage' => 'boolean',
+        'layout'            => 'array',
+        'meta'              => 'array',
+        'blocks'            => 'array',
+        'published_content' => 'array',
+        'published_at'      => 'datetime',
+        'is_frontpage'      => 'boolean',
     ];
 
     protected static function booted(): void
@@ -35,7 +35,6 @@ class Page extends Model implements HasMedia
         static::saving(function (Page $page) {
             if ($page->is_frontpage && $page->isDirty('is_frontpage')) {
                 static::where('id', '!=', $page->id)
-                    ->where('status', $page->status)
                     ->where('is_frontpage', true)
                     ->update(['is_frontpage' => null]);
             }
@@ -47,13 +46,43 @@ class Page extends Model implements HasMedia
         return 'slug';
     }
 
-    public function scopeDraft($query)
+    /**
+     * Whether this page has a published (live) version.
+     */
+    public function isPublished(): bool
     {
-        return $query->where('status', PageStatus::Draft);
+        return $this->published_content !== null;
     }
 
+    /**
+     * Whether the current draft content differs from the published snapshot.
+     * Returns true when the page has never been published.
+     */
+    public function hasDraftChanges(): bool
+    {
+        if (!$this->isPublished()) {
+            return true;
+        }
+
+        return $this->title !== ($this->published_content['title'] ?? null)
+            || $this->layout !== ($this->published_content['layout'] ?? null)
+            || $this->blocks !== ($this->published_content['blocks'] ?? null)
+            || $this->meta !== ($this->published_content['meta'] ?? null);
+    }
+
+    /**
+     * Pages that have been published (have a live snapshot).
+     */
     public function scopePublished($query)
     {
-        return $query->where('status', PageStatus::Published);
+        return $query->whereNotNull('published_content');
+    }
+
+    /**
+     * Pages that have never been published.
+     */
+    public function scopeDraft($query)
+    {
+        return $query->whereNull('published_content');
     }
 }
