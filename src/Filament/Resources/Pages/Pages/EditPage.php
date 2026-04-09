@@ -105,8 +105,7 @@ class EditPage extends EditRecord
     {
         return [
             Action::make('save')
-                ->label(__('cms::cms.page_save'))
-                ->color('success')
+                ->label(__('filament-panels::resources/pages/edit-record.form.actions.save.label'))
                 ->action(fn () => $this->saveOrPublish())
                 ->keyBindings(['mod+s']),
             $this->getCancelFormAction(),
