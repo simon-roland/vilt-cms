@@ -2,7 +2,7 @@
 import type { Component } from 'vue'
 import { inject } from 'vue'
 
-import Wrapper from '@/layouts/Wrapper.vue'
+import Wrapper from '@cms/layouts/Wrapper.vue'
 import type { CmsPage } from '@cms/types'
 
 defineOptions({
