@@ -212,6 +212,12 @@ PHP;
 
             file_put_contents($path, $content);
             $this->done('CmsPlugin registered in AdminPanelProvider');
+
+            // Remove the default Dashboard page — the CMS doesn't use it
+            $content = file_get_contents($path);
+            $content = preg_replace('/\s*->pages\(\[\s*\\\\Filament\\\\Pages\\\\Dashboard::class,?\s*\]\)/', '', $content);
+            $content = preg_replace('/\s*use Filament\\Pages\\Dashboard;\n/', '\n', $content);
+            file_put_contents($path, $content);
         } else {
             $this->manual(
                 'Add to AdminPanelProvider.php use statements:' . PHP_EOL .

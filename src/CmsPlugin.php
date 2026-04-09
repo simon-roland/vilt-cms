@@ -35,7 +35,6 @@ class CmsPlugin implements Plugin
                 ManageMediaLibrary::class,
                 ManageSiteSettings::class,
             ])
-            ->disableDashboard()
             ->navigationItems([
                 NavigationItem::make(__('cms::cms.view_site'))
                     ->icon('heroicon-o-arrow-top-right-on-square')
