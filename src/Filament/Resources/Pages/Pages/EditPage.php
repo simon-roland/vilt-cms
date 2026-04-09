@@ -52,6 +52,13 @@ class EditPage extends EditRecord
                     $this->refreshFormData(['published_content', 'published_at']);
                 }),
 
+            Action::make('save_as_draft')
+                ->label(__('cms::cms.page_save_as_draft'))
+                ->icon('heroicon-o-pencil-square')
+                ->color('warning')
+                ->visible(fn ($record) => $record && $record->isPublished() && !$record->hasDraftChanges() && !$record->trashed())
+                ->action(fn () => $this->save(shouldRedirect: false)),
+
             Action::make('edit_published')
                 ->label(__('cms::cms.page_edit_published_button'))
                 ->icon('heroicon-o-bolt')
@@ -96,38 +103,25 @@ class EditPage extends EditRecord
 
     protected function getFormActions(): array
     {
-        $record = $this->getRecord();
-        $isInSync = $record && $record->isPublished() && !$record->hasDraftChanges();
-
-        if ($isInSync) {
-            return [
-                Action::make('save_as_draft')
-                    ->label(__('cms::cms.page_save_as_draft'))
-                    ->color('warning')
-                    ->submit('save')
-                    ->keyBindings(['mod+s']),
-                Action::make('save')
-                    ->label(__('cms::cms.page_save'))
-                    ->color('success')
-                    ->action(fn () => $this->saveAndPublish()),
-                $this->getCancelFormAction(),
-            ];
-        }
-
         return [
             Action::make('save')
                 ->label(__('cms::cms.page_save'))
-                ->color('warning')
-                ->submit('save')
+                ->color('success')
+                ->action(fn () => $this->saveOrPublish())
                 ->keyBindings(['mod+s']),
             $this->getCancelFormAction(),
         ];
     }
 
-    public function saveAndPublish(): void
+    public function saveOrPublish(): void
     {
-        $this->publishAfterSave = true;
-        $this->save();
+        $record = $this->getRecord();
+
+        if ($record && $record->isPublished() && !$record->hasDraftChanges()) {
+            $this->publishAfterSave = true;
+        }
+
+        $this->save(shouldRedirect: false);
     }
 
     protected function handleRecordUpdate(\Illuminate\Database\Eloquent\Model $record, array $data): \Illuminate\Database\Eloquent\Model
