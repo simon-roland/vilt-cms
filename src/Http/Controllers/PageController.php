@@ -8,6 +8,7 @@ use RolandSolutions\ViltCms\Actions\ResolveBlockResources;
 use RolandSolutions\ViltCms\Filament\Resources\Pages\PageResource as FilamentPageResource;
 use RolandSolutions\ViltCms\Http\Resources\PageResource;
 use RolandSolutions\ViltCms\Models\Page;
+use RolandSolutions\ViltCms\Support\PreviewMode;
 
 class PageController extends Controller
 {
@@ -51,7 +52,7 @@ class PageController extends Controller
 
     private function wantsDraftPreview(): bool
     {
-        return auth()->check() && session('cms_preview_mode', 'published') === 'draft';
+        return PreviewMode::active();
     }
 
     private function renderPage(Page $page, bool $useDraft)

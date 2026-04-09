@@ -74,6 +74,41 @@ class EditPublishedPage extends EditRecord
                 ->color('gray')
                 ->url(fn ($record) => PageResource::getUrl('edit', ['record' => $record])),
 
+            Action::make('view_page')
+                ->label(__('cms::cms.view_page'))
+                ->icon('heroicon-o-arrow-top-right-on-square')
+                ->color('gray')
+                ->visible(fn ($record) => $record && !$record->trashed())
+                ->url(
+                    fn ($record) => $record->is_frontpage
+                    ? route('pages.frontpage')
+                    : route('pages.show', $record->slug),
+                    shouldOpenInNewTab: true
+                ),
+
+            Action::make('unpublish')
+                ->label(__('cms::cms.page_unpublish'))
+                ->icon('heroicon-o-eye-slash')
+                ->color('warning')
+                ->requiresConfirmation()
+                ->modalHeading(__('cms::cms.page_unpublish'))
+                ->modalDescription(__('cms::cms.page_unpublish_confirm'))
+                ->visible(fn ($record) => $record && !$record->trashed())
+                ->action(function ($record) {
+                    $record->update([
+                        'published_content' => null,
+                        'published_at'      => null,
+                        'is_frontpage'      => $record->is_frontpage ? null : $record->is_frontpage,
+                    ]);
+
+                    \Filament\Notifications\Notification::make()
+                        ->title(__('cms::cms.page_unpublish_success'))
+                        ->success()
+                        ->send();
+
+                    $this->redirect(PageResource::getUrl('edit', ['record' => $record]));
+                }),
+
             DeleteAction::make()
                 ->visible(fn ($record) => $record && !$record->trashed()),
 

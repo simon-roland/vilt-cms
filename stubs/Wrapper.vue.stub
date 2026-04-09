@@ -1,8 +1,17 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+import { usePage } from '@inertiajs/vue3'
 import Head from '@cms/components/Head.vue'
+import CmsToolbar from '@cms/components/CmsToolbar.vue'
+import type { CmsToolbarData, CmsPage } from '@cms/types'
+
+const props = usePage<{ cmsToolbar?: CmsToolbarData | null; page?: CmsPage }>().props
+const cmsToolbar = computed(() => props.cmsToolbar ?? null)
+const pageTitle = computed(() => props.page?.title ?? '')
 </script>
 
 <template>
   <Head />
+  <CmsToolbar v-if="cmsToolbar" :toolbar="cmsToolbar" :page-title="pageTitle" />
   <slot />
 </template>

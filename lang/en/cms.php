@@ -41,6 +41,22 @@ return [
     'page_save_as_draft'                => 'Save as draft',
     'page_save_and_publish'             => 'Save & publish',
     'page_save'                         => 'Save',
+    'page_frontpage_indicator'          => 'This page is set as the site frontpage.',
+    'page_set_as_frontpage'             => 'Set as frontpage',
+    'page_set_as_frontpage_confirm'     => 'This will set this page as the site frontpage. The current frontpage will lose its frontpage designation.',
+    'page_set_as_frontpage_success'     => 'Page set as frontpage.',
+    'page_unpublish'                    => 'Unpublish',
+    'page_unpublish_confirm'            => 'This will take the page offline. Your draft content will be preserved and you can re-publish at any time.',
+    'page_unpublish_success'            => 'Page unpublished.',
+    'page_duplicate'                    => 'Duplicate page',
+    'page_duplicate_title'              => 'Title',
+    'page_duplicate_slug'               => 'Slug (URL)',
+    'page_duplicate_success'            => 'Page duplicated.',
+    'page_more_actions'                 => 'More actions',
+
+    // General UI
+    'view_site'                          => 'View site',
+    'view_page'                          => 'View page',
 
     // Navigation resource
     'navigation_label'        => 'Navigation',

@@ -11,7 +11,6 @@ use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\HtmlString;
@@ -69,11 +68,23 @@ class PageForm
                         );
                     }),
 
-                Toggle::make('is_frontpage')
-                    ->label(__('cms::cms.page_frontpage'))
+                Placeholder::make('frontpage_notice')
+                    ->label('')
                     ->columnSpan(2)
-                    ->helperText(__('cms::cms.page_frontpage_helper'))
-                    ->dehydrateStateUsing(fn (bool $state): ?bool => $state ?: null),
+                    ->html()
+                    ->hiddenOn('create')
+                    ->content(function (?Page $record): HtmlString {
+                        if (!$record || !$record->is_frontpage) {
+                            return new HtmlString('');
+                        }
+
+                        return new HtmlString(
+                            '<div style="background:#eff6ff;border:1px solid #93c5fd;border-radius:8px;padding:10px 16px;color:#1e3a8a;font-size:14px;">'
+                            . '⭐ ' . __('cms::cms.page_frontpage_indicator')
+                            . '</div>'
+                        );
+                    }),
+
                 TextInput::make('title')
                     ->label(__('cms::cms.title'))
                     ->live(onBlur: true)
@@ -83,6 +94,8 @@ class PageForm
                     ->unique(modifyRuleUsing: function (Unique $rule, ?Page $record) {
                         return $rule->ignore($record?->id);
                     })
+                    ->disabled(fn (?Page $record) => $record !== null)
+                    ->dehydrated(fn (?Page $record) => $record === null)
                     ->required(),
                 Builder::make('layout')
                     ->blocks(CmsServiceProvider::getLayouts())

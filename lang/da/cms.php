@@ -41,6 +41,22 @@ return [
     'page_save_as_draft'                => 'Gem som kladde',
     'page_save_and_publish'             => 'Gem og udgiv',
     'page_save'                         => 'Gem',
+    'page_frontpage_indicator'          => 'Denne side er sat som sidens forside.',
+    'page_set_as_frontpage'             => 'Sæt som forside',
+    'page_set_as_frontpage_confirm'     => 'Dette vil sætte denne side som sidens forside. Den nuværende forside mister sin forside-betegnelse.',
+    'page_set_as_frontpage_success'     => 'Side sat som forside.',
+    'page_unpublish'                    => 'Afpublicér',
+    'page_unpublish_confirm'            => 'Dette vil tage siden offline. Dit kladeindhold bevares, og du kan udgive igen når som helst.',
+    'page_unpublish_success'            => 'Side afpubliceret.',
+    'page_duplicate'                    => 'Dupliker side',
+    'page_duplicate_title'              => 'Titel',
+    'page_duplicate_slug'               => 'Slug (URL)',
+    'page_duplicate_success'            => 'Side duplikeret.',
+    'page_more_actions'                 => 'Flere handlinger',
+
+    // General UI
+    'view_site'                          => 'Vis hjemmeside',
+    'view_page'                          => 'Vis side',
 
     // Navigation resource
     'navigation_label'        => 'Navigation',

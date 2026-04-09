@@ -3,8 +3,7 @@ import type { Component } from 'vue'
 import { inject } from 'vue'
 
 import Wrapper from '../layouts/Wrapper.vue'
-import CmsToolbar from '../components/CmsToolbar.vue'
-import type { CmsPage, CmsToolbarData } from '../types'
+import type { CmsPage } from '../types'
 
 defineOptions({
   layout: [Wrapper],
@@ -12,17 +11,12 @@ defineOptions({
 
 const props = defineProps<{
   page: CmsPage
-  cmsToolbar?: CmsToolbarData | null
+  cmsToolbar?: unknown
 }>()
 
 const layouts = inject<Record<string, Component>>('cmsLayouts', {})
 </script>
 
 <template>
-  <CmsToolbar
-    v-if="cmsToolbar"
-    :toolbar="cmsToolbar"
-    :page-title="page.title"
-  />
   <component :is="layouts[page.layout.type]" :page="page" />
 </template>
