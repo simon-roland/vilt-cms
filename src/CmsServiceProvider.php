@@ -47,6 +47,10 @@ class CmsServiceProvider extends ServiceProvider
 
     public function register(): void
     {
+        // Register translations early (in register phase, not boot) so they are available
+        // when Filament calls CmsPlugin::register() during AdminPanelProvider::register().
+        $this->loadTranslationsFrom(__DIR__ . '/../lang', 'cms');
+
         $this->app['config']->set(
             'media-library.media_model',
             \RolandSolutions\ViltCms\Models\Media::class,
@@ -77,7 +81,6 @@ class CmsServiceProvider extends ServiceProvider
             $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
         });
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
-        $this->loadTranslationsFrom(__DIR__ . '/../lang', 'cms');
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'cms');
 
         $this->mergeConfigFrom(__DIR__ . '/../config/cms.php', 'cms');
