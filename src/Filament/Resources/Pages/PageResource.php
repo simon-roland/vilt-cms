@@ -70,4 +70,9 @@ class PageResource extends Resource
             'edit-published' => EditPublishedPage::route('/{record}/edit-published'),
         ];
     }
+
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return parent::getEloquentQuery()->withTrashed();
+    }
 }

@@ -20,11 +20,6 @@ class PagesTable
         return $table
             ->defaultSort('updated_at', 'desc')
             ->columns([
-                IconColumn::make('is_frontpage')
-                    ->label(__('cms::cms.page_frontpage'))
-                    ->boolean()
-                    ->getStateUsing(fn ($record) => (bool) $record->is_frontpage)
-                    ->sortable(),
                 BadgeColumn::make('published_content')
                     ->label(__('cms::cms.page_status'))
                     ->getStateUsing(fn ($record) => $record->isPublished()
@@ -37,6 +32,11 @@ class PagesTable
                     ->searchable(),
                 TextColumn::make('slug')
                     ->label('Slug')
+                    ->sortable(),
+                IconColumn::make('is_frontpage')
+                    ->label(__('cms::cms.page_frontpage'))
+                    ->boolean()
+                    ->getStateUsing(fn ($record) => (bool) $record->is_frontpage)
                     ->sortable(),
                 TextColumn::make('updated_at')
                     ->label(__('cms::cms.updated_at'))
