@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watchEffect } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 import Head from '../components/Head.vue'
 import CmsToolbar from '../components/CmsToolbar.vue'
@@ -8,6 +8,13 @@ import type { CmsToolbarData, CmsPage } from '../types'
 const props = usePage<{ cmsToolbar?: CmsToolbarData | null; page?: CmsPage }>().props
 const cmsToolbar = computed(() => props.cmsToolbar ?? null)
 const pageTitle = computed(() => props.page?.title ?? '')
+
+watchEffect(() => {
+  document.documentElement.style.setProperty(
+    '--cms-toolbar-height',
+    cmsToolbar.value ? '44px' : '0px',
+  )
+})
 </script>
 
 <template>

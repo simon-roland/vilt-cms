@@ -439,6 +439,28 @@ class LatestPosts implements BlockResource
 
 ---
 
+## Fixed headers & the CMS toolbar
+
+When the CMS toolbar is active, `Wrapper.vue` sets `--cms-toolbar-height` (default `44px`) on `:root`. Any layout that uses a `position: fixed` header should offset it by this variable so the header isn't obscured behind the toolbar.
+
+Using an inline style in Vue:
+
+```html
+<header :style="{ top: 'var(--cms-toolbar-height, 0px)' }"></header>
+```
+
+Or in plain CSS:
+
+```css
+header {
+    top: var(--cms-toolbar-height, 0px);
+}
+```
+
+When the toolbar is not present the variable is set to `0px`, so the header behaves normally for regular visitors.
+
+---
+
 ## License
 
 MIT — see [LICENSE](LICENSE).  
