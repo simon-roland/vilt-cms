@@ -66,6 +66,15 @@ const showToggle = computed(() => props.toolbar.hasDraft && props.toolbar.hasPub
           </svg>
           <span class="cms-toolbar__nav-label">{{ toolbar.labels.newPage }}</span>
         </a>
+        <div class="cms-toolbar__divider" aria-hidden="true" />
+        <a :href="toolbar.editUrl" class="cms-toolbar__nav-link cms-toolbar__nav-link--edit" :title="toolbar.labels.edit">
+          <!-- pencil icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+            <path d="m15 5 4 4" />
+          </svg>
+          <span class="cms-toolbar__nav-label">{{ toolbar.labels.edit }}</span>
+        </a>
       </div>
 
       <!-- Center: page title + last edited -->
@@ -98,16 +107,6 @@ const showToggle = computed(() => props.toolbar.hasDraft && props.toolbar.hasPub
         <span v-else class="cms-toolbar__status-label" :class="toolbar.hasPublished ? 'cms-toolbar__status-label--published' : 'cms-toolbar__status-label--draft'">
           {{ toolbar.hasPublished ? toolbar.labels.published : toolbar.labels.draft }}
         </span>
-
-        <!-- Edit button -->
-        <a :href="toolbar.editUrl" class="cms-toolbar__edit-btn">
-          <!-- pencil icon -->
-          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
-            <path d="m15 5 4 4" />
-          </svg>
-          <span class="cms-toolbar__edit-label">{{ toolbar.labels.edit }}</span>
-        </a>
       </div>
     </div>
   </div>
@@ -272,39 +271,20 @@ const showToggle = computed(() => props.toolbar.hasDraft && props.toolbar.hasPub
   color: #f1f5f9;
 }
 
-.cms-toolbar__edit-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  padding: 4px 8px;
-  background: #3b82f6;
+.cms-toolbar__divider {
+  width: 1px;
+  height: 18px;
+  background: #1e293b;
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+.cms-toolbar__nav-link--edit {
+  color: #f1f5f9;
+}
+
+.cms-toolbar__nav-link--edit:hover {
+  background: #1e3a5f;
   color: #fff;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: background 0.15s;
-  white-space: nowrap;
-}
-
-@media (min-width: 1024px) {
-  .cms-toolbar__edit-btn {
-    padding: 4px 11px;
-  }
-}
-
-.cms-toolbar__edit-label {
-  display: none;
-}
-
-@media (min-width: 1024px) {
-  .cms-toolbar__edit-label {
-    display: inline;
-  }
-}
-
-.cms-toolbar__edit-btn:hover {
-  background: #2563eb;
 }
 </style>
