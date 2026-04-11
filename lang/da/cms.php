@@ -32,7 +32,7 @@ return [
     'page_edit_heading_draft_changes'   => 'Rediger side · Ikke-udgivne ændringer',
     'page_edit_published_heading'       => 'Rediger udgivet version',
     'page_never_published_notice'       => 'Denne side er ikke synlig for besøgende, før den udgives.',
-    'page_is_live_notice'               => 'Denne side er synlig for besøgende. Ændringer du foretager her gemmes som en kladde og vises ikke til besøgende, før du udgiver dem.',
+    'page_is_live_notice'               => 'Denne side er udgivet og synlig for besøgende.',
     'page_draft_changes_notice'         => 'Du redigerer kladden. Dine ændringer er ikke udgivet endnu — den aktive version er uændret.',
     'page_edit_published_notice'        => 'Du redigerer den aktive version direkte. Ændringer du gemmer her er øjeblikkeligt synlige for besøgende. Din kladde er upåvirket.',
     'page_edit_published_button'        => 'Rediger udgivet version',
@@ -45,7 +45,7 @@ return [
     'page_set_as_frontpage'             => 'Sæt som forside',
     'page_set_as_frontpage_confirm'     => 'Dette vil sætte denne side som sidens forside. Den nuværende forside mister sin forside-betegnelse.',
     'page_set_as_frontpage_success'     => 'Side sat som forside.',
-    'page_unpublish'                    => 'Afpublicér',
+    'page_unpublish'                    => 'Tag offline',
     'page_unpublish_confirm'            => 'Dette vil tage siden offline. Dit kladeindhold bevares, og du kan udgive igen når som helst.',
     'page_unpublish_success'            => 'Side afpubliceret.',
     'page_duplicate'                    => 'Dupliker side',
@@ -53,10 +53,20 @@ return [
     'page_duplicate_slug'               => 'Slug (URL)',
     'page_duplicate_success'            => 'Side duplikeret.',
     'page_more_actions'                 => 'Flere handlinger',
+    'page_slug_helper'                  => 'Bruges i sidens URL. Kan ikke ændres, når siden er oprettet.',
+    'page_slug_locked'                  => 'URL-slug kan ikke ændres, når en side er oprettet.',
+    'page_slug_locked_after_create'     => 'Kan ikke ændres, når siden er oprettet.',
 
     // General UI
     'view_site'                          => 'Vis hjemmeside',
     'view_page'                          => 'Vis side',
+    'toolbar_pages'                      => 'Sider',
+    'toolbar_new_page'                   => 'Ny side',
+    'toolbar_settings'                   => 'Indstillinger',
+    'toolbar_edit'                       => 'Rediger',
+    'toolbar_draft'                      => 'Kladde',
+    'toolbar_published'                  => 'Udgivet',
+    'toolbar_edited'                     => 'Redigeret',
 
     // Navigation resource
     'navigation_label'        => 'Navigation',

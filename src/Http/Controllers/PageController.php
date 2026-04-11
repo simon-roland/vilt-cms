@@ -2,9 +2,11 @@
 
 namespace RolandSolutions\ViltCms\Http\Controllers;
 
+use Illuminate\Http\Request;
 use RolandSolutions\ViltCms\Actions\AddMediaToPage;
 use RolandSolutions\ViltCms\Actions\ReplacePageID;
 use RolandSolutions\ViltCms\Actions\ResolveBlockResources;
+use RolandSolutions\ViltCms\Filament\Pages\ManageSiteSettings;
 use RolandSolutions\ViltCms\Filament\Resources\Pages\PageResource as FilamentPageResource;
 use RolandSolutions\ViltCms\Http\Resources\PageResource;
 use RolandSolutions\ViltCms\Models\Page;
@@ -12,13 +14,17 @@ use RolandSolutions\ViltCms\Support\PreviewMode;
 
 class PageController extends Controller
 {
-    public function frontpage()
+    public function frontpage(Request $request)
     {
+        if ($redirect = $this->applyPreviewParam($request)) {
+            return $redirect;
+        }
+
         $useDraft = $this->wantsDraftPreview();
 
         $query = Page::where('is_frontpage', true)->with('media');
 
-        if (!$useDraft) {
+        if (!$useDraft && !auth()->check()) {
             $query->whereNotNull('published_content');
         }
 
@@ -31,13 +37,17 @@ class PageController extends Controller
         return $this->renderPage($page, $useDraft);
     }
 
-    public function show($slug)
+    public function show(Request $request, $slug)
     {
+        if ($redirect = $this->applyPreviewParam($request)) {
+            return $redirect;
+        }
+
         $useDraft = $this->wantsDraftPreview();
 
         $query = Page::where('slug', $slug)->with('media');
 
-        if (!$useDraft) {
+        if (!$useDraft && !auth()->check()) {
             $query->whereNotNull('published_content');
         }
 
@@ -55,8 +65,29 @@ class PageController extends Controller
         return PreviewMode::active();
     }
 
+    /**
+     * If the request carries ?preview=draft|published, persist it to the session
+     * and redirect to the same URL without the query param (keep URLs clean).
+     * Only applied for authenticated users.
+     */
+    private function applyPreviewParam(Request $request): ?\Illuminate\Http\RedirectResponse
+    {
+        $mode = $request->query('preview');
+
+        if (!in_array($mode, ['draft', 'published'], true) || !auth()->check()) {
+            return null;
+        }
+
+        session(['cms_preview_mode' => $mode]);
+
+        return redirect($request->fullUrlWithoutQuery(['preview']));
+    }
+
     private function renderPage(Page $page, bool $useDraft)
     {
+        // Capture before overlay mutates the model
+        $hasDraftChanges = $page->hasDraftChanges();
+
         // For guest rendering, overlay the published snapshot onto the model instance
         if (!$useDraft && $page->published_content) {
             $page->title  = $page->published_content['title'];
@@ -75,11 +106,22 @@ class PageController extends Controller
         if (auth()->check()) {
             $cmsToolbar = [
                 'hasPublished' => $page->isPublished(),
-                'hasDraft'     => true,
+                'hasDraft'     => $hasDraftChanges,
                 'previewMode'  => session('cms_preview_mode', 'published'),
-                'status'       => $useDraft ? 0 : 1,
                 'updatedAt'    => $page->updated_at->toIso8601String(),
-                'editUrl'      => FilamentPageResource::getUrl('edit', ['record' => $page->id]),
+                'editUrl'      => FilamentPageResource::getUrl('edit', ['record' => $page->slug]),
+                'pagesUrl'     => FilamentPageResource::getUrl('index'),
+                'newPageUrl'   => FilamentPageResource::getUrl('create'),
+                'settingsUrl'  => ManageSiteSettings::getUrl(),
+                'labels'       => [
+                    'pages'     => __('cms::cms.toolbar_pages'),
+                    'newPage'   => __('cms::cms.toolbar_new_page'),
+                    'settings'  => __('cms::cms.toolbar_settings'),
+                    'edit'      => __('cms::cms.toolbar_edit'),
+                    'draft'     => __('cms::cms.toolbar_draft'),
+                    'published' => __('cms::cms.toolbar_published'),
+                    'edited'    => __('cms::cms.toolbar_edited'),
+                ],
             ];
         }
 

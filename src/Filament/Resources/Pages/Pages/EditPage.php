@@ -12,28 +12,12 @@ use Filament\Actions\RestoreAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
-use Illuminate\Contracts\Support\Htmlable;
 
 class EditPage extends EditRecord
 {
     protected static string $resource = PageResource::class;
 
     public bool $publishAfterSave = false;
-
-    public function getHeading(): string|Htmlable
-    {
-        $record = $this->getRecord();
-
-        if ($record && $record->isPublished()) {
-            if ($record->hasDraftChanges()) {
-                return __('cms::cms.page_edit_heading_draft_changes');
-            }
-
-            return __('cms::cms.page_edit_heading_published');
-        }
-
-        return __('cms::cms.page_edit_heading_draft');
-    }
 
     protected function getHeaderActions(): array
     {
@@ -43,20 +27,20 @@ class EditPage extends EditRecord
                 ->label(__('cms::cms.view_page'))
                 ->icon('heroicon-o-arrow-top-right-on-square')
                 ->color('gray')
-                ->visible(fn ($record) => $record && $record->isPublished() && !$record->trashed())
-                ->url(
-                    fn ($record) => $record->is_frontpage
-                    ? route('pages.frontpage')
-                    : route('pages.show', $record->slug),
-                    shouldOpenInNewTab: true
-                ),
+                ->visible(fn ($record) => $record && !$record->trashed())
+                ->url(function ($record) {
+                    $bothVersions = $record->isPublished() && $record->hasDraftChanges();
+                    $base = $record->is_frontpage ? route('pages.frontpage') : route('pages.show', $record->slug);
+
+                    return $bothVersions ? $base . '?preview=draft' : $base;
+                }),
 
             // --- Primary contextual actions ---
             Action::make('publish')
                 ->label(__('cms::cms.page_publish'))
                 ->icon('heroicon-o-arrow-up-circle')
                 ->color('success')
-                ->visible(fn ($record) => $record && !$record->trashed() && $record->isPublished() && $record->hasDraftChanges())
+                ->visible(fn ($record) => $record && !$record->trashed() && $record->hasDraftChanges())
                 ->action(function ($record) {
                     PublishPage::make()->handle($record);
 
@@ -115,15 +99,14 @@ class EditPage extends EditRecord
                     ->requiresConfirmation()
                     ->modalHeading(__('cms::cms.page_unpublish'))
                     ->modalDescription(__('cms::cms.page_unpublish_confirm'))
-                    ->visible(fn ($record) => $record && $record->isPublished() && !$record->hasDraftChanges() && !$record->trashed())
+                    ->visible(fn ($record) => $record && $record->isPublished() && !$record->trashed())
                     ->action(function ($record) {
                         $record->update([
                             'published_content' => null,
                             'published_at'      => null,
-                            'is_frontpage'      => $record->is_frontpage ? null : $record->is_frontpage,
                         ]);
 
-                        $this->refreshFormData(['published_content', 'published_at', 'is_frontpage']);
+                        $this->refreshFormData(['published_content', 'published_at']);
 
                         Notification::make()
                             ->title(__('cms::cms.page_unpublish_success'))
@@ -164,6 +147,7 @@ class EditPage extends EditRecord
                         TextInput::make('slug')
                             ->label(__('cms::cms.page_duplicate_slug'))
                             ->default(fn ($record) => $record->slug . '-copy')
+                            ->helperText(__('cms::cms.page_slug_locked_after_create'))
                             ->required(),
                     ])
                     ->action(function ($record, array $data) {

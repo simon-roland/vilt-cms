@@ -35,11 +35,12 @@ class CmsPlugin implements Plugin
                 ManageMediaLibrary::class,
                 ManageSiteSettings::class,
             ])
+            ->homeUrl(fn () => PageResource::getUrl('index'))
             ->navigationItems([
                 NavigationItem::make(__('cms::cms.view_site'))
                     ->icon('heroicon-o-arrow-top-right-on-square')
-                    ->url(fn () => route('pages.frontpage'), shouldOpenInNewTab: true)
-                    ->sort(-1),
+                    ->url(fn () => route('pages.frontpage'))
+                    ->sort(99),
             ]);
     }
 

@@ -13,5 +13,6 @@ const pageTitle = computed(() => props.page?.title ?? '')
 <template>
   <Head />
   <CmsToolbar v-if="cmsToolbar" :toolbar="cmsToolbar" :page-title="pageTitle" />
+  <div v-if="cmsToolbar" style="height: var(--cms-toolbar-height, 44px); flex-shrink: 0;" aria-hidden="true" />
   <slot />
 </template>

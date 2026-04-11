@@ -33,13 +33,26 @@ export interface CmsPage {
   updated_at: string
 }
 
+export interface CmsToolbarLabels {
+  pages: string
+  newPage: string
+  settings: string
+  edit: string
+  draft: string
+  published: string
+  edited: string
+}
+
 export interface CmsToolbarData {
-  status: number
   updatedAt: string
   hasDraft: boolean
   hasPublished: boolean
   previewMode: 'draft' | 'published'
   editUrl: string
+  pagesUrl: string
+  newPageUrl: string
+  settingsUrl: string
+  labels: CmsToolbarLabels
 }
 
 export interface Meta {

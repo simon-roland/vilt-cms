@@ -79,12 +79,12 @@ class EditPublishedPage extends EditRecord
                 ->icon('heroicon-o-arrow-top-right-on-square')
                 ->color('gray')
                 ->visible(fn ($record) => $record && !$record->trashed())
-                ->url(
-                    fn ($record) => $record->is_frontpage
-                    ? route('pages.frontpage')
-                    : route('pages.show', $record->slug),
-                    shouldOpenInNewTab: true
-                ),
+                ->url(function ($record) {
+                    $bothVersions = $record->isPublished() && $record->hasDraftChanges();
+                    $base = $record->is_frontpage ? route('pages.frontpage') : route('pages.show', $record->slug);
+
+                    return $bothVersions ? $base . '?preview=published' : $base;
+                }),
 
             Action::make('unpublish')
                 ->label(__('cms::cms.page_unpublish'))
@@ -98,7 +98,6 @@ class EditPublishedPage extends EditRecord
                     $record->update([
                         'published_content' => null,
                         'published_at'      => null,
-                        'is_frontpage'      => $record->is_frontpage ? null : $record->is_frontpage,
                     ]);
 
                     \Filament\Notifications\Notification::make()

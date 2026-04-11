@@ -32,7 +32,7 @@ return [
     'page_edit_heading_draft_changes'   => 'Edit Page · Unpublished Changes',
     'page_edit_published_heading'       => 'Edit Published Version',
     'page_never_published_notice'       => 'This page is not visible to visitors until it is published.',
-    'page_is_live_notice'               => 'This page is visible to visitors. Any edits you make here are saved as a draft and won\'t go live until you publish them.',
+    'page_is_live_notice'               => 'This page is published and visible to visitors.',
     'page_draft_changes_notice'         => 'You are editing the draft. Your changes haven\'t been published yet — the live version is unchanged.',
     'page_edit_published_notice'        => 'You are editing the live version directly. Changes you save here are immediately visible to visitors. Your draft is unaffected.',
     'page_edit_published_button'        => 'Edit published version',
@@ -53,10 +53,20 @@ return [
     'page_duplicate_slug'               => 'Slug (URL)',
     'page_duplicate_success'            => 'Page duplicated.',
     'page_more_actions'                 => 'More actions',
+    'page_slug_helper'                  => 'Used in the page URL. Cannot be changed after the page is created.',
+    'page_slug_locked'                  => 'The URL slug cannot be changed after a page has been created.',
+    'page_slug_locked_after_create'     => 'Cannot be changed after the page is created.',
 
     // General UI
     'view_site'                          => 'View site',
     'view_page'                          => 'View page',
+    'toolbar_pages'                      => 'Pages',
+    'toolbar_new_page'                   => 'New page',
+    'toolbar_settings'                   => 'Settings',
+    'toolbar_edit'                       => 'Edit',
+    'toolbar_draft'                      => 'Draft',
+    'toolbar_published'                  => 'Published',
+    'toolbar_edited'                     => 'Edited',
 
     // Navigation resource
     'navigation_label'        => 'Navigation',

@@ -17,7 +17,7 @@ Route::get('/media/{filename}', [MediaController::class, 'show'])
     ->name('media');
 
 Route::get('/{page}', [PageController::class, 'show'])
-    ->where('page', '[a-zA-Z0-9-]+')
+    ->where('page', '(?!' . preg_quote(config('cms.panel_path', 'admin'), '/') . '$)[a-zA-Z0-9-]+')
     ->name('pages.show');
 
 Route::fallback(function () {

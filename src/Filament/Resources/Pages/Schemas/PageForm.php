@@ -24,7 +24,7 @@ class PageForm
             ->components([
                 // Status notice — only shown when editing an existing record
                 Placeholder::make('status_notice')
-                    ->label('')
+                    ->hiddenLabel()
                     ->columnSpan(2)
                     ->html()
                     ->hiddenOn('create')
@@ -62,14 +62,13 @@ class PageForm
 
                         return new HtmlString(
                             '<div style="background:#dcfce7;border:1px solid #86efac;border-radius:8px;padding:12px 16px;color:#14532d;font-size:14px;">'
-                            . '<strong>' . __('cms::cms.page_status_published') . '</strong> — '
                             . __('cms::cms.page_is_live_notice')
                             . '</div>'
                         );
                     }),
 
                 Placeholder::make('frontpage_notice')
-                    ->label('')
+                    ->hiddenLabel()
                     ->columnSpan(2)
                     ->html()
                     ->hiddenOn('create')
@@ -96,6 +95,7 @@ class PageForm
                     })
                     ->disabled(fn (?Page $record) => $record !== null)
                     ->dehydrated(fn (?Page $record) => $record === null)
+                    ->helperText(fn (?Page $record) => $record !== null ? __('cms::cms.page_slug_locked') : __('cms::cms.page_slug_helper'))
                     ->required(),
                 Builder::make('layout')
                     ->blocks(CmsServiceProvider::getLayouts())
