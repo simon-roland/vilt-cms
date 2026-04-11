@@ -106,7 +106,7 @@ const showToggle = computed(() => props.toolbar.hasDraft && props.toolbar.hasPub
             <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
             <path d="m15 5 4 4" />
           </svg>
-          {{ toolbar.labels.edit }}
+          <span class="cms-toolbar__edit-label">{{ toolbar.labels.edit }}</span>
         </a>
       </div>
     </div>
@@ -178,12 +178,18 @@ const showToggle = computed(() => props.toolbar.hasDraft && props.toolbar.hasPub
 /* Center */
 
 .cms-toolbar__center {
-  display: flex;
+  display: none;
   align-items: center;
   gap: 8px;
   min-width: 0;
   flex: 1;
   justify-content: center;
+}
+
+@media (min-width: 640px) {
+  .cms-toolbar__center {
+    display: flex;
+  }
 }
 
 .cms-toolbar__title {
@@ -196,10 +202,17 @@ const showToggle = computed(() => props.toolbar.hasDraft && props.toolbar.hasPub
 }
 
 .cms-toolbar__meta {
-  color: #475569;
+  color: #94a3b8;
   font-size: 11px;
   white-space: nowrap;
   flex-shrink: 0;
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .cms-toolbar__meta {
+    display: inline;
+  }
 }
 
 /* Right */
@@ -262,8 +275,9 @@ const showToggle = computed(() => props.toolbar.hasDraft && props.toolbar.hasPub
 .cms-toolbar__edit-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 5px;
-  padding: 4px 11px;
+  padding: 4px 8px;
   background: #3b82f6;
   color: #fff;
   border-radius: 6px;
@@ -272,6 +286,22 @@ const showToggle = computed(() => props.toolbar.hasDraft && props.toolbar.hasPub
   text-decoration: none;
   transition: background 0.15s;
   white-space: nowrap;
+}
+
+@media (min-width: 1024px) {
+  .cms-toolbar__edit-btn {
+    padding: 4px 11px;
+  }
+}
+
+.cms-toolbar__edit-label {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .cms-toolbar__edit-label {
+    display: inline;
+  }
 }
 
 .cms-toolbar__edit-btn:hover {
