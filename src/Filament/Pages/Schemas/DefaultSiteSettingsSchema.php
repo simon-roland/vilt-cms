@@ -3,6 +3,7 @@
 namespace RolandSolutions\ViltCms\Filament\Pages\Schemas;
 
 use RolandSolutions\ViltCms\Filament\Fields\MediaPicker;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 
@@ -52,6 +53,25 @@ class DefaultSiteSettingsSchema
                         ->label(__('cms::cms.settings_title_format'))
                         ->placeholder('{title} – {site}')
                         ->helperText(__('cms::cms.settings_title_format_helper')),
+                ]),
+
+            Section::make(__('cms::cms.settings_section_scripts'))
+                ->schema([
+                    Textarea::make('head_scripts')
+                        ->label(__('cms::cms.settings_head_scripts'))
+                        ->helperText(__('cms::cms.settings_head_scripts_helper'))
+                        ->rows(6)
+                        ->columnSpanFull(),
+                    Textarea::make('body_start_scripts')
+                        ->label(__('cms::cms.settings_body_start_scripts'))
+                        ->helperText(__('cms::cms.settings_body_start_scripts_helper'))
+                        ->rows(6)
+                        ->columnSpanFull(),
+                    Textarea::make('body_end_scripts')
+                        ->label(__('cms::cms.settings_body_end_scripts'))
+                        ->helperText(__('cms::cms.settings_body_end_scripts_helper'))
+                        ->rows(6)
+                        ->columnSpanFull(),
                 ]),
         ];
     }

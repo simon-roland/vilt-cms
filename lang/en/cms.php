@@ -102,6 +102,13 @@ return [
     'settings_site_name'        => 'Site name',
     'settings_title_format'     => 'Page title format',
     'settings_title_format_helper' => 'Use {title} for the page title and {site} for the site name. Example: "{title} – {site}". Leave empty to use the page title only.',
+    'settings_section_scripts'      => 'Scripts & Tracking',
+    'settings_head_scripts'         => 'Head scripts',
+    'settings_head_scripts_helper'  => 'Injected inside <head>. Use for analytics, tag managers, reCAPTCHA, or Google Fonts.',
+    'settings_body_start_scripts'         => 'Body start scripts',
+    'settings_body_start_scripts_helper'  => 'Injected right after <body>. Use for Google Tag Manager <noscript> fallbacks.',
+    'settings_body_end_scripts'         => 'Body end scripts',
+    'settings_body_end_scripts_helper'  => 'Injected before </body>. Use for cookie declarations or deferred scripts.',
 
     // Media library
     'media_title'               => 'Media Library',

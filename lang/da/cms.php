@@ -102,6 +102,13 @@ return [
     'settings_site_name'        => 'Webstedsnavn',
     'settings_title_format'     => 'Sidetitelformat',
     'settings_title_format_helper' => 'Brug {title} for sidetitlen og {site} for webstedsnavnet. Eksempel: "{title} – {site}". Lad feltet stå tomt for kun at bruge sidetitlen.',
+    'settings_section_scripts'      => 'Scripts og tracking',
+    'settings_head_scripts'         => 'Head-scripts',
+    'settings_head_scripts_helper'  => 'Indsættes i <head>. Brug til analytics, tag managers, reCAPTCHA eller Google Fonts.',
+    'settings_body_start_scripts'         => 'Body start-scripts',
+    'settings_body_start_scripts_helper'  => 'Indsættes lige efter <body>. Brug til Google Tag Manager <noscript>-fallback.',
+    'settings_body_end_scripts'         => 'Body slut-scripts',
+    'settings_body_end_scripts_helper'  => 'Indsættes før </body>. Brug til cookiedeklarationer eller udsatte scripts.',
 
     // Media library
     'media_title'               => 'Mediebibliotek',

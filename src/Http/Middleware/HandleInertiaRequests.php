@@ -9,6 +9,7 @@ use RolandSolutions\ViltCms\Models\Page;
 use RolandSolutions\ViltCms\Models\SiteSettings;
 use RolandSolutions\ViltCms\Support\PreviewMode;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\URL;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
@@ -86,8 +87,11 @@ class HandleInertiaRequests extends Middleware
             'title' => config('app.name'),
             'header' => $this->loadNavigation('header'),
             'footer' => $this->loadNavigation('footer'),
-            'settings' => ResolveSettingsMedia::make()->handle(
-                SiteSettings::getSingleton()->data ?? []
+            'settings' => Arr::except(
+                ResolveSettingsMedia::make()->handle(
+                    SiteSettings::getSingleton()->data ?? []
+                ),
+                ['head_scripts', 'body_start_scripts', 'body_end_scripts']
             ),
         ], $this->extraProps($request));
     }
