@@ -156,7 +156,7 @@ Because `BaseField::setup()` returns `Filament\Forms\Components\Component`, your
 
 Every page maintains two independent copies of its content: a **draft** (the working copy) and a **published snapshot** (what visitors see). Edits are always written to the draft first — the live version never changes until you explicitly publish.
 
-The admin heading and in-form status banner reflect which state you are in at a glance:
+A status banner at the top of the form shows the current state at a glance:
 
 | State                               | What it means                                                 |
 | ----------------------------------- | ------------------------------------------------------------- |
@@ -164,7 +164,17 @@ The admin heading and in-form status banner reflect which state you are in at a 
 | **Published · in sync**             | The draft and live version are identical.                     |
 | **Published · unpublished changes** | You have staged edits that haven't gone live yet.             |
 
-The available header actions change to match. **Save changes** at the bottom of the form is always present and is state-aware: when the two versions are in sync it publishes immediately; when a draft already exists it saves to draft.
+The header actions update to match the current state:
+
+| Button | When visible | What it does |
+| ------ | ------------ | ------------ |
+| **Publish** | Draft has unpublished changes | Snapshots the draft as the new live version |
+| **Save as draft** | Published · in sync | Saves changes to draft without publishing |
+| **Edit published version** | Published · unpublished changes | Opens a dedicated editor for the live snapshot, leaving the draft untouched |
+| **Discard draft** | Published · unpublished changes | Reverts the draft back to the published snapshot |
+| **View page** | Always (not trashed) | Opens the frontend; appends `?preview=draft` automatically when both versions exist |
+
+**Save changes** at the bottom of the form is always present and is state-aware: when the draft and live version are identical it publishes on save; when unsaved draft changes exist it saves to draft only.
 
 ### Editing the live version directly
 
@@ -176,24 +186,35 @@ Only one page is served at `/`. You designate it from the **More actions** menu 
 
 ### Slugs
 
-A page's slug is set on creation and is read-only afterwards. This keeps URLs stable and prevents broken links. To reuse content under a new URL, use **Duplicate** to create a copy with a fresh slug.
+A page's slug can be changed at any time via **Change slug** in the More actions menu. The one exception is the designated frontpage — its slug is locked while it holds that role. Changing a slug updates both the draft and the published snapshot simultaneously.
+
+Use **Duplicate** when you want to reuse content at a new URL while keeping the original live.
 
 ### More actions
 
 Secondary actions live in a **More actions** dropdown in the page header:
 
-| Action                              | When it appears                                     |
-| ----------------------------------- | --------------------------------------------------- |
-| **Unpublish**                       | The page is published and in sync with the draft    |
-| **Set as frontpage**                | The page is published and not already the frontpage |
-| **Duplicate**                       | Always                                              |
-| **Delete / Restore / Force delete** | Based on soft-delete state                          |
+| Action                              | When it appears                                         |
+| ----------------------------------- | ------------------------------------------------------- |
+| **Change slug**                     | Always (except the frontpage and trashed pages)         |
+| **Unpublish**                       | The page is published                                   |
+| **Set as frontpage**                | The page is published and not already the frontpage     |
+| **Duplicate**                       | Always                                                  |
+| **Delete / Restore / Force delete** | Based on soft-delete state                              |
 
 ---
 
 ## Preview mode
 
-Authenticated users can enable a **draft preview** toggle via the CMS toolbar. When active, the frontend serves draft content instead of the published snapshot, and navigation links to unpublished pages are included. Guests always see published content only, and nav links pointing to unpublished or soft-deleted pages are filtered out automatically.
+Authenticated users see a fixed **CMS toolbar** at the top of every frontend page. Its three zones are:
+
+- **Left** — links to Site settings, the Pages list, New page, and an **Edit** button that jumps directly to the current page's draft editor in the admin
+- **Centre** — the page name and a relative "Edited X ago" timestamp
+- **Right** — a **Draft / Published toggle** when both versions of the page exist, or a status pill ("Draft" or "Published") when only one version exists
+
+Clicking **Draft** or **Published** in the toggle stores the choice in the session and reloads the page to render the appropriate version. When draft preview is active, navigation includes links to unpublished pages; in published mode those links are filtered out, matching what guests see.
+
+Guests never see the toolbar and always receive published content only.
 
 ### Checking preview mode in application code
 
@@ -252,24 +273,32 @@ Available groups:
 
 The CMS ships with a **Settings** admin page for storing global values that should be available on every frontend page — things like a site logo, favicon, social media links, and a default Open Graph image.
 
-Settings are saved in a single database row and shared automatically on every Inertia request as `$page.props.settings`.
+Settings are saved in a single database row and shared automatically on every Inertia request as `$page.props.settings`. The admin page is tab-based, with tabs persisted in the query string so the browser remembers which tab you were on.
 
-### Default fields
+### Default tabs and fields
 
-| Section      | Field           | Type        |
-| ------------ | --------------- | ----------- |
-| General      | `logo`          | MediaPicker |
-| General      | `favicon`       | MediaPicker |
-| Social Media | `facebook_url`  | URL input   |
-| Social Media | `instagram_url` | URL input   |
-| Social Media | `linkedin_url`  | URL input   |
-| Social Media | `x_url`         | URL input   |
-| Social Media | `youtube_url`   | URL input   |
-| SEO          | `og_image`      | MediaPicker |
+| Tab          | Field                 | Type        |
+| ------------ | --------------------- | ----------- |
+| General      | `site_name`           | Text input  |
+| General      | `logo`                | MediaPicker |
+| General      | `favicon`             | MediaPicker |
+| Social Media | `facebook_url`        | URL input   |
+| Social Media | `instagram_url`       | URL input   |
+| Social Media | `linkedin_url`        | URL input   |
+| Social Media | `x_url`               | URL input   |
+| Social Media | `youtube_url`         | URL input   |
+| SEO          | `og_image`            | MediaPicker |
+| SEO          | `twitter_handle`      | Text input  |
+| SEO          | `title_format`        | Text input  |
+| Scripts      | `head_scripts`        | Code editor |
+| Scripts      | `body_start_scripts`  | Code editor |
+| Scripts      | `body_end_scripts`    | Code editor |
 
-### Customising settings fields
+> **Script injection** — the three script fields are output directly into `app.blade.php` on every page request: `head_scripts` inside `<head>` (before your assets — good for analytics `<script>` tags or font preloads), `body_start_scripts` at the opening of `<body>`, and `body_end_scripts` at the closing of `<body>`. They are rendered as raw HTML and are **not** included in the Inertia `settings` prop sent to Vue.
 
-Publish the schema stub to define your own fields (replaces the defaults entirely):
+### Adding custom settings tabs
+
+Publish the schema stub to add your own tabs alongside the defaults:
 
 ```bash
 php artisan cms:publish --only=settings-schema
@@ -280,18 +309,20 @@ This creates `app/Cms/SiteSettingsSchema.php`:
 ```php
 class SiteSettingsSchema
 {
-    public static function fields(): array
+    public static function extraTabs(): array
     {
         return [
-            \RolandSolutions\ViltCms\Filament\Fields\MediaPicker::make('logo')->label('Logo'),
-            \Filament\Forms\Components\TextInput::make('phone')->label('Phone'),
-            // ... any Filament field or schema component
+            \Filament\Forms\Components\Tabs\Tab::make('Store')
+                ->schema([
+                    \Filament\Forms\Components\TextInput::make('store_email')->label('Store email'),
+                    // ... any Filament field
+                ]),
         ];
     }
 }
 ```
 
-The file is auto-discovered at boot — no registration needed.
+The file is auto-discovered at boot — no registration needed. The default tabs are always present; `extraTabs()` appends additional ones.
 
 ### Using settings in Vue
 
@@ -304,9 +335,9 @@ const { settings } = usePage().props;
 // settings.facebook_url          — plain string
 ```
 
-Media fields (any field whose value is a UUID from the media library) are resolved server-side. A field `logo` stored as a UUID gets an additional `logo_media` key containing the full media object array — the same shape as block media fields.
+Media fields (any field whose value is a UUID from the media library) are resolved server-side. A field `logo` stored as a UUID gets an additional `logo_media` key containing the full media object array — the same shape as block media fields. Custom fields you add follow the same convention automatically.
 
-The `SiteSettings` TypeScript interface is exported from the CMS types and already applied to `PageProps.settings`.
+The `SiteSettings` TypeScript interface is exported from the CMS types and already applied to `PageProps.settings`. It includes a `[key: string]: unknown` catch-all so custom fields are accessible without type errors.
 
 ---
 
