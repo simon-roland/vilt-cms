@@ -95,7 +95,16 @@ class PageForm
                     })
                     ->disabled(fn (?Page $record) => $record !== null)
                     ->dehydrated(fn (?Page $record) => $record === null)
-                    ->helperText(fn (?Page $record) => $record !== null ? __('cms::cms.page_slug_locked') : __('cms::cms.page_slug_helper'))
+                    ->helperText(function (?Page $record) {
+                        if ($record === null) {
+                            return __('cms::cms.page_slug_helper');
+                        }
+                        if ($record->is_frontpage) {
+                            return __('cms::cms.page_slug_frontpage_notice');
+                        }
+
+                        return null;
+                    })
                     ->required(),
                 Builder::make('layout')
                     ->blocks(CmsServiceProvider::getLayouts())

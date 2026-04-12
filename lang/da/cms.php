@@ -53,9 +53,13 @@ return [
     'page_duplicate_slug'               => 'Slug (URL)',
     'page_duplicate_success'            => 'Side duplikeret.',
     'page_more_actions'                 => 'Flere handlinger',
-    'page_slug_helper'                  => 'Bruges i sidens URL. Kan ikke ændres, når siden er oprettet.',
-    'page_slug_locked'                  => 'URL-slug kan ikke ændres, når en side er oprettet.',
-    'page_slug_locked_after_create'     => 'Kan ikke ændres, når siden er oprettet.',
+    'page_slug_helper'                  => 'Bruges i sidens URL.',
+    'page_slug_frontpage_notice'         => 'Denne side er sat som forside — sluggen bruges ikke i URL\'en.',
+    'page_change_slug'                  => 'Skift slug',
+    'page_change_slug_heading'          => 'Skift sidens slug',
+    'page_change_slug_description'      => 'Dette opdaterer sluggen for både kladde- og den udgivne version af siden på samme tid.',
+    'page_change_slug_field'            => 'Nyt slug (URL)',
+    'page_change_slug_success'          => 'Slug opdateret.',
 
     // General UI
     'view_site'                          => 'Vis hjemmeside',

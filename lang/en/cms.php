@@ -53,9 +53,13 @@ return [
     'page_duplicate_slug'               => 'Slug (URL)',
     'page_duplicate_success'            => 'Page duplicated.',
     'page_more_actions'                 => 'More actions',
-    'page_slug_helper'                  => 'Used in the page URL. Cannot be changed after the page is created.',
-    'page_slug_locked'                  => 'The URL slug cannot be changed after a page has been created.',
-    'page_slug_locked_after_create'     => 'Cannot be changed after the page is created.',
+    'page_slug_helper'                  => 'Used in the page URL.',
+    'page_slug_frontpage_notice'         => 'This page is set as the frontpage — the slug is not used in the URL.',
+    'page_change_slug'                  => 'Change slug',
+    'page_change_slug_heading'          => 'Change Page Slug',
+    'page_change_slug_description'      => 'This will update the slug for both the draft and published version of this page at the same time.',
+    'page_change_slug_field'            => 'New slug (URL)',
+    'page_change_slug_success'          => 'Slug updated.',
 
     // General UI
     'view_site'                          => 'View site',

@@ -1,0 +1,154 @@
+<?php
+
+namespace RolandSolutions\ViltCms\Filament\Resources\Pages\Concerns;
+
+use RolandSolutions\ViltCms\Filament\Resources\Pages\PageResource;
+use RolandSolutions\ViltCms\Models\Page;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\RestoreAction;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
+
+trait HasPageActions
+{
+    /**
+     * Called after a successful unpublish. Override in subclasses to customise
+     * the post-unpublish behaviour (e.g. redirect vs. form refresh).
+     */
+    protected function onUnpublish(Page $record): void
+    {
+        $this->refreshFormData(['published_content', 'published_at']);
+    }
+
+    protected function changeSlugAction(): Action
+    {
+        return Action::make('change_slug')
+            ->label(__('cms::cms.page_change_slug'))
+            ->icon('heroicon-o-link')
+            ->color('gray')
+            ->visible(fn ($record) => $record && !$record->trashed() && !$record->is_frontpage)
+            ->modalHeading(__('cms::cms.page_change_slug_heading'))
+            ->modalDescription(__('cms::cms.page_change_slug_description'))
+            ->form([
+                TextInput::make('slug')
+                    ->label(__('cms::cms.page_change_slug_field'))
+                    ->default(fn ($record) => $record->slug)
+                    ->unique(
+                        table: 'pages',
+                        column: 'slug',
+                        ignorable: fn ($record) => $record,
+                    )
+                    ->required(),
+            ])
+            ->action(function ($record, array $data) {
+                $record->update(['slug' => $data['slug']]);
+
+                $this->refreshFormData(['slug']);
+
+                Notification::make()
+                    ->title(__('cms::cms.page_change_slug_success'))
+                    ->success()
+                    ->send();
+            });
+    }
+
+    protected function duplicateAction(): Action
+    {
+        return Action::make('duplicate')
+            ->label(__('cms::cms.page_duplicate'))
+            ->icon('heroicon-o-document-duplicate')
+            ->color('gray')
+            ->form([
+                TextInput::make('title')
+                    ->label(__('cms::cms.page_duplicate_title'))
+                    ->default(fn ($record) => $record->title)
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(fn ($state, $set) => $set('slug', str($state)->slug()))
+                    ->required(),
+                TextInput::make('slug')
+                    ->label(__('cms::cms.page_duplicate_slug'))
+                    ->default(fn ($record) => $record->slug . '-copy')
+                    ->required(),
+            ])
+            ->action(function ($record, array $data) {
+                $newPage = Page::create([
+                    'title'  => $data['title'],
+                    'slug'   => $data['slug'],
+                    'layout' => $record->layout,
+                    'blocks' => $record->blocks,
+                    'meta'   => $record->meta,
+                ]);
+
+                Notification::make()
+                    ->title(__('cms::cms.page_duplicate_success'))
+                    ->success()
+                    ->send();
+
+                $this->redirect(PageResource::getUrl('edit', ['record' => $newPage]));
+            });
+    }
+
+    protected function unpublishAction(): Action
+    {
+        return Action::make('unpublish')
+            ->label(__('cms::cms.page_unpublish'))
+            ->icon('heroicon-o-eye-slash')
+            ->color('warning')
+            ->requiresConfirmation()
+            ->modalHeading(__('cms::cms.page_unpublish'))
+            ->modalDescription(__('cms::cms.page_unpublish_confirm'))
+            ->visible(fn ($record) => $record && $record->isPublished() && !$record->trashed())
+            ->action(function ($record) {
+                $record->update([
+                    'published_content' => null,
+                    'published_at'      => null,
+                ]);
+
+                $this->onUnpublish($record);
+
+                Notification::make()
+                    ->title(__('cms::cms.page_unpublish_success'))
+                    ->success()
+                    ->send();
+            });
+    }
+
+    protected function setAsFrontpageAction(): Action
+    {
+        return Action::make('set_as_frontpage')
+            ->label(__('cms::cms.page_set_as_frontpage'))
+            ->icon('heroicon-o-star')
+            ->color('info')
+            ->requiresConfirmation()
+            ->modalHeading(__('cms::cms.page_set_as_frontpage'))
+            ->modalDescription(__('cms::cms.page_set_as_frontpage_confirm'))
+            ->visible(fn ($record) => $record && !$record->is_frontpage && $record->isPublished() && !$record->trashed())
+            ->action(function ($record) {
+                $record->update(['is_frontpage' => true]);
+
+                $this->refreshFormData(['is_frontpage']);
+
+                Notification::make()
+                    ->title(__('cms::cms.page_set_as_frontpage_success'))
+                    ->success()
+                    ->send();
+            });
+    }
+
+    protected function secondaryActionsGroup(array $actions = []): ActionGroup
+    {
+        return ActionGroup::make(array_merge($actions, [
+            DeleteAction::make()
+                ->visible(fn ($record) => $record && !$record->trashed()),
+
+            RestoreAction::make()
+                ->visible(fn ($record) => $record && $record->trashed()),
+
+            ForceDeleteAction::make()
+                ->visible(fn ($record) => $record && $record->trashed()),
+        ]))->label(__('cms::cms.page_more_actions'));
+    }
+}

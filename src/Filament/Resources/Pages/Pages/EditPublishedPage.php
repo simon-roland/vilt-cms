@@ -2,19 +2,19 @@
 
 namespace RolandSolutions\ViltCms\Filament\Resources\Pages\Pages;
 
+use RolandSolutions\ViltCms\Filament\Resources\Pages\Concerns\HasPageActions;
 use RolandSolutions\ViltCms\Filament\Resources\Pages\PageResource;
 use RolandSolutions\ViltCms\Filament\Resources\Pages\Schemas\PageForm;
 use RolandSolutions\ViltCms\Models\Page;
 use Filament\Actions\Action;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\ForceDeleteAction;
-use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Schemas\Schema;
 use Illuminate\Contracts\Support\Htmlable;
 
 class EditPublishedPage extends EditRecord
 {
+    use HasPageActions;
+
     protected static string $resource = PageResource::class;
 
     public function getHeading(): string|Htmlable
@@ -65,6 +65,14 @@ class EditPublishedPage extends EditRecord
         return PageResource::getUrl('edit-published', ['record' => $this->getRecord()]);
     }
 
+    /**
+     * After unpublishing from the published-edit view, redirect back to the draft editor.
+     */
+    protected function onUnpublish(Page $record): void
+    {
+        $this->redirect(PageResource::getUrl('edit', ['record' => $record]));
+    }
+
     protected function getHeaderActions(): array
     {
         return [
@@ -86,36 +94,12 @@ class EditPublishedPage extends EditRecord
                     return $bothVersions ? $base . '?preview=published' : $base;
                 }),
 
-            Action::make('unpublish')
-                ->label(__('cms::cms.page_unpublish'))
-                ->icon('heroicon-o-eye-slash')
-                ->color('warning')
-                ->requiresConfirmation()
-                ->modalHeading(__('cms::cms.page_unpublish'))
-                ->modalDescription(__('cms::cms.page_unpublish_confirm'))
-                ->visible(fn ($record) => $record && !$record->trashed())
-                ->action(function ($record) {
-                    $record->update([
-                        'published_content' => null,
-                        'published_at'      => null,
-                    ]);
-
-                    \Filament\Notifications\Notification::make()
-                        ->title(__('cms::cms.page_unpublish_success'))
-                        ->success()
-                        ->send();
-
-                    $this->redirect(PageResource::getUrl('edit', ['record' => $record]));
-                }),
-
-            DeleteAction::make()
-                ->visible(fn ($record) => $record && !$record->trashed()),
-
-            RestoreAction::make()
-                ->visible(fn ($record) => $record && $record->trashed()),
-
-            ForceDeleteAction::make()
-                ->visible(fn ($record) => $record && $record->trashed()),
+            $this->secondaryActionsGroup([
+                $this->changeSlugAction(),
+                $this->setAsFrontpageAction(),
+                $this->duplicateAction(),
+                $this->unpublishAction(),
+            ]),
         ];
     }
 }
