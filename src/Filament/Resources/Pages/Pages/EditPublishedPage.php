@@ -32,7 +32,8 @@ class EditPublishedPage extends EditRecord
         /** @var Page $record */
         $record = $this->getRecord();
 
-        $data['title']  = $record->published_content['title'] ?? $record->title;
+        // Backward compat: old snapshots only have 'title', new ones have 'name'
+        $data['name']   = $record->published_content['name'] ?? $record->published_content['title'] ?? $record->name;
         $data['layout'] = $record->published_content['layout'] ?? $record->layout;
         $data['blocks'] = $record->published_content['blocks'] ?? $record->blocks;
         $data['meta']   = $record->published_content['meta'] ?? $record->meta;
@@ -44,7 +45,7 @@ class EditPublishedPage extends EditRecord
     {
         $record->update([
             'published_content' => [
-                'title'  => $data['title'],
+                'name'   => $data['name'],
                 'layout' => $data['layout'] ?? null,
                 'blocks' => $data['blocks'] ?? null,
                 'meta'   => $data['meta'] ?? null,

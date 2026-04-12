@@ -14,6 +14,8 @@ return [
     // Pages resource
     'page_label'                  => 'Page',
     'page_plural_label'           => 'Pages',
+    'page_name'                   => 'Name',
+    'page_title'                  => 'Page title',
     'page_frontpage'              => 'Frontpage',
     'page_frontpage_helper'       => 'Only one page can be set as the frontpage. If you set a new page as the frontpage, the previous frontpage will automatically be removed.',
     'page_select_layout'          => 'Select layout',
@@ -96,6 +98,10 @@ return [
     'settings_logo'             => 'Logo',
     'settings_favicon'          => 'Favicon',
     'settings_og_image'         => 'Default share image (OG)',
+    'settings_twitter_handle'   => 'Twitter / X handle',
+    'settings_site_name'        => 'Site name',
+    'settings_title_format'     => 'Page title format',
+    'settings_title_format_helper' => 'Use {title} for the page title and {site} for the site name. Example: "{title} – {site}". Leave empty to use the page title only.',
 
     // Media library
     'media_title'               => 'Media Library',
@@ -132,9 +138,10 @@ return [
 
     // SEO
     'seo_section'            => 'SEO',
-    'seo_title'              => 'Meta title',
-    'seo_title_placeholder'  => 'Falls back to page title',
+    'seo_title'              => 'Browser title',
+    'seo_title_placeholder'  => 'Defaults to the page name',
     'seo_description'        => 'Meta description',
+    'seo_og_image'           => 'Share image (OG)',
     'seo_robots'             => 'Robots',
 
     // Fields

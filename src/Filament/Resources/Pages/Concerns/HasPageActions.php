@@ -62,9 +62,9 @@ trait HasPageActions
             ->icon('heroicon-o-document-duplicate')
             ->color('gray')
             ->form([
-                TextInput::make('title')
-                    ->label(__('cms::cms.page_duplicate_title'))
-                    ->default(fn ($record) => $record->title)
+                TextInput::make('name')
+                    ->label(__('cms::cms.page_name'))
+                    ->default(fn ($record) => $record->name)
                     ->live(onBlur: true)
                     ->afterStateUpdated(fn ($state, $set) => $set('slug', str($state)->slug()))
                     ->required(),
@@ -75,7 +75,7 @@ trait HasPageActions
             ])
             ->action(function ($record, array $data) {
                 $newPage = Page::create([
-                    'title'  => $data['title'],
+                    'name'   => $data['name'],
                     'slug'   => $data['slug'],
                     'layout' => $record->layout,
                     'blocks' => $record->blocks,

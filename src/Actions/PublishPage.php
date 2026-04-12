@@ -10,7 +10,7 @@ class PublishPage extends Action
     {
         $page->update([
             'published_content' => [
-                'title'  => $page->title,
+                'name'   => $page->name,
                 'layout' => $page->layout,
                 'blocks' => $page->blocks,
                 'meta'   => $page->meta,

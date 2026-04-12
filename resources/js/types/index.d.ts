@@ -24,7 +24,7 @@ export interface MinimalPage {
 
 export interface CmsPage {
   id: number
-  title: string
+  name: string
   slug: string
   is_frontpage: boolean | null
   layout: Layout
@@ -59,6 +59,8 @@ export interface Meta {
   title?: string
   description?: string
   robots?: string
+  og_image?: string
+  og_image_media?: Media[]
 }
 
 // Generic block/layout shapes — sites extend these with their own concrete types
@@ -108,6 +110,9 @@ export interface PageLink {
 
 // Site settings — default fields resolved server-side; custom fields vary by project
 export interface SiteSettings {
+  site_name?: string
+  title_format?: string
+  twitter_handle?: string
   logo?: string
   logo_media?: Media[]
   favicon?: string

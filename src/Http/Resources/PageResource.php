@@ -18,7 +18,7 @@ class PageResource extends JsonResource
     {
         return [
             'id'         => $this->id,
-            'title'      => $this->title,
+            'name'       => $this->name,
             'slug'       => $this->slug,
             'layout'     => $this->layout[0] ?? null,
             'is_frontpage' => $this->is_frontpage,

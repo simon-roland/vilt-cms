@@ -14,6 +14,8 @@ return [
     // Pages resource
     'page_label'                  => 'Side',
     'page_plural_label'           => 'Sider',
+    'page_name'                   => 'Navn',
+    'page_title'                  => 'Sidetitel',
     'page_frontpage'              => 'Forside',
     'page_frontpage_helper'       => 'Kun én side kan sættes som forside. Hvis du sætter en ny side som forside, vil den tidligere forside automatisk blive fjernet.',
     'page_select_layout'          => 'Vælg layout',
@@ -96,6 +98,10 @@ return [
     'settings_logo'             => 'Logo',
     'settings_favicon'          => 'Favicon',
     'settings_og_image'         => 'Standard delingsbillede (OG)',
+    'settings_twitter_handle'   => 'Twitter / X-konto',
+    'settings_site_name'        => 'Webstedsnavn',
+    'settings_title_format'     => 'Sidetitelformat',
+    'settings_title_format_helper' => 'Brug {title} for sidetitlen og {site} for webstedsnavnet. Eksempel: "{title} – {site}". Lad feltet stå tomt for kun at bruge sidetitlen.',
 
     // Media library
     'media_title'               => 'Mediebibliotek',
@@ -132,9 +138,10 @@ return [
 
     // SEO
     'seo_section'            => 'SEO',
-    'seo_title'              => 'Meta titel',
-    'seo_title_placeholder'  => 'Falder tilbage til sidetitel',
+    'seo_title'              => 'Browsertitel',
+    'seo_title_placeholder'  => 'Bruger sidens navn som standard',
     'seo_description'        => 'Meta beskrivelse',
+    'seo_og_image'           => 'Delingsbillede (OG)',
     'seo_robots'             => 'Robots',
 
     // Fields

@@ -7,7 +7,7 @@ import type { CmsToolbarData, CmsPage } from '../types'
 
 const props = usePage<{ cmsToolbar?: CmsToolbarData | null; page?: CmsPage }>().props
 const cmsToolbar = computed(() => props.cmsToolbar ?? null)
-const pageTitle = computed(() => props.page?.title ?? '')
+const pageTitle = computed(() => props.page?.name ?? '')
 
 watchEffect(() => {
   document.documentElement.style.setProperty(

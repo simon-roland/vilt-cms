@@ -52,13 +52,13 @@ class CmsShowcaseSeeder extends Seeder
         ];
 
         $frontpage = Page::create([
-            'title'             => 'Home',
+            'name'              => 'Home',
             'slug'              => 'frontpage',
             'is_frontpage'      => true,
             'layout'            => $frontpageLayout,
             'blocks'            => $frontpageBlocks,
             'published_content' => [
-                'title'  => 'Home',
+                'name'   => 'Home',
                 'layout' => $frontpageLayout,
                 'blocks' => $frontpageBlocks,
                 'meta'   => null,
@@ -87,12 +87,12 @@ class CmsShowcaseSeeder extends Seeder
         ];
 
         $about = Page::create([
-            'title'             => 'About',
+            'name'              => 'About',
             'slug'              => 'about',
             'layout'            => $aboutLayout,
             'blocks'            => $aboutBlocks,
             'published_content' => [
-                'title'  => 'About',
+                'name'   => 'About',
                 'layout' => $aboutLayout,
                 'blocks' => $aboutBlocks,
                 'meta'   => null,

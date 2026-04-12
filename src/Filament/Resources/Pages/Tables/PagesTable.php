@@ -25,8 +25,8 @@ class PagesTable
                         ? __('cms::cms.page_status_published')
                         : __('cms::cms.page_status_draft'))
                     ->color(fn ($record) => $record->isPublished() ? 'success' : 'warning'),
-                TextColumn::make('title')
-                    ->label(__('cms::cms.title'))
+                TextColumn::make('name')
+                    ->label(__('cms::cms.name'))
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('slug')

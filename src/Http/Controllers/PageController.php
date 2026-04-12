@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use RolandSolutions\ViltCms\Actions\AddMediaToPage;
 use RolandSolutions\ViltCms\Actions\ReplacePageID;
 use RolandSolutions\ViltCms\Actions\ResolveBlockResources;
+use RolandSolutions\ViltCms\Actions\ResolveSettingsMedia;
 use RolandSolutions\ViltCms\Filament\Pages\ManageSiteSettings;
 use RolandSolutions\ViltCms\Filament\Resources\Pages\PageResource as FilamentPageResource;
 use RolandSolutions\ViltCms\Http\Resources\PageResource;
@@ -90,7 +91,8 @@ class PageController extends Controller
 
         // For guest rendering, overlay the published snapshot onto the model instance
         if (!$useDraft && $page->published_content) {
-            $page->title  = $page->published_content['title'];
+            // Backward compat: old snapshots only have 'title', new ones have 'name'
+            $page->name   = $page->published_content['name'] ?? $page->published_content['title'] ?? $page->name;
             $page->layout = $page->published_content['layout'];
             $page->blocks = $page->published_content['blocks'] ?? null;
             $page->meta   = $page->published_content['meta'] ?? null;
@@ -98,6 +100,9 @@ class PageController extends Controller
 
         AddMediaToPage::make()->handle($page);
         ResolveBlockResources::make()->handle($page);
+        if (is_array($page->meta)) {
+            $page->meta = ResolveSettingsMedia::make()->handle($page->meta);
+        }
         $page->blocks = ReplacePageID::make()->handle($page->blocks);
         $page->layout = ReplacePageID::make()->handle($page->layout);
 

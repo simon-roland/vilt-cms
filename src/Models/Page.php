@@ -64,7 +64,7 @@ class Page extends Model implements HasMedia
             return true;
         }
 
-        return $this->title !== ($this->published_content['title'] ?? null)
+        return $this->name !== ($this->published_content['name'] ?? $this->published_content['title'] ?? null)
             || $this->layout !== ($this->published_content['layout'] ?? null)
             || $this->blocks !== ($this->published_content['blocks'] ?? null)
             || $this->meta !== ($this->published_content['meta'] ?? null);

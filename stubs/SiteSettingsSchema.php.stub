@@ -13,6 +13,9 @@ class SiteSettingsSchema
         return [
             Section::make(__('cms::cms.settings_section_general'))
                 ->schema([
+                    TextInput::make('site_name')
+                        ->label(__('cms::cms.settings_site_name'))
+                        ->required(),
                     MediaPicker::make('logo')
                         ->label(__('cms::cms.settings_logo')),
                     MediaPicker::make('favicon')
@@ -42,6 +45,13 @@ class SiteSettingsSchema
                 ->schema([
                     MediaPicker::make('og_image')
                         ->label(__('cms::cms.settings_og_image')),
+                    TextInput::make('twitter_handle')
+                        ->label(__('cms::cms.settings_twitter_handle'))
+                        ->placeholder('@yoursite'),
+                    TextInput::make('title_format')
+                        ->label(__('cms::cms.settings_title_format'))
+                        ->placeholder('{title} – {site}')
+                        ->helperText(__('cms::cms.settings_title_format_helper')),
                 ]),
         ];
     }

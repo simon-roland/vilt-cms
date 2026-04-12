@@ -3,6 +3,7 @@
 namespace RolandSolutions\ViltCms\Filament\Resources\Pages\Schemas;
 
 use RolandSolutions\ViltCms\CmsServiceProvider;
+use RolandSolutions\ViltCms\Filament\Fields\MediaPicker;
 use RolandSolutions\ViltCms\Models\Page;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Builder;
@@ -84,8 +85,8 @@ class PageForm
                         );
                     }),
 
-                TextInput::make('title')
-                    ->label(__('cms::cms.title'))
+                TextInput::make('name')
+                    ->label(__('cms::cms.page_name'))
                     ->live(onBlur: true)
                     ->afterStateUpdated(fn (Set $set, ?string $state, ?Page $record) => $record === null ? $set('slug', str($state)->slug()) : null)
                     ->required(),
@@ -135,6 +136,8 @@ class PageForm
                         Textarea::make('meta.description')
                             ->label(__('cms::cms.seo_description'))
                             ->rows(3),
+                        MediaPicker::make('meta.og_image')
+                            ->label(__('cms::cms.seo_og_image')),
                         Select::make('meta.robots')
                             ->label(__('cms::cms.seo_robots'))
                             ->options([
