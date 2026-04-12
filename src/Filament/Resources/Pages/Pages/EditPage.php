@@ -73,7 +73,7 @@ class EditPage extends EditRecord
                 ->visible(fn ($record) => $record && $record->isPublished() && $record->hasDraftChanges() && !$record->trashed())
                 ->action(function ($record) {
                     $record->update([
-                        'title'  => $record->published_content['title'],
+                        'name'   => $record->published_content['name'] ?? $record->published_content['title'] ?? $record->name,
                         'layout' => $record->published_content['layout'],
                         'blocks' => $record->published_content['blocks'] ?? null,
                         'meta'   => $record->published_content['meta'] ?? null,
