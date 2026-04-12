@@ -154,7 +154,7 @@ Because `BaseField::setup()` returns `Filament\Forms\Components\Component`, your
 
 ### Draft and publish
 
-Every page maintains two independent copies of its content: a **draft** (the working copy) and a **published snapshot** (what visitors see). Edits are always written to the draft first — the live version never changes until you explicitly publish.
+Every page maintains two independent copies of its content: a **draft** (the working copy) and a **published snapshot** (what visitors see).
 
 A status banner at the top of the form shows the current state at a glance:
 
