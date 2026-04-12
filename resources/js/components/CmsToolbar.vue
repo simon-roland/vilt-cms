@@ -136,6 +136,14 @@ const showToggle = computed(() => props.toolbar.hasDraft && props.toolbar.hasPub
   gap: 12px;
 }
 
+@media (min-width: 640px) {
+  .cms-toolbar__inner {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    justify-content: unset;
+  }
+}
+
 /* Left */
 
 .cms-toolbar__left {
@@ -181,7 +189,6 @@ const showToggle = computed(() => props.toolbar.hasDraft && props.toolbar.hasPub
   align-items: center;
   gap: 8px;
   min-width: 0;
-  flex: 1;
   justify-content: center;
 }
 
@@ -219,8 +226,8 @@ const showToggle = computed(() => props.toolbar.hasDraft && props.toolbar.hasPub
 .cms-toolbar__right {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 8px;
-  flex-shrink: 0;
 }
 
 .cms-toolbar__status-label {
