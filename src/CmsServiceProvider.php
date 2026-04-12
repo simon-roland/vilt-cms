@@ -14,6 +14,7 @@ use RolandSolutions\ViltCms\Filament\Blocks\BaseBlock;
 use RolandSolutions\ViltCms\Filament\Pages\Schemas\DefaultSiteSettingsSchema;
 use RolandSolutions\ViltCms\Filament\Resources\Navigations\Schemas\DefaultNavigationFormSchema;
 use RolandSolutions\ViltCms\Livewire\MediaPickerField;
+use Filament\Schemas\Components\Tabs;
 
 class CmsServiceProvider extends ServiceProvider
 {
@@ -37,7 +38,20 @@ class CmsServiceProvider extends ServiceProvider
 
     public static function getSiteSettingsFields(): array
     {
-        return (static::$siteSettingsSchema)::fields();
+        $tabs = DefaultSiteSettingsSchema::tabs();
+
+        $userClass = static::$siteSettingsSchema;
+
+        if ($userClass !== DefaultSiteSettingsSchema::class && method_exists($userClass, 'extraTabs')) {
+            $tabs = array_merge($tabs, $userClass::extraTabs());
+        }
+
+        return [
+            Tabs::make('settings')
+                ->tabs($tabs)
+                ->persistTabInQueryString('settings-tab')
+                ->columnSpanFull(),
+        ];
     }
 
     public static function getNavigationFormBlocks(): array
@@ -130,7 +144,7 @@ class CmsServiceProvider extends ServiceProvider
     {
         $class = 'App\\Cms\\SiteSettingsSchema';
 
-        if (class_exists($class) && method_exists($class, 'fields')) {
+        if (class_exists($class) && method_exists($class, 'extraTabs')) {
             static::$siteSettingsSchema = $class;
         }
     }

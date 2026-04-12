@@ -2,11 +2,30 @@
 
 namespace App\Cms;
 
-use RolandSolutions\ViltCms\Filament\Fields\MediaPicker;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+
+class SiteSettingsSchema
+{
+    /**
+     * Return additional settings tabs to append after the CMS defaults
+     * (General, Social Media, SEO, Scripts).
+     *
+     * Example:
+     *
+     *   Tab::make('My Settings')
+     *       ->schema([
+     *           \Filament\Forms\Components\TextInput::make('phone')
+     *               ->label('Phone number'),
+     *       ]),
+     */
+    public static function extraTabs(): array
+    {
+        return [
+            //
+        ];
+    }
+}
+
 
 class SiteSettingsSchema
 {
