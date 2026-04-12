@@ -16,8 +16,8 @@ class Page extends BaseField
             ->required()
             ->hidden(fn (Get $get) => $get('link_type') !== 'page')
             ->options(function () {
-                return PageModel::orderBy('title')
-                    ->pluck('title', 'id')
+                return PageModel::orderBy('name')
+                    ->pluck('name', 'id')
                     ->toArray();
             })
             ->searchable()

@@ -9,12 +9,10 @@ defineOptions({
   layout: [Wrapper],
 })
 
-defineProps({
-  page: {
-    type: Object as () => CmsPage,
-    required: true,
-  },
-})
+const props = defineProps<{
+  page: CmsPage
+  cmsToolbar?: unknown
+}>()
 
 const layouts = inject<Record<string, Component>>('cmsLayouts', {})
 </script>

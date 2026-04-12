@@ -4,6 +4,7 @@ namespace RolandSolutions\ViltCms\Filament\Resources\Navigations\Schemas;
 
 use RolandSolutions\ViltCms\CmsServiceProvider;
 use RolandSolutions\ViltCms\Enum\NavigationType;
+use RolandSolutions\ViltCms\Models\Navigation;
 use Filament\Forms\Components\Builder;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Schema;
@@ -24,6 +25,7 @@ class NavigationForm
                     ->label(__('cms::cms.navigation_menu_items'))
                     ->blocks(CmsServiceProvider::getNavigationFormBlocks())
                     ->collapsible()
+                    ->collapsed(fn (?Navigation $record) => $record !== null)
                     ->columnSpan(2)
                     ->required()
                     ->reorderable()

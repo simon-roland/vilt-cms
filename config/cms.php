@@ -49,4 +49,14 @@ return [
     |   ],
     */
     'padding' => [],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Admin panel path
+    |--------------------------------------------------------------------------
+    | The URL path segment your Filament panel is registered under.
+    | This is used to prevent the CMS page router from intercepting admin URLs.
+    | Change this if you have customised your panel's ->path() setting.
+    */
+    'panel_path' => env('CMS_PANEL_PATH', 'admin'),
 ];

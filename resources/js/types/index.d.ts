@@ -12,6 +12,7 @@ export interface PageProps {
   footer: NavigationItem[]
   settings: SiteSettings
   page: CmsPage
+  cmsToolbar?: CmsToolbarData | null
 }
 
 export interface MinimalPage {
@@ -23,18 +24,43 @@ export interface MinimalPage {
 
 export interface CmsPage {
   id: number
-  title: string
+  name: string
   slug: string
   is_frontpage: boolean | null
   layout: Layout
   blocks: Block[]
   meta?: Meta
+  updated_at: string
+}
+
+export interface CmsToolbarLabels {
+  pages: string
+  newPage: string
+  settings: string
+  edit: string
+  draft: string
+  published: string
+  edited: string
+}
+
+export interface CmsToolbarData {
+  updatedAt: string
+  hasDraft: boolean
+  hasPublished: boolean
+  previewMode: 'draft' | 'published'
+  editUrl: string
+  pagesUrl: string
+  newPageUrl: string
+  settingsUrl: string
+  labels: CmsToolbarLabels
 }
 
 export interface Meta {
   title?: string
   description?: string
   robots?: string
+  og_image?: string
+  og_image_media?: Media[]
 }
 
 // Generic block/layout shapes — sites extend these with their own concrete types
@@ -84,6 +110,9 @@ export interface PageLink {
 
 // Site settings — default fields resolved server-side; custom fields vary by project
 export interface SiteSettings {
+  site_name?: string
+  title_format?: string
+  twitter_handle?: string
   logo?: string
   logo_media?: Media[]
   favicon?: string

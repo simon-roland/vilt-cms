@@ -1,8 +1,0 @@
-<script setup lang="ts">
-import Head from '@cms/components/Head.vue'
-</script>
-
-<template>
-  <Head />
-  <slot />
-</template>

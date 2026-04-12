@@ -5,8 +5,11 @@ namespace RolandSolutions\ViltCms\Filament\Resources\Pages\Tables;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Tables\Columns\IconColumn;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 
 class PagesTable
@@ -16,13 +19,14 @@ class PagesTable
         return $table
             ->defaultSort('updated_at', 'desc')
             ->columns([
-                IconColumn::make('is_frontpage')
-                    ->label(__('cms::cms.page_frontpage'))
-                    ->boolean()
-                    ->getStateUsing(fn ($record) => (bool) $record->is_frontpage)
-                    ->sortable(),
-                TextColumn::make('title')
-                    ->label(__('cms::cms.title'))
+                BadgeColumn::make('published_content')
+                    ->label(__('cms::cms.page_status'))
+                    ->getStateUsing(fn ($record) => $record->isPublished()
+                        ? __('cms::cms.page_status_published')
+                        : __('cms::cms.page_status_draft'))
+                    ->color(fn ($record) => $record->isPublished() ? 'success' : 'warning'),
+                TextColumn::make('name')
+                    ->label(__('cms::cms.name'))
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('slug')
@@ -38,7 +42,7 @@ class PagesTable
                     ->sortable(),
             ])
             ->filters([
-                //
+                TrashedFilter::make(),
             ])
             ->recordActions([
                 EditAction::make(),
@@ -46,6 +50,8 @@ class PagesTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
                 ]),
             ]);
     }

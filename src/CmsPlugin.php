@@ -3,6 +3,7 @@
 namespace RolandSolutions\ViltCms;
 
 use Filament\Contracts\Plugin;
+use Filament\Navigation\NavigationItem;
 use Filament\Panel;
 use RolandSolutions\ViltCms\Filament\Pages\ManageMediaLibrary;
 use RolandSolutions\ViltCms\Filament\Pages\ManageSiteSettings;
@@ -33,6 +34,13 @@ class CmsPlugin implements Plugin
             ->pages([
                 ManageMediaLibrary::class,
                 ManageSiteSettings::class,
+            ])
+            ->homeUrl(fn () => PageResource::getUrl('index'))
+            ->navigationItems([
+                NavigationItem::make(__('cms::cms.view_site'))
+                    ->icon('heroicon-o-arrow-top-right-on-square')
+                    ->url(fn () => route('pages.frontpage'))
+                    ->sort(99),
             ]);
     }
 

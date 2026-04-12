@@ -9,7 +9,7 @@ A CMS package for the **VILT stack** — Vue · Inertia · Laravel · Tailwind. 
 
 ## What's included
 
-- **Page builder** — pages with a layout slot + N content blocks, draft/published status, frontpage flag, and SEO meta
+- **Page builder** — pages with a layout slot + N content blocks, draft/publish workflow, frontpage designation, SEO meta, soft-delete, and page duplication
 - **Media library** — uploads, folder organisation, grid/list browser, responsive WebP conversions, bulk operations
 - **Navigation** — header and footer nav builder with links and dropdowns (block types are customisable)
 - **Site settings** — singleton key/value store with a Filament admin page; fields auto-discovered from your app; shared on every Inertia request
@@ -147,6 +147,76 @@ ActionsField::make(['name' => 'cta', 'label' => 'Call to actions'])
 ### Returning a non-Field component
 
 Because `BaseField::setup()` returns `Filament\Forms\Components\Component`, your field can return anything — a `Repeater`, `Group`, `Fieldset`, or a plain `Field`. The generated stub starts with a `TextInput` as a simple baseline.
+
+---
+
+## Pages
+
+### Draft and publish
+
+Every page maintains two independent copies of its content: a **draft** (the working copy) and a **published snapshot** (what visitors see). Edits are always written to the draft first — the live version never changes until you explicitly publish.
+
+The admin heading and in-form status banner reflect which state you are in at a glance:
+
+| State                               | What it means                                                 |
+| ----------------------------------- | ------------------------------------------------------------- |
+| **Never published**                 | The page exists only as a draft and is invisible to visitors. |
+| **Published · in sync**             | The draft and live version are identical.                     |
+| **Published · unpublished changes** | You have staged edits that haven't gone live yet.             |
+
+The available header actions change to match. **Save changes** at the bottom of the form is always present and is state-aware: when the two versions are in sync it publishes immediately; when a draft already exists it saves to draft.
+
+### Editing the live version directly
+
+If you need to push a quick fix while a longer draft is in progress, click **Edit published version**. This opens a dedicated editor that writes directly to the published snapshot without touching your draft. Your staged changes are preserved and the live update is immediate.
+
+### Frontpage
+
+Only one page is served at `/`. You designate it from the **More actions** menu on any published page — the previous frontpage loses its designation automatically. The current frontpage is indicated by a notice in the form header rather than an editable toggle, so the status can never drift out of sync with the publish state. Unpublishing a page that is the frontpage automatically clears the designation.
+
+### Slugs
+
+A page's slug is set on creation and is read-only afterwards. This keeps URLs stable and prevents broken links. To reuse content under a new URL, use **Duplicate** to create a copy with a fresh slug.
+
+### More actions
+
+Secondary actions live in a **More actions** dropdown in the page header:
+
+| Action                              | When it appears                                     |
+| ----------------------------------- | --------------------------------------------------- |
+| **Unpublish**                       | The page is published and in sync with the draft    |
+| **Set as frontpage**                | The page is published and not already the frontpage |
+| **Duplicate**                       | Always                                              |
+| **Delete / Restore / Force delete** | Based on soft-delete state                          |
+
+---
+
+## Preview mode
+
+Authenticated users can enable a **draft preview** toggle via the CMS toolbar. When active, the frontend serves draft content instead of the published snapshot, and navigation links to unpublished pages are included. Guests always see published content only, and nav links pointing to unpublished or soft-deleted pages are filtered out automatically.
+
+### Checking preview mode in application code
+
+```php
+use RolandSolutions\ViltCms\Support\PreviewMode;
+
+if (PreviewMode::active()) {
+    // current request is rendering draft content
+}
+```
+
+### Customising preview mode access
+
+The default behaviour ties preview mode to the CMS toolbar toggle. You can replace the check entirely — for example to make all authenticated editors see drafts without the toggle:
+
+```php
+// AppServiceProvider::boot()
+use RolandSolutions\ViltCms\Support\PreviewMode;
+
+PreviewMode::resolveUsing(fn () => auth()->check() && auth()->user()->hasRole('editor'));
+```
+
+The callback runs on every content-rendering request, so keep it lightweight.
 
 ---
 
@@ -366,6 +436,28 @@ class LatestPosts implements BlockResource
     }
 }
 ```
+
+---
+
+## Fixed headers & the CMS toolbar
+
+When the CMS toolbar is active, `Wrapper.vue` sets `--cms-toolbar-height` (default `44px`) on `:root`. Any layout that uses a `position: fixed` header should offset it by this variable so the header isn't obscured behind the toolbar.
+
+Using an inline style in Vue:
+
+```html
+<header :style="{ top: 'var(--cms-toolbar-height, 0px)' }"></header>
+```
+
+Or in plain CSS:
+
+```css
+header {
+    top: var(--cms-toolbar-height, 0px);
+}
+```
+
+When the toolbar is not present the variable is set to `0px`, so the header behaves normally for regular visitors.
 
 ---
 
