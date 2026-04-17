@@ -94,6 +94,9 @@ class PageForm
                     ->unique(modifyRuleUsing: function (Unique $rule, ?Page $record) {
                         return $rule->ignore($record?->id);
                     })
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(fn (Set $set, ?string $state, ?Page $record) => $record === null ? $set('slug', str($state)->slug()) : null)
+                    ->regex('/^[a-z0-9]+(?:-[a-z0-9]+)*$/')
                     ->disabled(fn (?Page $record) => $record !== null)
                     ->dehydrated(fn (?Page $record) => $record === null)
                     ->helperText(function (?Page $record) {

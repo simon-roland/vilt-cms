@@ -36,11 +36,14 @@ trait HasPageActions
                 TextInput::make('slug')
                     ->label(__('cms::cms.page_change_slug_field'))
                     ->default(fn ($record) => $record->slug)
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(fn ($state, $set) => $set('slug', str($state)->slug()))
                     ->unique(
                         table: 'pages',
                         column: 'slug',
                         ignorable: fn ($record) => $record,
                     )
+                    ->regex('/^[a-z0-9]+(?:-[a-z0-9]+)*$/')
                     ->required(),
             ])
             ->action(function ($record, array $data) {
