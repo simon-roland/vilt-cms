@@ -87,6 +87,14 @@ class CmsServiceProvider extends ServiceProvider
             'media-library.max_file_size',
             1024 * 1024 * 500,
         );
+
+        // Use Imagick for better WebP quality and broader format support, fall back to GD.
+        $this->app['config']->set(
+            'media-library.image_driver',
+            extension_loaded('imagick')
+                ? \Spatie\Image\Drivers\Imagick\ImagickDriver::class
+                : \Spatie\Image\Drivers\Gd\GdDriver::class,
+        );
     }
 
     public function boot(): void
