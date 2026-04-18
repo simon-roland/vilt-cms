@@ -15,7 +15,6 @@ use RolandSolutions\ViltCms\Filament\Resources\Pages\Pages\ListPages;
 use RolandSolutions\ViltCms\Filament\Resources\Pages\Schemas\PageForm;
 use RolandSolutions\ViltCms\Filament\Resources\Pages\Tables\PagesTable;
 use RolandSolutions\ViltCms\Models\PageContent;
-use RolandSolutions\ViltCms\Support\Locales;
 use UnitEnum;
 
 class PageResource extends Resource
@@ -77,7 +76,6 @@ class PageResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->where('locale', Locales::default())
             ->withTrashed();
     }
 }

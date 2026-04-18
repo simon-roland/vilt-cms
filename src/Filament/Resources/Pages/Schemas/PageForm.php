@@ -4,10 +4,10 @@ namespace RolandSolutions\ViltCms\Filament\Resources\Pages\Schemas;
 
 use Filament\Actions\Action;
 use Filament\Forms\Components\Builder;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
@@ -27,12 +27,12 @@ class PageForm
         return $schema
             ->components([
                 // Status notice — only shown when editing an existing record
-                Placeholder::make('status_notice')
+                TextEntry::make('status_notice')
                     ->hiddenLabel()
                     ->columnSpan(2)
                     ->html()
                     ->hiddenOn('create')
-                    ->content(function (?PageContent $record) use ($mode): HtmlString {
+                    ->state(function (?PageContent $record) use ($mode): HtmlString {
                         if (! $record) {
                             return new HtmlString('');
                         }
@@ -71,12 +71,12 @@ class PageForm
                         );
                     }),
 
-                Placeholder::make('frontpage_notice')
+                TextEntry::make('frontpage_notice')
                     ->hiddenLabel()
                     ->columnSpan(2)
                     ->html()
                     ->hiddenOn('create')
-                    ->content(function (?PageContent $record): HtmlString {
+                    ->state(function (?PageContent $record): HtmlString {
                         if (! $record || ! $record->is_frontpage) {
                             return new HtmlString('');
                         }

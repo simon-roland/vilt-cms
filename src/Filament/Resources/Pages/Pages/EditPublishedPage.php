@@ -77,31 +77,34 @@ class EditPublishedPage extends EditRecord
 
     protected function getHeaderActions(): array
     {
-        return [
-            Action::make('back_to_draft')
-                ->label(__('cms::cms.page_edit_published_back'))
-                ->icon('heroicon-o-arrow-left')
-                ->color('gray')
-                ->url(fn ($record) => PageResource::getUrl('edit', ['record' => $record])),
+        return array_merge(
+            $this->localeSwitcherActions(),
+            [
+                Action::make('back_to_draft')
+                    ->label(__('cms::cms.page_edit_published_back'))
+                    ->icon('heroicon-o-arrow-left')
+                    ->color('gray')
+                    ->url(fn ($record) => PageResource::getUrl('edit', ['record' => $record])),
 
-            Action::make('view_page')
-                ->label(__('cms::cms.view_page'))
-                ->icon('heroicon-o-arrow-top-right-on-square')
-                ->color('gray')
-                ->visible(fn ($record) => $record && ! $record->trashed())
-                ->url(function ($record) {
-                    $bothVersions = $record->isPublished() && $record->hasDraftChanges();
-                    $base = $record->is_frontpage ? route('pages.frontpage') : route('pages.show', $record->slug);
+                Action::make('view_page')
+                    ->label(__('cms::cms.view_page'))
+                    ->icon('heroicon-o-arrow-top-right-on-square')
+                    ->color('gray')
+                    ->visible(fn ($record) => $record && ! $record->trashed())
+                    ->url(function ($record) {
+                        $bothVersions = $record->isPublished() && $record->hasDraftChanges();
+                        $base = $this->localeUrl($record);
 
-                    return $bothVersions ? $base.'?preview=published' : $base;
-                }),
+                        return $bothVersions ? $base.'?preview=published' : $base;
+                    }),
 
-            $this->secondaryActionsGroup([
-                $this->changeSlugAction(),
-                $this->setAsFrontpageAction(),
-                $this->duplicateAction(),
-                $this->unpublishAction(),
-            ]),
-        ];
+                $this->secondaryActionsGroup([
+                    $this->changeSlugAction(),
+                    $this->setAsFrontpageAction(),
+                    $this->duplicateAction(),
+                    $this->unpublishAction(),
+                ]),
+            ]
+        );
     }
 }
