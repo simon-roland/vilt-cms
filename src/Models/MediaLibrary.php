@@ -2,8 +2,8 @@
 
 namespace RolandSolutions\ViltCms\Models;
 
-use RolandSolutions\ViltCms\Traits\RegistersWebpConversions;
 use Illuminate\Database\Eloquent\Model;
+use RolandSolutions\ViltCms\Traits\RegistersWebpConversions;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 

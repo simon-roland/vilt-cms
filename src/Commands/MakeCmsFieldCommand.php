@@ -35,11 +35,11 @@ class MakeCmsFieldCommand extends Command
             return;
         }
 
-        if (!is_dir(dirname($dest))) {
+        if (! is_dir(dirname($dest))) {
             mkdir(dirname($dest), 0755, true);
         }
 
-        $stub = file_get_contents(__DIR__ . '/../../stubs/field.php.stub');
+        $stub = file_get_contents(__DIR__.'/../../stubs/field.php.stub');
         $stub = str_replace(['{{ class }}', '{{ name }}', '{{ label }}'], [$class, $name, $label], $stub);
 
         file_put_contents($dest, $stub);

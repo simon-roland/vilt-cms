@@ -2,6 +2,7 @@
 
 namespace RolandSolutions\ViltCms\Http\Controllers;
 
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 
 class MediaController extends Controller
@@ -10,7 +11,7 @@ class MediaController extends Controller
      * Display the specified image.
      *
      * @param  string  $filename
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function show($filename)
     {
@@ -21,7 +22,7 @@ class MediaController extends Controller
 
         $path = Storage::disk(config('cms.media_disk'))->path($filename);
 
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             abort(404);
         }
 

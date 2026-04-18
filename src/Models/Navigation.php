@@ -2,8 +2,8 @@
 
 namespace RolandSolutions\ViltCms\Models;
 
-use RolandSolutions\ViltCms\Enum\NavigationType;
 use Illuminate\Database\Eloquent\Model;
+use RolandSolutions\ViltCms\Enum\NavigationType;
 
 class Navigation extends Model
 {

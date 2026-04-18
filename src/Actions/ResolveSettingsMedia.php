@@ -31,7 +31,7 @@ class ResolveSettingsMedia extends Action
         foreach ($data as $key => $value) {
             if (is_string($value) && preg_match(self::UUID_PATTERN, $value) && $media->has($value)) {
                 $item = $media->get($value);
-                $data[$key . '_media'] = [
+                $data[$key.'_media'] = [
                     $this->isImage($item) ? $item->toImageArray() : $item->getCmsUrl(),
                 ];
             }
