@@ -127,7 +127,7 @@ class PageController extends Controller
                 'hasDraft' => $hasDraftChanges,
                 'previewMode' => session('cms_preview_mode', 'published'),
                 'updatedAt' => $page->updated_at->toIso8601String(),
-                'editUrl' => FilamentPageResource::getUrl('edit', ['record' => $page->id]),
+                'editUrl' => FilamentPageResource::getUrl('edit', ['record' => $page]),
                 'pagesUrl' => FilamentPageResource::getUrl('index'),
                 'newPageUrl' => FilamentPageResource::getUrl('create'),
                 'settingsUrl' => ManageSiteSettings::getUrl(),

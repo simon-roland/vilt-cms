@@ -5,7 +5,8 @@ namespace RolandSolutions\ViltCms\Filament\Fields;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Utilities\Get;
-use RolandSolutions\ViltCms\Models\Page as PageModel;
+use RolandSolutions\ViltCms\Models\PageContent;
+use RolandSolutions\ViltCms\Support\Locales;
 
 class Page extends BaseField
 {
@@ -16,8 +17,9 @@ class Page extends BaseField
             ->required()
             ->hidden(fn (Get $get) => $get('link_type') !== 'page')
             ->options(function () {
-                return PageModel::orderBy('name')
-                    ->pluck('name', 'id')
+                return PageContent::where('locale', Locales::default())
+                    ->orderBy('name')
+                    ->pluck('name', 'page_id')
                     ->toArray();
             })
             ->searchable()

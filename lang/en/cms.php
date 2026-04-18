@@ -63,6 +63,20 @@ return [
     'page_change_slug_field' => 'New slug (URL)',
     'page_change_slug_success' => 'Slug updated.',
 
+    // Localization
+    'page_locales' => 'Locales',
+    'page_add_locale_heading' => 'Add Locale',
+    'page_add_locale_description' => 'Create content for this page in a new language.',
+    'page_add_locale_source' => 'Start from',
+    'page_add_locale_blank' => 'Blank draft',
+    'page_add_locale_copy_from' => 'Copy from :locale',
+    'page_add_locale_success' => 'Locale added.',
+    'page_copy_from_locale' => 'Copy content from locale',
+    'page_copy_from_locale_heading' => 'Copy Content from Another Locale',
+    'page_copy_from_locale_description' => 'Overwrite the current draft with content from another locale. This does not affect the published version.',
+    'page_copy_from_locale_source' => 'Source locale',
+    'page_copy_from_locale_success' => 'Content copied.',
+
     // General UI
     'view_site' => 'View site',
     'view_page' => 'View page',
