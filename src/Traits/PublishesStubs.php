@@ -10,7 +10,7 @@ trait PublishesStubs
      */
     private function fileMappings(): array
     {
-        $s = __DIR__ . '/../../stubs';
+        $s = __DIR__.'/../../stubs';
 
         return [
             'ts' => [
@@ -60,12 +60,12 @@ trait PublishesStubs
      */
     private function groupFiles(string $group): array
     {
-        $stubsDir = __DIR__ . '/../../stubs';
+        $stubsDir = __DIR__.'/../../stubs';
         $files = $this->fileMappings()[$group] ?? [];
 
         foreach ($this->dirMappings()[$group] ?? [] as [$relDir, $destDir]) {
             foreach (glob("{$stubsDir}/{$relDir}/*.stub") as $stubFile) {
-                $files[] = [$stubFile, $destDir . '/' . basename($stubFile, '.stub')];
+                $files[] = [$stubFile, $destDir.'/'.basename($stubFile, '.stub')];
             }
         }
 
@@ -91,15 +91,15 @@ trait PublishesStubs
         $relative = $this->relativePath($dest);
 
         if (file_exists($dest)) {
-            if (!$force) {
-                if (!$confirmOverwrite || !$this->confirm("  Overwrite {$relative}?", false)) {
+            if (! $force) {
+                if (! $confirmOverwrite || ! $this->confirm("  Overwrite {$relative}?", false)) {
                     $this->skip("Skipped {$relative}");
 
                     return 0;
                 }
             }
         } else {
-            if (!is_dir(dirname($dest))) {
+            if (! is_dir(dirname($dest))) {
                 mkdir(dirname($dest), 0755, true);
             }
         }

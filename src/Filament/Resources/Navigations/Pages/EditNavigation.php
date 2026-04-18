@@ -2,9 +2,9 @@
 
 namespace RolandSolutions\ViltCms\Filament\Resources\Navigations\Pages;
 
-use RolandSolutions\ViltCms\Filament\Resources\Navigations\NavigationResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
+use RolandSolutions\ViltCms\Filament\Resources\Navigations\NavigationResource;
 
 class EditNavigation extends EditRecord
 {

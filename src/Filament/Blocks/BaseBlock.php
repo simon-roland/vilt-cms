@@ -10,6 +10,6 @@ abstract class BaseBlock
 
     public static function make(): Block
     {
-        return (new static())->setup();
+        return (new static)->setup();
     }
 }

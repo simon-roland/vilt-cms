@@ -2,10 +2,11 @@
 
 namespace RolandSolutions\ViltCms\Database\Seeders;
 
-use RolandSolutions\ViltCms\Models\Navigation;
-use RolandSolutions\ViltCms\Models\Page;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
+use RolandSolutions\ViltCms\Models\Navigation;
+use RolandSolutions\ViltCms\Models\Page;
+use RolandSolutions\ViltCms\Support\Locales;
 
 class CmsShowcaseSeeder extends Seeder
 {
@@ -14,6 +15,8 @@ class CmsShowcaseSeeder extends Seeder
         if (Page::count() > 0 || Navigation::count() > 0) {
             return;
         }
+
+        $locale = Locales::default();
 
         $frontpageLayout = [['type' => 'default', 'data' => ['id' => Str::uuid()->toString()]]];
         $frontpageBlocks = [
@@ -51,19 +54,21 @@ class CmsShowcaseSeeder extends Seeder
             ],
         ];
 
-        $frontpage = Page::create([
-            'name'              => 'Home',
-            'slug'              => 'frontpage',
-            'is_frontpage'      => true,
-            'layout'            => $frontpageLayout,
-            'blocks'            => $frontpageBlocks,
+        $frontpage = Page::create([]);
+        $frontpage->contents()->create([
+            'locale' => $locale,
+            'name' => 'Home',
+            'slug' => 'frontpage',
+            'is_frontpage' => true,
+            'layout' => $frontpageLayout,
+            'blocks' => $frontpageBlocks,
             'published_content' => [
-                'name'   => 'Home',
+                'name' => 'Home',
                 'layout' => $frontpageLayout,
                 'blocks' => $frontpageBlocks,
-                'meta'   => null,
+                'meta' => null,
             ],
-            'published_at'      => now(),
+            'published_at' => now(),
         ]);
 
         $aboutLayout = [['type' => 'default', 'data' => ['id' => Str::uuid()->toString()]]];
@@ -86,22 +91,25 @@ class CmsShowcaseSeeder extends Seeder
             ],
         ];
 
-        $about = Page::create([
-            'name'              => 'About',
-            'slug'              => 'about',
-            'layout'            => $aboutLayout,
-            'blocks'            => $aboutBlocks,
+        $about = Page::create([]);
+        $about->contents()->create([
+            'locale' => $locale,
+            'name' => 'About',
+            'slug' => 'about',
+            'layout' => $aboutLayout,
+            'blocks' => $aboutBlocks,
             'published_content' => [
-                'name'   => 'About',
+                'name' => 'About',
                 'layout' => $aboutLayout,
                 'blocks' => $aboutBlocks,
-                'meta'   => null,
+                'meta' => null,
             ],
-            'published_at'      => now(),
+            'published_at' => now(),
         ]);
 
         Navigation::create([
             'type' => 'header',
+            'locale' => $locale,
             'items' => [
                 [
                     'type' => 'link',
@@ -147,6 +155,7 @@ class CmsShowcaseSeeder extends Seeder
 
         Navigation::create([
             'type' => 'footer',
+            'locale' => $locale,
             'items' => [
                 [
                     'type' => 'link',

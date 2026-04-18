@@ -2,11 +2,11 @@
 
 namespace RolandSolutions\ViltCms\Filament\Pages\Schemas;
 
-use RolandSolutions\ViltCms\Filament\Fields\MediaPicker;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use RolandSolutions\ViltCms\Filament\Fields\MediaPicker;
 
 class DefaultSiteSettingsSchema
 {

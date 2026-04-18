@@ -2,30 +2,33 @@
 
 namespace RolandSolutions\ViltCms\Filament\Resources\Pages;
 
+use BackedEnum;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use RolandSolutions\ViltCms\Filament\Resources\Pages\Pages\CreatePage;
 use RolandSolutions\ViltCms\Filament\Resources\Pages\Pages\EditPage;
 use RolandSolutions\ViltCms\Filament\Resources\Pages\Pages\EditPublishedPage;
 use RolandSolutions\ViltCms\Filament\Resources\Pages\Pages\ListPages;
 use RolandSolutions\ViltCms\Filament\Resources\Pages\Schemas\PageForm;
 use RolandSolutions\ViltCms\Filament\Resources\Pages\Tables\PagesTable;
-use RolandSolutions\ViltCms\Models\Page;
-use BackedEnum;
-use Filament\Resources\Resource;
-use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Table;
+use RolandSolutions\ViltCms\Models\PageContent;
+use RolandSolutions\ViltCms\Support\Locales;
 use UnitEnum;
 
 class PageResource extends Resource
 {
-    protected static ?string $model = Page::class;
+    protected static ?string $model = PageContent::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedHome;
 
     protected static ?string $modelLabel = null;
+
     protected static ?string $pluralModelLabel = null;
 
-    protected static string | UnitEnum | null $navigationGroup = null;
+    protected static string|UnitEnum|null $navigationGroup = null;
 
     public static function getModelLabel(): string
     {
@@ -64,15 +67,17 @@ class PageResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'          => ListPages::route('/'),
-            'create'         => CreatePage::route('/create'),
-            'edit'           => EditPage::route('/{record}/edit'),
+            'index' => ListPages::route('/'),
+            'create' => CreatePage::route('/create'),
+            'edit' => EditPage::route('/{record}/edit'),
             'edit-published' => EditPublishedPage::route('/{record}/edit-published'),
         ];
     }
 
-    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->withTrashed();
+        return parent::getEloquentQuery()
+            ->where('locale', Locales::default())
+            ->withTrashed();
     }
 }

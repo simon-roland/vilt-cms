@@ -2,13 +2,15 @@
 
 namespace RolandSolutions\ViltCms\Livewire;
 
-use RolandSolutions\ViltCms\Models\Media;
-use RolandSolutions\ViltCms\Models\MediaFolder;
-use RolandSolutions\ViltCms\Models\MediaLibrary;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
+use Illuminate\View\View;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Modelable;
 use Livewire\Component;
+use RolandSolutions\ViltCms\Models\Media;
+use RolandSolutions\ViltCms\Models\MediaFolder;
+use RolandSolutions\ViltCms\Models\MediaLibrary;
 
 class MediaPickerField extends Component
 {
@@ -31,7 +33,7 @@ class MediaPickerField extends Component
     {
         if ($this->multiple) {
             $current = is_array($this->state) ? $this->state : [];
-            if (!in_array($uuid, $current)) {
+            if (! in_array($uuid, $current)) {
                 $current[] = $uuid;
             }
             $this->state = $current;
@@ -60,7 +62,7 @@ class MediaPickerField extends Component
 
     public function selectAllInFolder(): void
     {
-        if (!$this->multiple) {
+        if (! $this->multiple) {
             return;
         }
 
@@ -91,7 +93,7 @@ class MediaPickerField extends Component
             ->toArray();
     }
 
-    public function getPickerMedia(): \Illuminate\Support\Collection
+    public function getPickerMedia(): Collection
     {
         return MediaLibrary::instance()
             ->media()
@@ -117,14 +119,14 @@ class MediaPickerField extends Component
         }
 
         $folder = MediaFolder::find($this->pickerFolderId);
-        if (!$folder) {
+        if (! $folder) {
             return [];
         }
 
         return $folder->ancestors()->map(fn ($f) => ['id' => $f->id, 'name' => $f->name])->toArray();
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         return view('cms::livewire.media-picker-field');
     }

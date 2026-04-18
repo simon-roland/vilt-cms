@@ -12,7 +12,8 @@ class PreviewModeController extends Controller
             'mode' => ['required', 'in:draft,published'],
         ]);
 
-        session(['cms_preview_mode' => $request->mode]);
+        $locale = app()->getLocale();
+        session(["cms_preview_mode.{$locale}" => $request->mode]);
 
         return redirect()->back();
     }
