@@ -8,7 +8,7 @@ use Illuminate\Contracts\Support\Arrayable;
 
 class PdfUpload extends FileUpload
 {
-    public function acceptedFileTypes(array | Arrayable | Closure $types): static
+    public function acceptedFileTypes(array|Arrayable|Closure $types): static
     {
         $this->acceptedFileTypes = $types;
 

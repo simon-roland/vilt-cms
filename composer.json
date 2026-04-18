@@ -33,6 +33,12 @@
         "laravel/framework": "^13.0",
         "tightenco/ziggy": "^2.3"
     },
+    "require-dev": {
+        "orchestra/testbench": "^11.0",
+        "pestphp/pest": "^4.0",
+        "pestphp/pest-plugin-laravel": "^4.0",
+        "laravel/pint": "^1.29"
+    },
     "suggest": {
         "ext-imagick": "Required for WebP image conversion and responsive image generation."
     },
@@ -41,6 +47,19 @@
             "RolandSolutions\\ViltCms\\": "src/",
             "RolandSolutions\\ViltCms\\Database\\Seeders\\": "database/seeders/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "RolandSolutions\\ViltCms\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/pest"
     },
     "extra": {
         "laravel": {

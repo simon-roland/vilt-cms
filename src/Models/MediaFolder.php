@@ -31,7 +31,7 @@ class MediaFolder extends Model
      */
     public function ancestors(): Collection
     {
-        $chain = new Collection();
+        $chain = new Collection;
         $current = $this;
 
         while ($current !== null) {

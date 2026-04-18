@@ -2,34 +2,37 @@
 
 namespace RolandSolutions\ViltCms\Actions;
 
-use RolandSolutions\ViltCms\Models\Page;
+use RolandSolutions\ViltCms\Models\PageContent;
+use RolandSolutions\ViltCms\Support\Locales;
 
 class ReplacePageID extends Action
 {
-    public function handle($items)
+    public function handle($items, ?string $locale = null)
     {
-        $pages = Page::all();
+        $locale ??= Locales::default();
 
-        $this->replacePageID($items, $pages);
+        $contents = PageContent::where('locale', $locale)->get()->keyBy('page_id');
+
+        $this->replacePageID($items, $contents);
 
         return $items;
     }
 
-    protected function replacePageID(&$items, $pages)
+    protected function replacePageID(&$items, $contents)
     {
         foreach ($items as &$item) {
-            if (!is_array($item)) {
+            if (! is_array($item)) {
                 continue;
             }
 
             // Flat repeater item (e.g. ActionsField): { label, link_type, page_id, ... }
-            if (!empty($item['page_id']) && !array_key_exists('data', $item)) {
-                $page = $pages->firstWhere('id', $item['page_id']);
+            if (! empty($item['page_id']) && ! array_key_exists('data', $item)) {
+                $content = $contents->get($item['page_id']);
 
-                if ($page) {
+                if ($content) {
                     $item['page'] = [
-                        'slug' => $page->slug,
-                        'frontpage' => (bool) $page->is_frontpage,
+                        'slug' => $content->slug,
+                        'frontpage' => (bool) $content->is_frontpage,
                     ];
                 }
 
@@ -39,17 +42,17 @@ class ReplacePageID extends Action
             }
 
             // Block / layout item: { type, data: { ... } }
-            if (empty($item['data']) || !is_array($item['data'])) {
+            if (empty($item['data']) || ! is_array($item['data'])) {
                 continue;
             }
 
-            if (!empty($item['data']['page_id'])) {
-                $page = $pages->firstWhere('id', $item['data']['page_id']);
+            if (! empty($item['data']['page_id'])) {
+                $content = $contents->get($item['data']['page_id']);
 
-                if ($page) {
+                if ($content) {
                     $item['data']['page'] = [
-                        'slug' => $page->slug,
-                        'frontpage' => (bool) $page->is_frontpage,
+                        'slug' => $content->slug,
+                        'frontpage' => (bool) $content->is_frontpage,
                     ];
                 }
 
@@ -58,7 +61,7 @@ class ReplacePageID extends Action
 
             foreach ($item['data'] as &$data) {
                 if (is_array($data)) {
-                    $this->replacePageID($data, $pages);
+                    $this->replacePageID($data, $contents);
                 }
             }
         }

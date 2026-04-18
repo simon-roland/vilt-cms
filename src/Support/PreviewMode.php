@@ -29,6 +29,8 @@ class PreviewMode
             return (bool) (static::$resolver)();
         }
 
-        return auth()->check() && session('cms_preview_mode', 'published') === 'draft';
+        $locale = app()->getLocale();
+
+        return auth()->check() && session("cms_preview_mode.{$locale}", 'published') === 'draft';
     }
 }

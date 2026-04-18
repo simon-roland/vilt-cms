@@ -2,15 +2,15 @@
 
 namespace RolandSolutions\ViltCms\Filament\Resources\User;
 
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Table;
 use RolandSolutions\ViltCms\Filament\Resources\User\Pages\CreateUser;
 use RolandSolutions\ViltCms\Filament\Resources\User\Pages\EditUser;
 use RolandSolutions\ViltCms\Filament\Resources\User\Pages\ListUsers;
 use RolandSolutions\ViltCms\Filament\Resources\User\Schemas\UserForm;
 use RolandSolutions\ViltCms\Filament\Resources\User\Tables\UsersTable;
-use Filament\Resources\Resource;
-use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Table;
 
 class UserResource extends Resource
 {

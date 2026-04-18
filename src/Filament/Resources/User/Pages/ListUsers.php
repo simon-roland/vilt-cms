@@ -2,9 +2,9 @@
 
 namespace RolandSolutions\ViltCms\Filament\Resources\User\Pages;
 
-use RolandSolutions\ViltCms\Filament\Resources\User\UserResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use RolandSolutions\ViltCms\Filament\Resources\User\UserResource;
 
 class ListUsers extends ListRecords
 {
