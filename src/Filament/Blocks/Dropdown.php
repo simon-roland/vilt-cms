@@ -2,17 +2,17 @@
 
 namespace RolandSolutions\ViltCms\Filament\Blocks;
 
-use RolandSolutions\ViltCms\Filament\Fields\ID;
 use Filament\Forms\Components\Builder;
 use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\TextInput;
+use RolandSolutions\ViltCms\Filament\Fields\ID;
 
 class Dropdown extends BaseBlock
 {
     public function setup(): Block
     {
         return Block::make('dropdown')
-            ->label(fn (?array $state): string => empty($state['label']) ? __('cms::cms.block_dropdown') : __('cms::cms.block_dropdown') . ': ' . $state['label'])
+            ->label(fn (?array $state): string => empty($state['label']) ? __('cms::cms.block_dropdown') : __('cms::cms.block_dropdown').': '.$state['label'])
             ->schema([
                 ID::make(),
                 TextInput::make('label')

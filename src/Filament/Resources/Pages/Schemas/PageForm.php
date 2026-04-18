@@ -2,20 +2,22 @@
 
 namespace RolandSolutions\ViltCms\Filament\Resources\Pages\Schemas;
 
-use RolandSolutions\ViltCms\CmsServiceProvider;
-use RolandSolutions\ViltCms\Filament\Fields\MediaPicker;
-use RolandSolutions\ViltCms\Models\Page;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Builder;
 use Filament\Forms\Components\Placeholder;
-use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\HtmlString;
 use Illuminate\Validation\Rules\Unique;
+use RolandSolutions\ViltCms\CmsServiceProvider;
+use RolandSolutions\ViltCms\Filament\Fields\MediaPicker;
+use RolandSolutions\ViltCms\Models\PageContent;
+use RolandSolutions\ViltCms\Rules\ReservedLocaleSlug;
+use RolandSolutions\ViltCms\Support\Locales;
 
 class PageForm
 {
@@ -29,42 +31,42 @@ class PageForm
                     ->columnSpan(2)
                     ->html()
                     ->hiddenOn('create')
-                    ->content(function (?Page $record) use ($mode): HtmlString {
-                        if (!$record) {
+                    ->content(function (?PageContent $record) use ($mode): HtmlString {
+                        if (! $record) {
                             return new HtmlString('');
                         }
 
                         if ($mode === 'published') {
                             return new HtmlString(
                                 '<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:12px 16px;color:#7f1d1d;font-size:14px;">'
-                                . '<strong>' . __('cms::cms.page_edit_published_heading') . '</strong> — '
-                                . __('cms::cms.page_edit_published_notice')
-                                . '</div>'
+                                .'<strong>'.__('cms::cms.page_edit_published_heading').'</strong> — '
+                                .__('cms::cms.page_edit_published_notice')
+                                .'</div>'
                             );
                         }
 
-                        if (!$record->isPublished()) {
+                        if (! $record->isPublished()) {
                             return new HtmlString(
                                 '<div style="background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:12px 16px;color:#92400e;font-size:14px;">'
-                                . '<strong>' . __('cms::cms.page_status_draft') . '</strong> — '
-                                . __('cms::cms.page_never_published_notice')
-                                . '</div>'
+                                .'<strong>'.__('cms::cms.page_status_draft').'</strong> — '
+                                .__('cms::cms.page_never_published_notice')
+                                .'</div>'
                             );
                         }
 
                         if ($record->hasDraftChanges()) {
                             return new HtmlString(
                                 '<div style="background:#fff7ed;border:1px solid #fdba74;border-radius:8px;padding:12px 16px;color:#7c2d12;font-size:14px;">'
-                                . '<strong>' . __('cms::cms.page_status_draft') . '</strong> — '
-                                . __('cms::cms.page_draft_changes_notice')
-                                . '</div>'
+                                .'<strong>'.__('cms::cms.page_status_draft').'</strong> — '
+                                .__('cms::cms.page_draft_changes_notice')
+                                .'</div>'
                             );
                         }
 
                         return new HtmlString(
                             '<div style="background:#dcfce7;border:1px solid #86efac;border-radius:8px;padding:12px 16px;color:#14532d;font-size:14px;">'
-                            . __('cms::cms.page_is_live_notice')
-                            . '</div>'
+                            .__('cms::cms.page_is_live_notice')
+                            .'</div>'
                         );
                     }),
 
@@ -73,33 +75,35 @@ class PageForm
                     ->columnSpan(2)
                     ->html()
                     ->hiddenOn('create')
-                    ->content(function (?Page $record): HtmlString {
-                        if (!$record || !$record->is_frontpage) {
+                    ->content(function (?PageContent $record): HtmlString {
+                        if (! $record || ! $record->is_frontpage) {
                             return new HtmlString('');
                         }
 
                         return new HtmlString(
                             '<div style="background:#eff6ff;border:1px solid #93c5fd;border-radius:8px;padding:10px 16px;color:#1e3a8a;font-size:14px;">'
-                            . '⭐ ' . __('cms::cms.page_frontpage_indicator')
-                            . '</div>'
+                            .'⭐ '.__('cms::cms.page_frontpage_indicator')
+                            .'</div>'
                         );
                     }),
 
                 TextInput::make('name')
                     ->label(__('cms::cms.page_name'))
                     ->live(onBlur: true)
-                    ->afterStateUpdated(fn (Set $set, ?string $state, ?Page $record) => $record === null ? $set('slug', str($state)->slug()) : null)
+                    ->afterStateUpdated(fn (Set $set, ?string $state, ?PageContent $record) => $record === null ? $set('slug', str($state)->slug()) : null)
                     ->required(),
                 TextInput::make('slug')
-                    ->unique(modifyRuleUsing: function (Unique $rule, ?Page $record) {
-                        return $rule->ignore($record?->id);
-                    })
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(fn (Set $set, ?string $state, ?Page $record) => $record === null ? $set('slug', str($state)->slug()) : null)
+                    ->rules([new ReservedLocaleSlug])
                     ->regex('/^[a-z0-9]+(?:-[a-z0-9]+)*$/')
-                    ->disabled(fn (?Page $record) => $record !== null)
-                    ->dehydrated(fn (?Page $record) => $record === null)
-                    ->helperText(function (?Page $record) {
+                    ->unique(
+                        table: 'page_contents',
+                        column: 'slug',
+                        ignorable: fn (?PageContent $record) => $record,
+                        modifyRuleUsing: fn (Unique $rule) => $rule->where('locale', Locales::default()),
+                    )
+                    ->disabled(fn (?PageContent $record) => $record !== null)
+                    ->dehydrated(fn (?PageContent $record) => $record === null)
+                    ->helperText(function (?PageContent $record) {
                         if ($record === null) {
                             return __('cms::cms.page_slug_helper');
                         }
@@ -113,7 +117,7 @@ class PageForm
                 Builder::make('layout')
                     ->blocks(CmsServiceProvider::getLayouts())
                     ->collapsible()
-                    ->collapsed(fn (?Page $record) => $record !== null)
+                    ->collapsed(fn (?PageContent $record) => $record !== null)
                     ->columnSpan(2)
                     ->required()
                     ->reorderable(false)
@@ -124,7 +128,7 @@ class PageForm
                     ->label(__('cms::cms.page_content_blocks'))
                     ->columnSpan(2)
                     ->collapsible()
-                    ->collapsed(fn (?Page $record) => $record !== null)
+                    ->collapsed(fn (?PageContent $record) => $record !== null)
                     ->blockPickerColumns(2)
                     ->addAction(fn (Action $action) => $action->label(__('cms::cms.page_add_content')))
                     ->addBetweenAction(fn (Action $action) => $action->label(__('cms::cms.insert_between')))

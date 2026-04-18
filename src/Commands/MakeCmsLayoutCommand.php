@@ -36,11 +36,11 @@ class MakeCmsLayoutCommand extends Command
             return;
         }
 
-        if (!is_dir(dirname($dest))) {
+        if (! is_dir(dirname($dest))) {
             mkdir(dirname($dest), 0755, true);
         }
 
-        $stub = file_get_contents(__DIR__ . '/../../stubs/layout.php.stub');
+        $stub = file_get_contents(__DIR__.'/../../stubs/layout.php.stub');
         $stub = str_replace(['{{ class }}', '{{ name }}', '{{ label }}'], [$class, $name, $label], $stub);
 
         file_put_contents($dest, $stub);
@@ -57,11 +57,11 @@ class MakeCmsLayoutCommand extends Command
             return;
         }
 
-        if (!is_dir(dirname($dest))) {
+        if (! is_dir(dirname($dest))) {
             mkdir(dirname($dest), 0755, true);
         }
 
-        $stub = file_get_contents(__DIR__ . '/../../stubs/layout.vue.stub');
+        $stub = file_get_contents(__DIR__.'/../../stubs/layout.vue.stub');
         $stub = str_replace('{{ label }}', $label, $stub);
 
         file_put_contents($dest, $stub);

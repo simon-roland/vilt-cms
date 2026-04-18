@@ -2,10 +2,10 @@
 
 namespace RolandSolutions\ViltCms\Filament\Blocks;
 
-use RolandSolutions\ViltCms\Filament\Fields\ID;
-use RolandSolutions\ViltCms\Filament\Fields\MediaPicker;
 use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\TextInput;
+use RolandSolutions\ViltCms\Filament\Fields\ID;
+use RolandSolutions\ViltCms\Filament\Fields\MediaPicker;
 
 class Gallery extends BaseBlock
 {

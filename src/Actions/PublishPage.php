@@ -2,18 +2,18 @@
 
 namespace RolandSolutions\ViltCms\Actions;
 
-use RolandSolutions\ViltCms\Models\Page;
+use RolandSolutions\ViltCms\Models\PageContent;
 
 class PublishPage extends Action
 {
-    public function handle(Page $page): void
+    public function handle(PageContent $content): void
     {
-        $page->update([
+        $content->update([
             'published_content' => [
-                'name'   => $page->name,
-                'layout' => $page->layout,
-                'blocks' => $page->blocks,
-                'meta'   => $page->meta,
+                'name' => $content->name,
+                'layout' => $content->layout,
+                'blocks' => $content->blocks,
+                'meta' => $content->meta,
             ],
             'published_at' => now(),
         ]);

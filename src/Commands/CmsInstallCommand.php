@@ -3,6 +3,7 @@
 namespace RolandSolutions\ViltCms\Commands;
 
 use Illuminate\Console\Command;
+use RolandSolutions\ViltCms\Database\Seeders\CmsShowcaseSeeder;
 use RolandSolutions\ViltCms\Traits\PublishesStubs;
 
 class CmsInstallCommand extends Command
@@ -55,17 +56,17 @@ class CmsInstallCommand extends Command
         $this->newLine();
         $this->info('CMS installed successfully!');
 
-        if (!empty($this->manualSteps)) {
+        if (! empty($this->manualSteps)) {
             $this->newLine();
             $this->warn('Manual steps required:');
             foreach ($this->manualSteps as $i => $step) {
-                $this->line('  ' . ($i + 1) . '. ' . $step);
+                $this->line('  '.($i + 1).'. '.$step);
             }
         }
 
         $this->newLine();
         if ($this->confirm('Would you like to create a Filament admin user?', true)) {
-            passthru(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg(base_path('artisan')) . ' filament:user');
+            passthru(escapeshellarg(PHP_BINARY).' '.escapeshellarg(base_path('artisan')).' filament:user');
         }
 
         return self::SUCCESS;
@@ -84,9 +85,9 @@ class CmsInstallCommand extends Command
             ? file_get_contents(base_path('vite.config.ts'))
             : '';
 
-        $stockAppJs = $appJsExists && str_contains($appJsContent, "import './bootstrap'") && !$appTsExists;
-        $noVueInVite = !str_contains($viteContent, '@vitejs/plugin-vue')
-            && !str_contains($viteConfigTs, '@vitejs/plugin-vue');
+        $stockAppJs = $appJsExists && str_contains($appJsContent, "import './bootstrap'") && ! $appTsExists;
+        $noVueInVite = ! str_contains($viteContent, '@vitejs/plugin-vue')
+            && ! str_contains($viteConfigTs, '@vitejs/plugin-vue');
 
         return $welcomeExists && $stockAppJs && $noVueInVite;
     }
@@ -117,7 +118,7 @@ class CmsInstallCommand extends Command
     {
         $this->step('Publishing HandleInertiaRequests middleware');
         $this->publishFile(
-            __DIR__ . '/../../stubs/HandleInertiaRequests.stub',
+            __DIR__.'/../../stubs/HandleInertiaRequests.stub',
             app_path('Http/Middleware/HandleInertiaRequests.php'),
             force: false,
             confirmOverwrite: false,
@@ -152,9 +153,9 @@ PHP;
             $this->done('HandleInertiaRequests registered in bootstrap/app.php');
         } else {
             $this->manual(
-                'Register middleware in bootstrap/app.php:' . PHP_EOL .
-                '    ->withMiddleware(function (Middleware $middleware): void {' . PHP_EOL .
-                '        $middleware->web(append: [\\App\\Http\\Middleware\\HandleInertiaRequests::class]);' . PHP_EOL .
+                'Register middleware in bootstrap/app.php:'.PHP_EOL.
+                '    ->withMiddleware(function (Middleware $middleware): void {'.PHP_EOL.
+                '        $middleware->web(append: [\\App\\Http\\Middleware\\HandleInertiaRequests::class]);'.PHP_EOL.
                 '    })'
             );
         }
@@ -165,9 +166,9 @@ PHP;
         $this->step('Registering CmsPlugin in AdminPanelProvider');
         $path = app_path('Providers/Filament/AdminPanelProvider.php');
 
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             $this->callSilent('make:filament-panel', ['id' => 'admin']);
-            if (!file_exists($path)) {
+            if (! file_exists($path)) {
                 $this->skip('AdminPanelProvider not found — skipping');
 
                 return;
@@ -194,7 +195,7 @@ PHP;
             // Inject use statement after namespace line
             $content = preg_replace(
                 '/(^namespace\s+[^;]+;\s*)/m',
-                "$1\n" . $uses . "\n",
+                "$1\n".$uses."\n",
                 $content,
                 1
             );
@@ -221,10 +222,10 @@ PHP;
             file_put_contents($path, $content);
         } else {
             $this->manual(
-                'Add to AdminPanelProvider.php use statements:' . PHP_EOL .
-                '    ' . $uses . PHP_EOL .
-                'And add to your panel() method:' . PHP_EOL .
-                '    ' . $plugin
+                'Add to AdminPanelProvider.php use statements:'.PHP_EOL.
+                '    '.$uses.PHP_EOL.
+                'And add to your panel() method:'.PHP_EOL.
+                '    '.$plugin
             );
         }
     }
@@ -234,11 +235,11 @@ PHP;
         $this->step('Creating Filament panel theme');
         $themePath = base_path('resources/css/filament/admin/theme.css');
 
-        if (!is_dir(dirname($themePath))) {
+        if (! is_dir(dirname($themePath))) {
             mkdir(dirname($themePath), 0755, true);
         }
 
-        if (!file_exists($themePath)) {
+        if (! file_exists($themePath)) {
             file_put_contents($themePath, <<<'CSS'
 @import '../../../../vendor/filament/filament/resources/css/theme.css';
 
@@ -250,8 +251,8 @@ CSS);
         } else {
             // Ensure CMS @source is present even if theme already exists
             $content = file_get_contents($themePath);
-            if (!str_contains($content, 'roland-solutions/vilt-cms')) {
-                file_put_contents($themePath, rtrim($content) . PHP_EOL . "@source '../../../../vendor/roland-solutions/vilt-cms/resources/views/**/*';" . PHP_EOL);
+            if (! str_contains($content, 'roland-solutions/vilt-cms')) {
+                file_put_contents($themePath, rtrim($content).PHP_EOL."@source '../../../../vendor/roland-solutions/vilt-cms/resources/views/**/*';".PHP_EOL);
                 $this->done('CMS @source added to existing Filament theme');
             } else {
                 $this->skip('Filament theme already includes CMS @source');
@@ -262,7 +263,7 @@ CSS);
         $providerPath = app_path('Providers/Filament/AdminPanelProvider.php');
         if (file_exists($providerPath)) {
             $content = file_get_contents($providerPath);
-            if (!str_contains($content, 'viteTheme')) {
+            if (! str_contains($content, 'viteTheme')) {
                 if ($fresh) {
                     $content = preg_replace(
                         '/(->plugin\(CmsPlugin::make\(\)\))/',
@@ -284,7 +285,7 @@ CSS);
         $viteConfigPath = base_path('vite.config.js');
         if (file_exists($viteConfigPath)) {
             $content = file_get_contents($viteConfigPath);
-            if (!str_contains($content, 'filament/admin/theme.css')) {
+            if (! str_contains($content, 'filament/admin/theme.css')) {
                 $content = str_replace(
                     "'resources/css/app.css'",
                     "'resources/css/app.css', 'resources/css/filament/admin/theme.css'",
@@ -303,7 +304,7 @@ CSS);
         $this->step('Adding FilamentUser to User model');
         $path = app_path('Models/User.php');
 
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             $this->manual('User model not found at app/Models/User.php — add FilamentUser manually');
 
             return;
@@ -322,7 +323,7 @@ CSS);
             $uses = "use Filament\\Models\\Contracts\\FilamentUser;\nuse Filament\\Panel;\n";
             $content = preg_replace(
                 '/^(use\s+(?:Illuminate|Database).*\n)(?!use\s)/m',
-                '$1' . $uses,
+                '$1'.$uses,
                 $content,
                 1
             );
@@ -343,16 +344,16 @@ CSS);
         return true;
     }
 PHP;
-            $content = preg_replace('/(\})\s*$/', $method . "\n}", $content);
+            $content = preg_replace('/(\})\s*$/', $method."\n}", $content);
 
             file_put_contents($path, $content);
             $this->done('User model updated with FilamentUser');
         } else {
             $this->manual(
-                'Add to app/Models/User.php:' . PHP_EOL .
-                '    use Filament\\Models\\Contracts\\FilamentUser;' . PHP_EOL .
-                '    use Filament\\Panel;' . PHP_EOL .
-                '    class User extends Authenticatable implements FilamentUser' . PHP_EOL .
+                'Add to app/Models/User.php:'.PHP_EOL.
+                '    use Filament\\Models\\Contracts\\FilamentUser;'.PHP_EOL.
+                '    use Filament\\Panel;'.PHP_EOL.
+                '    class User extends Authenticatable implements FilamentUser'.PHP_EOL.
                 '    public function canAccessPanel(Panel $panel): bool { return true; }'
             );
         }
@@ -362,7 +363,7 @@ PHP;
     {
         $this->step('Publishing app.ts');
         $this->publishFile(
-            __DIR__ . '/../../stubs/app.ts.stub',
+            __DIR__.'/../../stubs/app.ts.stub',
             base_path('resources/js/app.ts'),
             force: false,
             confirmOverwrite: false,
@@ -389,7 +390,7 @@ PHP;
     {
         $this->step('Publishing tsconfig.json');
         $this->publishFile(
-            __DIR__ . '/../../stubs/tsconfig.json.stub',
+            __DIR__.'/../../stubs/tsconfig.json.stub',
             base_path('tsconfig.json'),
             force: false,
             confirmOverwrite: false,
@@ -399,7 +400,7 @@ PHP;
     private function publishViteConfig(bool $fresh): void
     {
         $this->step('Configuring Vite');
-        $stub = __DIR__ . '/../../stubs/vite.config.js.stub';
+        $stub = __DIR__.'/../../stubs/vite.config.js.stub';
 
         if ($fresh) {
             // Replace stock vite.config.js
@@ -420,8 +421,8 @@ PHP;
             }
 
             $this->manual(
-                'Add to your vite.config resolve.alias:' . PHP_EOL .
-                "    '@cms': path.resolve(__dirname, 'vendor/roland-solutions/vilt-cms/resources/js')," . PHP_EOL .
+                'Add to your vite.config resolve.alias:'.PHP_EOL.
+                "    '@cms': path.resolve(__dirname, 'vendor/roland-solutions/vilt-cms/resources/js'),".PHP_EOL.
                 'And set: preserveSymlinks: true'
             );
         }
@@ -432,10 +433,10 @@ PHP;
         $this->step('Adding Tailwind @source directives to app.css');
         $path = base_path('resources/css/app.css');
 
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             $this->manual(
-                'Add to resources/css/app.css:' . PHP_EOL .
-                "    @source '../**/*.vue';" . PHP_EOL .
+                'Add to resources/css/app.css:'.PHP_EOL.
+                "    @source '../**/*.vue';".PHP_EOL.
                 "    @source '../../vendor/roland-solutions/vilt-cms/resources/js/**/*.vue';"
             );
 
@@ -450,10 +451,10 @@ PHP;
             return;
         }
 
-        $directives = PHP_EOL . "@source '../**/*.vue';" . PHP_EOL
-            . "@source '../../vendor/roland-solutions/vilt-cms/resources/js/**/*.vue';" . PHP_EOL;
+        $directives = PHP_EOL."@source '../**/*.vue';".PHP_EOL
+            ."@source '../../vendor/roland-solutions/vilt-cms/resources/js/**/*.vue';".PHP_EOL;
 
-        file_put_contents($path, $content . $directives);
+        file_put_contents($path, $content.$directives);
         $this->done('Tailwind @source directives added to app.css');
     }
 
@@ -462,7 +463,7 @@ PHP;
         $this->step('Clearing stock welcome route');
         $path = base_path('routes/web.php');
 
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             $this->skip('routes/web.php not found — skipping');
 
             return;
@@ -494,19 +495,19 @@ PHP;
     {
         $this->step('Publishing app.css');
         $dest = base_path('resources/css/app.css');
-        $stub = __DIR__ . '/../../stubs/app.css.stub';
+        $stub = __DIR__.'/../../stubs/app.css.stub';
 
         if (file_exists($dest)) {
             $content = file_get_contents($dest);
             // Only overwrite if it's the stock Laravel app.css
-            if (!str_contains($content, '@import \'tailwindcss\'') && !str_contains($content, '@tailwind')) {
+            if (! str_contains($content, '@import \'tailwindcss\'') && ! str_contains($content, '@tailwind')) {
                 $this->skip('resources/css/app.css already exists with custom content — skipping');
 
                 return;
             }
         }
 
-        if (!is_dir(dirname($dest))) {
+        if (! is_dir(dirname($dest))) {
             mkdir(dirname($dest), 0755, true);
         }
 
@@ -527,21 +528,19 @@ PHP;
     {
         $this->step('Publishing SiteSettingsSchema');
         $this->publishFile(
-            __DIR__ . '/../../stubs/SiteSettingsSchema.php.stub',
+            __DIR__.'/../../stubs/SiteSettingsSchema.php.stub',
             app_path('Cms/SiteSettingsSchema.php'),
             force: false,
             confirmOverwrite: false,
         );
     }
 
-
-
     private function seedShowcaseContent(): void
     {
         $this->step('Seeding showcase content');
 
         $this->callSilent('db:seed', [
-            '--class' => \RolandSolutions\ViltCms\Database\Seeders\CmsShowcaseSeeder::class,
+            '--class' => CmsShowcaseSeeder::class,
         ]);
 
         $this->done('Showcase content seeded');
@@ -576,24 +575,24 @@ PHP;
         $packages = '@inertiajs/vue3 vue @vitejs/plugin-vue ziggy-js';
 
         $addCommands = [
-            'yarn'  => "yarn add --dev {$packages}",
-            'bun'   => "bun add --dev {$packages}",
-            'pnpm'  => "pnpm add -D {$packages}",
-            'npm'   => "npm install --save-dev {$packages}",
+            'yarn' => "yarn add --dev {$packages}",
+            'bun' => "bun add --dev {$packages}",
+            'pnpm' => "pnpm add -D {$packages}",
+            'npm' => "npm install --save-dev {$packages}",
         ];
 
         $buildCommands = [
-            'yarn'  => 'yarn build',
-            'bun'   => 'bun run build',
-            'pnpm'  => 'pnpm run build',
-            'npm'   => 'npm run build',
+            'yarn' => 'yarn build',
+            'bun' => 'bun run build',
+            'pnpm' => 'pnpm run build',
+            'npm' => 'npm run build',
         ];
 
         $addCommand = $addCommands[$manager];
         $this->line("  Running: <fg=cyan>{$addCommand}</>");
 
         $result = 0;
-        passthru($addCommand . ' 2>&1', $result);
+        passthru($addCommand.' 2>&1', $result);
 
         if ($result !== 0) {
             $this->warn("Package install failed — run manually: {$addCommand}");
@@ -608,7 +607,7 @@ PHP;
         $this->line("  Running: <fg=cyan>{$buildCommand}</>");
 
         $result = 0;
-        passthru($buildCommand . ' 2>&1', $result);
+        passthru($buildCommand.' 2>&1', $result);
 
         if ($result === 0) {
             $this->done('Assets built successfully');
