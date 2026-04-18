@@ -63,6 +63,20 @@ return [
     'page_change_slug_field' => 'Nyt slug (URL)',
     'page_change_slug_success' => 'Slug opdateret.',
 
+    // Localization
+    'page_locales' => 'Sprog',
+    'page_add_locale_heading' => 'Tilføj sprog',
+    'page_add_locale_description' => 'Opret indhold til denne side på et nyt sprog.',
+    'page_add_locale_source' => 'Start fra',
+    'page_add_locale_blank' => 'Tom kladde',
+    'page_add_locale_copy_from' => 'Kopiér fra :locale',
+    'page_add_locale_success' => 'Sprog tilføjet.',
+    'page_copy_from_locale' => 'Kopiér indhold fra sprog',
+    'page_copy_from_locale_heading' => 'Kopiér indhold fra et andet sprog',
+    'page_copy_from_locale_description' => 'Overskriv den nuværende kladde med indhold fra et andet sprog. Dette påvirker ikke den udgivne version.',
+    'page_copy_from_locale_source' => 'Kildesprog',
+    'page_copy_from_locale_success' => 'Indhold kopieret.',
+
     // General UI
     'view_site' => 'Vis hjemmeside',
     'view_page' => 'Vis side',

@@ -48,11 +48,6 @@ class PageContent extends Model implements HasMedia
         });
     }
 
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
-    }
-
     public function page(): BelongsTo
     {
         return $this->belongsTo(Page::class);
