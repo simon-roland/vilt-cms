@@ -2,16 +2,16 @@
 
 namespace RolandSolutions\ViltCms\Http\Middleware;
 
-use RolandSolutions\ViltCms\Actions\ReplacePageID;
-use RolandSolutions\ViltCms\Actions\ResolveSettingsMedia;
-use RolandSolutions\ViltCms\Models\Navigation;
-use RolandSolutions\ViltCms\Models\Page;
-use RolandSolutions\ViltCms\Models\SiteSettings;
-use RolandSolutions\ViltCms\Support\PreviewMode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\URL;
 use Inertia\Middleware;
+use RolandSolutions\ViltCms\Actions\ReplacePageID;
+use RolandSolutions\ViltCms\Actions\ResolveSettingsMedia;
+use RolandSolutions\ViltCms\Models\Navigation;
+use RolandSolutions\ViltCms\Models\PageContent;
+use RolandSolutions\ViltCms\Models\SiteSettings;
+use RolandSolutions\ViltCms\Support\PreviewMode;
 use Tighten\Ziggy\Ziggy;
 
 class HandleInertiaRequests extends Middleware
@@ -30,18 +30,26 @@ class HandleInertiaRequests extends Middleware
 
     protected function loadNavigation(string $type): array
     {
-        $nav = Navigation::firstWhere('type', $type);
+        $locale = app()->getLocale();
+
+        $nav = Navigation::where('type', $type)
+            ->where('locale', $locale)
+            ->first();
 
         if ($nav) {
-            if (!PreviewMode::active()) {
+            if (! PreviewMode::active()) {
                 $publishedPageIds = array_flip(
-                    Page::whereNotNull('published_content')->pluck('id')->all()
+                    PageContent::query()
+                        ->where('locale', $locale)
+                        ->whereNotNull('published_content')
+                        ->pluck('page_id')
+                        ->all()
                 );
 
                 $nav->items = $this->filterNavItems($nav->items, $publishedPageIds);
             }
 
-            $nav->items = ReplacePageID::make()->handle($nav->items);
+            $nav->items = ReplacePageID::make()->handle($nav->items, $locale);
         }
 
         return $nav->items ?? [];
@@ -52,7 +60,7 @@ class HandleInertiaRequests extends Middleware
         $filtered = [];
 
         foreach ($items as $item) {
-            if (!is_array($item) || empty($item['type'])) {
+            if (! is_array($item) || empty($item['type'])) {
                 $filtered[] = $item;
 
                 continue;
@@ -62,7 +70,7 @@ class HandleInertiaRequests extends Middleware
                 $data = $item['data'] ?? [];
                 if (($data['link_type'] ?? '') === 'page') {
                     $pageId = $data['page_id'] ?? null;
-                    if ($pageId === null || !isset($publishedPageIds[$pageId])) {
+                    if ($pageId === null || ! isset($publishedPageIds[$pageId])) {
                         continue;
                     }
                 }

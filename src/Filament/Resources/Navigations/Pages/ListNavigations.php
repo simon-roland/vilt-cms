@@ -2,9 +2,9 @@
 
 namespace RolandSolutions\ViltCms\Filament\Resources\Navigations\Pages;
 
-use RolandSolutions\ViltCms\Filament\Resources\Navigations\NavigationResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use RolandSolutions\ViltCms\Filament\Resources\Navigations\NavigationResource;
 
 class ListNavigations extends ListRecords
 {

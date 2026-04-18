@@ -2,9 +2,9 @@
 
 namespace RolandSolutions\ViltCms\Filament\Resources\Pages\Pages;
 
-use RolandSolutions\ViltCms\Filament\Resources\Pages\PageResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use RolandSolutions\ViltCms\Filament\Resources\Pages\PageResource;
 
 class ListPages extends ListRecords
 {

@@ -2,8 +2,8 @@
 
 namespace RolandSolutions\ViltCms\Filament\Fields;
 
-use Filament\Schemas\Components\Component;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Utilities\Get;
 
 class URL extends BaseField

@@ -9,8 +9,11 @@ use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Illuminate\Validation\Rules\Unique;
 use RolandSolutions\ViltCms\Filament\Resources\Pages\PageResource;
 use RolandSolutions\ViltCms\Models\Page;
+use RolandSolutions\ViltCms\Models\PageContent;
+use RolandSolutions\ViltCms\Rules\ReservedLocaleSlug;
 
 trait HasPageActions
 {
@@ -18,7 +21,7 @@ trait HasPageActions
      * Called after a successful unpublish. Override in subclasses to customise
      * the post-unpublish behaviour (e.g. redirect vs. form refresh).
      */
-    protected function onUnpublish(Page $record): void
+    protected function onUnpublish(PageContent $record): void
     {
         $this->refreshFormData(['published_content', 'published_at']);
     }
@@ -36,10 +39,12 @@ trait HasPageActions
                 TextInput::make('slug')
                     ->label(__('cms::cms.page_change_slug_field'))
                     ->default(fn ($record) => $record->slug)
+                    ->rules([new ReservedLocaleSlug])
                     ->unique(
-                        table: 'pages',
+                        table: 'page_contents',
                         column: 'slug',
                         ignorable: fn ($record) => $record,
+                        modifyRuleUsing: fn (Unique $rule, $record) => $rule->where('locale', $record->locale),
                     )
                     ->rules([
                         fn (): \Closure => function (string $attribute, $value, \Closure $fail) {
@@ -81,7 +86,10 @@ trait HasPageActions
                     ->required(),
             ])
             ->action(function ($record, array $data) {
-                $newPage = Page::create([
+                $newPage = Page::create([]);
+
+                $newContent = $newPage->contents()->create([
+                    'locale' => $record->locale,
                     'name' => $data['name'],
                     'slug' => $data['slug'],
                     'layout' => $record->layout,
@@ -94,7 +102,7 @@ trait HasPageActions
                     ->success()
                     ->send();
 
-                $this->redirect(PageResource::getUrl('edit', ['record' => $newPage]));
+                $this->redirect(PageResource::getUrl('edit', ['record' => $newContent]));
             });
     }
 

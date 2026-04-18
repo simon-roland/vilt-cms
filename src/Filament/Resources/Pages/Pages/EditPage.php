@@ -2,12 +2,13 @@
 
 namespace RolandSolutions\ViltCms\Filament\Resources\Pages\Pages;
 
-use RolandSolutions\ViltCms\Actions\PublishPage;
-use RolandSolutions\ViltCms\Filament\Resources\Pages\Concerns\HasPageActions;
-use RolandSolutions\ViltCms\Filament\Resources\Pages\PageResource;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Database\Eloquent\Model;
+use RolandSolutions\ViltCms\Actions\PublishPage;
+use RolandSolutions\ViltCms\Filament\Resources\Pages\Concerns\HasPageActions;
+use RolandSolutions\ViltCms\Filament\Resources\Pages\PageResource;
 
 class EditPage extends EditRecord
 {
@@ -25,19 +26,19 @@ class EditPage extends EditRecord
                 ->label(__('cms::cms.view_page'))
                 ->icon('heroicon-o-arrow-top-right-on-square')
                 ->color('gray')
-                ->visible(fn ($record) => $record && !$record->trashed())
+                ->visible(fn ($record) => $record && ! $record->trashed())
                 ->url(function ($record) {
                     $bothVersions = $record->isPublished() && $record->hasDraftChanges();
                     $base = $record->is_frontpage ? route('pages.frontpage') : route('pages.show', $record->slug);
 
-                    return $bothVersions ? $base . '?preview=draft' : $base;
+                    return $bothVersions ? $base.'?preview=draft' : $base;
                 }),
 
             Action::make('publish')
                 ->label(__('cms::cms.page_publish'))
                 ->icon('heroicon-o-arrow-up-circle')
                 ->color('success')
-                ->visible(fn ($record) => $record && !$record->trashed() && $record->hasDraftChanges())
+                ->visible(fn ($record) => $record && ! $record->trashed() && $record->hasDraftChanges())
                 ->action(function ($record) {
                     PublishPage::make()->handle($record);
 
@@ -53,14 +54,14 @@ class EditPage extends EditRecord
                 ->label(__('cms::cms.page_save_as_draft'))
                 ->icon('heroicon-o-pencil-square')
                 ->color('warning')
-                ->visible(fn ($record) => $record && $record->isPublished() && !$record->hasDraftChanges() && !$record->trashed())
+                ->visible(fn ($record) => $record && $record->isPublished() && ! $record->hasDraftChanges() && ! $record->trashed())
                 ->action(fn () => $this->save(shouldRedirect: false)),
 
             Action::make('edit_published')
                 ->label(__('cms::cms.page_edit_published_button'))
                 ->icon('heroicon-o-bolt')
                 ->color('danger')
-                ->visible(fn ($record) => $record && $record->isPublished() && $record->hasDraftChanges() && !$record->trashed())
+                ->visible(fn ($record) => $record && $record->isPublished() && $record->hasDraftChanges() && ! $record->trashed())
                 ->url(fn ($record) => PageResource::getUrl('edit-published', ['record' => $record])),
 
             Action::make('discard_draft')
@@ -70,13 +71,13 @@ class EditPage extends EditRecord
                 ->requiresConfirmation()
                 ->modalHeading(__('cms::cms.page_discard_draft'))
                 ->modalDescription(__('cms::cms.page_discard_draft_confirm'))
-                ->visible(fn ($record) => $record && $record->isPublished() && $record->hasDraftChanges() && !$record->trashed())
+                ->visible(fn ($record) => $record && $record->isPublished() && $record->hasDraftChanges() && ! $record->trashed())
                 ->action(function ($record) {
                     $record->update([
-                        'name'   => $record->published_content['name'] ?? $record->published_content['title'] ?? $record->name,
+                        'name' => $record->published_content['name'] ?? $record->published_content['title'] ?? $record->name,
                         'layout' => $record->published_content['layout'],
                         'blocks' => $record->published_content['blocks'] ?? null,
-                        'meta'   => $record->published_content['meta'] ?? null,
+                        'meta' => $record->published_content['meta'] ?? null,
                     ]);
 
                     $this->fillForm();
@@ -112,14 +113,14 @@ class EditPage extends EditRecord
     {
         $record = $this->getRecord();
 
-        if ($record && $record->isPublished() && !$record->hasDraftChanges()) {
+        if ($record && $record->isPublished() && ! $record->hasDraftChanges()) {
             $this->publishAfterSave = true;
         }
 
         $this->save(shouldRedirect: false);
     }
 
-    protected function handleRecordUpdate(\Illuminate\Database\Eloquent\Model $record, array $data): \Illuminate\Database\Eloquent\Model
+    protected function handleRecordUpdate(Model $record, array $data): Model
     {
         $record->update($data);
 

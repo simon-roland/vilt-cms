@@ -10,6 +10,6 @@ abstract class BaseField
 
     public static function make($options = []): Component
     {
-        return (new static())->setup($options);
+        return (new static)->setup($options);
     }
 }

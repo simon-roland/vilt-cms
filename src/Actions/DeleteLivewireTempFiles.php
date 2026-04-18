@@ -9,7 +9,7 @@ class DeleteLivewireTempFiles extends Action
     public function handle()
     {
         $path = storage_path('app/livewire-tmp');
-        $files = glob($path . '/*');
+        $files = glob($path.'/*');
         $now = time();
         foreach ($files as $file) {
             if (is_file($file) && ($now - filemtime($file)) > self::DELETE_AFTER_SECONDS) {
