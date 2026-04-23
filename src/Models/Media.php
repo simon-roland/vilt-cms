@@ -43,7 +43,7 @@ class Media extends SpatieMedia
 
         $srcset = collect($urls)->map(function ($url) use ($mediaId, $mediaUrl) {
             if (preg_match('/_(\d+)_\d+\.webp$/', $url, $m)) {
-                return $mediaUrl("{$mediaId}/responsive-images/{$url}") . ' ' . $m[1] . 'w';
+                return $mediaUrl("{$mediaId}/responsive-images/{$url}").' '.$m[1].'w';
             }
 
             return $mediaUrl("{$mediaId}/responsive-images/{$url}");
