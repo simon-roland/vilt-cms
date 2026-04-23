@@ -103,7 +103,6 @@ class PageForm
                             }
                         }
                     )
-                    ->regex('/^[a-z0-9]+(?:-[a-z0-9]+)*$/')
                     ->unique(
                         table: 'page_contents',
                         column: 'slug',
