@@ -2,8 +2,6 @@
 
 namespace RolandSolutions\ViltCms\Filament\Resources\Pages\Concerns;
 
-use RolandSolutions\ViltCms\Filament\Resources\Pages\PageResource;
-use RolandSolutions\ViltCms\Models\Page;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
@@ -11,6 +9,8 @@ use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use RolandSolutions\ViltCms\Filament\Resources\Pages\PageResource;
+use RolandSolutions\ViltCms\Models\Page;
 
 trait HasPageActions
 {
@@ -29,21 +29,25 @@ trait HasPageActions
             ->label(__('cms::cms.page_change_slug'))
             ->icon('heroicon-o-link')
             ->color('gray')
-            ->visible(fn ($record) => $record && !$record->trashed() && !$record->is_frontpage)
+            ->visible(fn ($record) => $record && ! $record->trashed() && ! $record->is_frontpage)
             ->modalHeading(__('cms::cms.page_change_slug_heading'))
             ->modalDescription(__('cms::cms.page_change_slug_description'))
-            ->form([
+            ->schema([
                 TextInput::make('slug')
                     ->label(__('cms::cms.page_change_slug_field'))
                     ->default(fn ($record) => $record->slug)
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(fn ($state, $set) => $set('slug', str($state)->slug()))
                     ->unique(
                         table: 'pages',
                         column: 'slug',
                         ignorable: fn ($record) => $record,
                     )
-                    ->regex('/^[a-z0-9]+(?:-[a-z0-9]+)*$/')
+                    ->rules([
+                        fn (): \Closure => function (string $attribute, $value, \Closure $fail) {
+                            if (blank(str($value)->slug())) {
+                                $fail(__('validation.regex', ['attribute' => $attribute]));
+                            }
+                        },
+                    ])
                     ->required(),
             ])
             ->action(function ($record, array $data) {
@@ -73,16 +77,16 @@ trait HasPageActions
                     ->required(),
                 TextInput::make('slug')
                     ->label(__('cms::cms.page_duplicate_slug'))
-                    ->default(fn ($record) => $record->slug . '-copy')
+                    ->default(fn ($record) => $record->slug.'-copy')
                     ->required(),
             ])
             ->action(function ($record, array $data) {
                 $newPage = Page::create([
-                    'name'   => $data['name'],
-                    'slug'   => $data['slug'],
+                    'name' => $data['name'],
+                    'slug' => $data['slug'],
                     'layout' => $record->layout,
                     'blocks' => $record->blocks,
-                    'meta'   => $record->meta,
+                    'meta' => $record->meta,
                 ]);
 
                 Notification::make()
@@ -103,11 +107,11 @@ trait HasPageActions
             ->requiresConfirmation()
             ->modalHeading(__('cms::cms.page_unpublish'))
             ->modalDescription(__('cms::cms.page_unpublish_confirm'))
-            ->visible(fn ($record) => $record && $record->isPublished() && !$record->trashed())
+            ->visible(fn ($record) => $record && $record->isPublished() && ! $record->trashed())
             ->action(function ($record) {
                 $record->update([
                     'published_content' => null,
-                    'published_at'      => null,
+                    'published_at' => null,
                 ]);
 
                 $this->onUnpublish($record);
@@ -128,7 +132,7 @@ trait HasPageActions
             ->requiresConfirmation()
             ->modalHeading(__('cms::cms.page_set_as_frontpage'))
             ->modalDescription(__('cms::cms.page_set_as_frontpage_confirm'))
-            ->visible(fn ($record) => $record && !$record->is_frontpage && $record->isPublished() && !$record->trashed())
+            ->visible(fn ($record) => $record && ! $record->is_frontpage && $record->isPublished() && ! $record->trashed())
             ->action(function ($record) {
                 $record->update(['is_frontpage' => true]);
 
@@ -145,7 +149,7 @@ trait HasPageActions
     {
         return ActionGroup::make(array_merge($actions, [
             DeleteAction::make()
-                ->visible(fn ($record) => $record && !$record->trashed()),
+                ->visible(fn ($record) => $record && ! $record->trashed()),
 
             RestoreAction::make()
                 ->visible(fn ($record) => $record && $record->trashed()),

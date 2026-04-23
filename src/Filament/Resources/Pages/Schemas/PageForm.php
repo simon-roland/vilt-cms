@@ -12,6 +12,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\HtmlString;
@@ -94,9 +95,14 @@ class PageForm
                     ->unique(modifyRuleUsing: function (Unique $rule, ?Page $record) {
                         return $rule->ignore($record?->id);
                     })
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(fn (Set $set, ?string $state, ?Page $record) => $record === null ? $set('slug', str($state)->slug()) : null)
-                    ->regex('/^[a-z0-9]+(?:-[a-z0-9]+)*$/')
+                    ->rules([
+                        fn (Get $get): \Closure => function (string $attribute, $value, \Closure $fail) use ($get) {
+                            $slug = str($value ?: $get('name') ?? '')->slug();
+                            if (blank($slug)) {
+                                $fail(__('validation.regex', ['attribute' => $attribute]));
+                            }
+                        },
+                    ])
                     ->disabled(fn (?Page $record) => $record !== null)
                     ->dehydrated(fn (?Page $record) => $record === null)
                     ->helperText(function (?Page $record) {

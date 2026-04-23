@@ -41,11 +41,6 @@ class Page extends Model implements HasMedia
         });
     }
 
-    public function getRouteKeyName()
-    {
-        return 'slug';
-    }
-
     /**
      * Whether this page has a published (live) version.
      */
