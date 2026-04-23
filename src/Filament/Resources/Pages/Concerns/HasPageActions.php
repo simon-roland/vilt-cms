@@ -11,6 +11,7 @@ use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Validation\Rules\Unique;
 use RolandSolutions\ViltCms\Filament\Resources\Pages\PageResource;
@@ -104,8 +105,15 @@ trait HasPageActions
                     ->required(),
                 TextInput::make('slug')
                     ->label(__('cms::cms.page_duplicate_slug'))
-                    ->rules([new ReservedLocaleSlug])
-                    ->regex('/^[a-z0-9]+(?:-[a-z0-9]+)*$/')
+                    ->rules([
+                        new ReservedLocaleSlug,
+                        fn (Get $get): \Closure => function (string $attribute, $value, \Closure $fail) use ($get) {
+                            $slug = str($value ?: $get('name') ?? '')->slug();
+                            if (blank($slug)) {
+                                $fail(__('validation.regex', ['attribute' => $attribute]));
+                            }
+                        },
+                    ])
                     ->unique(
                         table: 'page_contents',
                         column: 'slug',
