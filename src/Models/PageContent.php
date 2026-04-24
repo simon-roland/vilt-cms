@@ -4,7 +4,6 @@ namespace RolandSolutions\ViltCms\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use RolandSolutions\ViltCms\Support\Locales;
 use RolandSolutions\ViltCms\Traits\CleansUpOrphanedMedia;
 use RolandSolutions\ViltCms\Traits\DeletesTempFilesOnSave;
@@ -19,7 +18,6 @@ class PageContent extends Model implements HasMedia
     use InteractsWithMedia, RegistersWebpConversions {
         RegistersWebpConversions::registerMediaConversions insteadof InteractsWithMedia;
     }
-    use SoftDeletes;
 
     protected $guarded = [];
 
@@ -50,7 +48,7 @@ class PageContent extends Model implements HasMedia
 
     public function page(): BelongsTo
     {
-        return $this->belongsTo(Page::class);
+        return $this->belongsTo(Page::class)->withTrashed();
     }
 
     /**
@@ -71,8 +69,7 @@ class PageContent extends Model implements HasMedia
             return true;
         }
 
-        return $this->name !== ($this->published_content['name'] ?? $this->published_content['title'] ?? null)
-            || $this->layout !== ($this->published_content['layout'] ?? null)
+        return $this->layout !== ($this->published_content['layout'] ?? null)
             || $this->blocks !== ($this->published_content['blocks'] ?? null)
             || $this->meta !== ($this->published_content['meta'] ?? null);
     }

@@ -3,14 +3,16 @@
 ## Key Decisions
 
 - **Audience**: Internal package only. Breaking changes land directly; no external upgrade guide, but consuming projects need clean data migration + test coverage.
-- **Locale content creation**: On-demand — `PageContent` rows are only created when an admin explicitly starts editing a locale.
+- **Locale content creation**: On-demand — `PageContent` rows are only created when an admin explicitly starts editing a locale. On create, the admin can pick the starting locale when more than one is configured.
 - **URL strategy**: Default locale has no path prefix (`/about-us`); secondary locales are prefixed (`/da/om-os`). Accessing `/en/about-us` when `en` is default → 301 to `/about-us`. Accessing `/da` (prefix only) → Danish frontpage.
 - **Domain mapping**: Domains map to an initial default locale; the user stays on the same domain. Locale switching changes the path prefix, not the domain.
 - **Missing locale behavior** (configurable, default = redirect): when a URL has no `PageContent` in the active locale, redirect to that locale's frontpage. If the target locale has no frontpage either, 404. Consumers can opt in to 404-always via `cms.missing_locale_behavior`.
 - **Per-locale frontpage**: optional. A locale can exist with zero or one frontpage. `is_frontpage` is unique *per locale* (compound constraint with `locale`).
+- **Page `name` is global, not per-locale**: `name` lives on `Page` as an internal admin identifier. The visitor-facing title is `meta.title`, which is per-locale SEO. Renaming happens via an action, not a form field, because it is not part of the per-locale draft/publish cycle.
+- **Delete semantics**: `PageContent` is **not** soft-deletable — deleting a locale is permanent (use unpublish to take a locale offline while keeping its draft). `Page` is soft-deletable / restorable / force-deletable. The "delete locale" action is hidden when it would leave the page empty; "delete page" is always available.
 - **Navigation**: Must only show links to pages that exist (published) in the current locale.
 - **Translatable fields**: Decorator API — `->translatable()` on any Filament field (or `Translatable::wrap(...)`). One mechanism covers text, textarea, rich text, media, etc.
-- **Reserved slugs**: `PageContent` slug cannot equal any configured locale key. Enforced at form-validation time; also guard when a new locale is added to config.
+- **Slug validation**: Single `PageSlug` rule (in `src/Rules/`) combines reserved-locale-key rejection and slug-format enforcement. Used in every `PageContent` slug form (create, add-locale, change-slug).
 - **Laravel translator**: detected content locale also drives `app()->setLocale()` so UI/validation strings follow.
 - **AI translation**: Stage 7 (future backlog).
 
@@ -35,31 +37,36 @@ These apply to all stages; detailed per-stage plans should reference them.
 **Goal**: Establish the data model backbone. Breaking — everything else depends on it.
 
 - Add `locales` (keyed array, e.g. `['en' => 'English', 'da' => 'Dansk']`), `default_locale`, `missing_locale_behavior` (`redirect`|`404`, default `redirect`), and `navigation_fallback` (`default_locale`|`empty`, default `default_locale`) to `config/cms.php`.
-- **Breaking DB change**: `pages` becomes a thin group/parent entity (`id`, timestamps, soft deletes only).
-- New `page_contents` table: `id`, `page_id`, `locale`, `name`, `slug`, `layout`, `blocks`, `meta`, `published_content`, `published_at`, `is_frontpage`, timestamps.
+- **Breaking DB change**: `pages` becomes a thin group/parent entity (`id`, `name`, timestamps, soft deletes). `name` is retained as the global admin identifier.
+- New `page_contents` table: `id`, `page_id`, `locale`, `slug`, `layout`, `blocks`, `meta`, `published_content`, `published_at`, `is_frontpage`, timestamps. **No `name`, no soft-deletes.**
   - Compound unique `(locale, slug)`.
   - Compound unique `(locale, is_frontpage)` with `is_frontpage` nullable (allows zero frontpages per locale).
-  - Soft deletes: TBD in detailed plan — decide cascade semantics (restoring a `Page` should restore its `PageContent` rows).
+  - FK `page_id` → `pages` with `cascadeOnDelete`, so a Page force-delete cleans up all its contents.
 - `navigations`: add `locale` column, change unique constraint to `(type, locale)`.
 - `site_settings`: add nullable `locale` column. `null` row = global defaults; locale-specific rows = overrides merged on top. Drop the `id = 1` singleton invariant; add `SiteSettings::getResolved(string $locale): array`.
-- New `PageContent` model with all existing draft/publish logic moved to it. `Page` becomes the grouping model. The per-locale frontpage hook (currently in `Page::booted()`) moves to `PageContent` and scopes by `locale`.
-- Reserved-slug validation: `PageContent` slug rule rejects any configured locale key.
-- **Data migration**: existing pages are seeded into `page_contents` under `config('cms.default_locale')`. Migration test seeds pages in all states (draft-only, published, frontpage, soft-deleted) and asserts round-trip.
+- New `PageContent` model carries all existing draft/publish logic except `name`. `Page` is the grouping model and holds `name`. The per-locale frontpage hook lives on `PageContent` and scopes by `locale`. `PageContent::page()` relation uses `withTrashed()` so a content row can still reach its parent when the page is soft-deleted.
+- `PageSlug` validation rule (in `src/Rules/`) rejects reserved locale keys and enforces kebab-case format in one pass.
+- **Data migration**: existing pages' per-locale columns (`slug`, `layout`, etc.) are seeded into `page_contents` under `config('cms.default_locale')`; `name` stays on `pages`. Migration test seeds pages in all states (draft-only, published, frontpage, soft-deleted) and asserts round-trip.
 - Routing skeleton: `/{slug}` for default locale, `/{locale}/{slug}` for others. Stub `LocaleDetectionMiddleware` added (full logic in Stage 5).
 
 ---
 
 ## Stage 2 — Page Localization in Filament + Draft/Publish
 
-**Goal**: Full per-locale page editing with the complete draft/publish lifecycle.
+**Goal**: Full per-locale page editing with the complete draft/publish lifecycle, plus the UX refinements that emerged from hands-on testing.
 
-- `PageResource` list: per-locale status badges; locale filter. Aggregate "page status" for sorting/filtering: TBD in detailed plan (candidate: "any locale published").
-- `PageResource` edit: locale switcher in the header via `?locale=da` query param (shareable URL). If no `PageContent` row exists for the selected locale, show an "Add this locale" prompt.
-- "Add this locale" UX: modal with two choices — blank draft, or copy from another locale (defaults to default locale). Decided now to avoid blocking form/URL design.
-- All existing page actions (`PublishPage`, `EditPublishedPage`, discard draft, unpublish) become locale-aware, targeting the correct `PageContent` row. `EditPublishedPage` simplifies — it now edits a `PageContent`'s `published_content` directly instead of the old shared-row snapshot.
-- **Copy content from locale** action: copies `layout`, `blocks`, `meta` (optionally `name`/`slug`) from one `PageContent` to another as a new draft.
-- Per-locale frontpage: `is_frontpage` is unique per locale; a locale may have none.
-- Per-locale slug auto-generation from the locale's `name`, plus reserved-slug rejection from Stage 1.
+- `PageResource` list: one row per Page (prefers the default-locale content, falls back to any available content when the page has no default-locale row). Per-locale status badges column (gray = missing, yellow = draft, green = published). Custom `TernaryFilter` scopes by `Page.deleted_at`, since `PageContent` is not soft-deletable.
+- `CreatePage`: collects `name` (→ `Page`), optional starting `locale` Select (only rendered when >1 locales configured, defaults to default), and `slug` for the first `PageContent`. Rich content editing happens on the subsequent EditPage screen.
+- `PageResource` edit: locale switcher in the header actions row shows every configured locale with a draft/published badge; the active locale is highlighted primary and disabled. Missing locales open the "Add this locale" modal inline. `getTitle()` displays the page name; `getSubheading()` shows locale label + status when >1 locales.
+- "Add this locale" UX: modal with two choices — blank draft, or copy from another locale. The modal only collects `slug` (name is global); slug defaults to a slugified page name.
+- All existing page actions (`PublishPage`, `EditPublishedPage`, discard draft, unpublish) are locale-aware, targeting the correct `PageContent` row. `published_content` snapshot is `{layout, blocks, meta}` only — `name` is not part of per-locale published state.
+- **Rename action**: `renamePageAction` replaces the per-locale name form field. It writes to `Page.name` and is visible on every locale edit view.
+- **Copy content from locale** action: overwrites the current draft's `layout`, `blocks`, `meta` from a sibling locale.
+- Per-locale frontpage: `is_frontpage` is unique per locale; a locale may have none. The slug field is hidden from the edit form when editing a frontpage (slug is unused in the URL).
+- Slug validation funnels through the single `PageSlug` rule (reserved-locale + format) at every call site (create, add-locale, change-slug, duplicate).
+- **Delete semantics** split into two actions, per the global decision above:
+  - `deleteLocaleAction` — hard-deletes the current `PageContent`. Hidden when it would leave the Page empty. Redirects to a remaining sibling.
+  - `deletePageAction` / `restorePageAction` / `forceDeletePageAction` — operate on the parent `Page`. Cascade is handled by FK on force-delete.
 - Preview mode session key made locale-scoped.
 
 ---
@@ -147,7 +154,7 @@ Stage 6 is split into **6a** (hreflang rendering, `locale_variants` prop) which 
 
 These are the known TBDs to decide inside each stage's detailed plan rather than at the roadmap level:
 
-- **Stage 1**: soft-delete semantics for `PageContent` and cascade on `Page` restore.
-- **Stage 2**: exact shape of the "Add this locale" modal; aggregate page-status rule for list filters; locale-scoped preview session key shape.
+- **Stage 1**: ~~soft-delete semantics for `PageContent` and cascade on `Page` restore~~ — resolved in Stage 2 revision: `PageContent` is not soft-deletable; `Page` owns the delete/restore/force-delete lifecycle; FK cascade handles force-delete.
+- **Stage 2**: ~~exact shape of the "Add this locale" modal; aggregate page-status rule for list filters; locale-scoped preview session key shape~~ — first two resolved (modal collects `source` + `slug`; list shows one row per Page preferring default-locale). Preview session key shape still open.
 - **Stage 3**: whether `navigation_fallback` is also overridable per navigation (vs. config-only).
 - **Stage 4**: concrete serialization format for the merged + media-resolved settings payload shared to Inertia.

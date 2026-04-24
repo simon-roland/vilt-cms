@@ -8,14 +8,18 @@ function makeContent(Page $page, array $attrs = []): PageContent
 {
     return $page->contents()->create(array_merge([
         'locale' => 'en',
-        'name' => 'Page',
         'slug' => 'page-'.uniqid(),
         'layout' => [['type' => 'default', 'data' => ['id' => 'abc']]],
     ], $attrs));
 }
 
+function makePage(array $attrs = []): Page
+{
+    return Page::create(array_merge(['name' => 'Untitled'], $attrs));
+}
+
 it('allows each locale its own frontpage', function () {
-    $page = Page::create([]);
+    $page = makePage();
     $en = makeContent($page, ['locale' => 'en', 'slug' => 'en-home', 'is_frontpage' => true]);
     $da = makeContent($page, ['locale' => 'da', 'slug' => 'da-home', 'is_frontpage' => true]);
 
@@ -24,8 +28,8 @@ it('allows each locale its own frontpage', function () {
 });
 
 it('clears prior frontpage in same locale when a new one is set', function () {
-    $pageA = Page::create([]);
-    $pageB = Page::create([]);
+    $pageA = makePage();
+    $pageB = makePage();
 
     $a = makeContent($pageA, ['locale' => 'en', 'slug' => 'a', 'is_frontpage' => true]);
     $b = makeContent($pageB, ['locale' => 'en', 'slug' => 'b', 'is_frontpage' => true]);
@@ -35,8 +39,8 @@ it('clears prior frontpage in same locale when a new one is set', function () {
 });
 
 it('forbids two rows with is_frontpage=true in the same locale at the DB level', function () {
-    $pageA = Page::create([]);
-    $pageB = Page::create([]);
+    $pageA = makePage();
+    $pageB = makePage();
 
     makeContent($pageA, ['locale' => 'en', 'slug' => 'a', 'is_frontpage' => true]);
 
@@ -44,7 +48,6 @@ it('forbids two rows with is_frontpage=true in the same locale at the DB level',
     expect(fn () => DB::table('page_contents')->insert([
         'page_id' => $pageB->id,
         'locale' => 'en',
-        'name' => 'Other',
         'slug' => 'other',
         'layout' => json_encode([['type' => 'default', 'data' => ['id' => 'x']]]),
         'is_frontpage' => true,
@@ -54,8 +57,8 @@ it('forbids two rows with is_frontpage=true in the same locale at the DB level',
 });
 
 it('allows many rows with is_frontpage = null in the same locale', function () {
-    $pageA = Page::create([]);
-    $pageB = Page::create([]);
+    $pageA = makePage();
+    $pageB = makePage();
 
     makeContent($pageA, ['locale' => 'en', 'slug' => 'a']);
     makeContent($pageB, ['locale' => 'en', 'slug' => 'b']);
@@ -64,8 +67,8 @@ it('allows many rows with is_frontpage = null in the same locale', function () {
 });
 
 it('forbids duplicate (locale, slug)', function () {
-    $pageA = Page::create([]);
-    $pageB = Page::create([]);
+    $pageA = makePage();
+    $pageB = makePage();
 
     makeContent($pageA, ['locale' => 'en', 'slug' => 'same']);
 
@@ -74,7 +77,7 @@ it('forbids duplicate (locale, slug)', function () {
 });
 
 it('allows same slug across different locales', function () {
-    $page = Page::create([]);
+    $page = makePage();
     makeContent($page, ['locale' => 'en', 'slug' => 'about']);
     makeContent($page, ['locale' => 'da', 'slug' => 'about']);
 
