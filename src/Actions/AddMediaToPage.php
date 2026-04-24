@@ -46,26 +46,36 @@ class AddMediaToPage extends Action
         $uuids = [];
 
         foreach ($blocks as $block) {
-            if (!isset($block['data']) || !is_array($block['data'])) {
+            $fields = is_array($block['data'] ?? null) ? $block['data'] : $block;
+
+            if (!is_array($fields)) {
                 continue;
             }
 
-            foreach ($block['data'] as $key => $value) {
-                if ($key === 'id') {
-                    continue;
-                }
+            $uuids = array_merge($uuids, $this->collectFieldUuidsFromMap($fields));
+        }
 
-                if (is_string($value) && preg_match(self::UUID_PATTERN, $value)) {
-                    $uuids[] = $value;
-                } elseif (is_array($value)) {
-                    // Array of UUID strings
-                    foreach ($value as $item) {
-                        if (is_string($item) && preg_match(self::UUID_PATTERN, $item)) {
-                            $uuids[] = $item;
-                        } elseif (is_array($item)) {
-                            // Nested blocks (e.g. buttons)
-                            $uuids = array_merge($uuids, $this->collectFieldUuids([$item]));
-                        }
+        return $uuids;
+    }
+
+    protected function collectFieldUuidsFromMap(array $fields): array
+    {
+        $uuids = [];
+
+        foreach ($fields as $key => $value) {
+            if ($key === 'id') {
+                continue;
+            }
+
+            if (is_string($value) && preg_match(self::UUID_PATTERN, $value)) {
+                $uuids[] = $value;
+            } elseif (is_array($value)) {
+                foreach ($value as $item) {
+                    if (is_string($item) && preg_match(self::UUID_PATTERN, $item)) {
+                        $uuids[] = $item;
+                    } elseif (is_array($item)) {
+                        // Nested block (Builder) or repeater item (flat assoc array)
+                        $uuids = array_merge($uuids, $this->collectFieldUuids([$item]));
                     }
                 }
             }
@@ -81,51 +91,62 @@ class AddMediaToPage extends Action
         }
 
         foreach ($blocks as &$block) {
-            // Existing: inline page-attached media by block id
+            if (!is_array($block)) {
+                continue;
+            }
+
+            // Existing: inline page-attached media by block id (Builder blocks only)
             if (isset($block['data']['id']) && $pageMedia->has($block['data']['id'])) {
                 $block['data']['media'] = $pageMedia->get($block['data']['id'])->map(function ($item) {
                     return $this->isImage($item) ? $item->toImageArray() : $item->getCmsUrl();
                 })->all();
             }
 
+            // Builder block wraps fields under 'data'; repeater items are flat assoc arrays.
             if (isset($block['data']) && is_array($block['data'])) {
-                foreach ($block['data'] as $key => &$value) {
-                    if ($key === 'id') {
-                        continue;
-                    }
+                $this->resolveFieldsInMap($block['data'], $pageMedia, $libraryMedia);
+            } else {
+                $this->resolveFieldsInMap($block, $pageMedia, $libraryMedia);
+            }
+        }
+    }
 
-                    // Single UUID → resolve to media array
-                    if (is_string($value) && preg_match(self::UUID_PATTERN, $value) && $libraryMedia->has($value)) {
-                        $media = $libraryMedia->get($value);
-                        $block['data'][$key . '_media'] = [
-                            $this->isImage($media) ? $media->toImageArray() : $media->getCmsUrl(),
-                        ];
-                    }
-                    // Array of UUID strings → resolve each
-                    elseif (is_array($value) && !empty($value)) {
-                        $allAreUuids = collect($value)->every(
-                            fn ($v) => is_string($v) && preg_match(self::UUID_PATTERN, $v)
-                        );
+    protected function resolveFieldsInMap(array &$fields, $pageMedia, $libraryMedia)
+    {
+        foreach ($fields as $key => &$value) {
+            if ($key === 'id') {
+                continue;
+            }
 
-                        if ($allAreUuids) {
-                            $resolved = collect($value)->map(function ($uuid) use ($libraryMedia) {
-                                if ($libraryMedia->has($uuid)) {
-                                    $media = $libraryMedia->get($uuid);
+            // Single UUID → resolve to media array
+            if (is_string($value) && preg_match(self::UUID_PATTERN, $value) && $libraryMedia->has($value)) {
+                $media = $libraryMedia->get($value);
+                $fields[$key . '_media'] = [
+                    $this->isImage($media) ? $media->toImageArray() : $media->getCmsUrl(),
+                ];
+            }
+            // Array of UUID strings → resolve each; otherwise recurse (nested blocks or repeater items)
+            elseif (is_array($value) && !empty($value)) {
+                $allAreUuids = collect($value)->every(
+                    fn ($v) => is_string($v) && preg_match(self::UUID_PATTERN, $v)
+                );
 
-                                    return $this->isImage($media) ? $media->toImageArray() : $media->getCmsUrl();
-                                }
+                if ($allAreUuids) {
+                    $resolved = collect($value)->map(function ($uuid) use ($libraryMedia) {
+                        if ($libraryMedia->has($uuid)) {
+                            $media = $libraryMedia->get($uuid);
 
-                                return null;
-                            })->filter()->values()->all();
-
-                            if (!empty($resolved)) {
-                                $block['data'][$key . '_media'] = $resolved;
-                            }
-                        } else {
-                            // Recurse for nested blocks (e.g. buttons)
-                            $this->attachMediaToBlocks($value, $pageMedia, $libraryMedia);
+                            return $this->isImage($media) ? $media->toImageArray() : $media->getCmsUrl();
                         }
+
+                        return null;
+                    })->filter()->values()->all();
+
+                    if (!empty($resolved)) {
+                        $fields[$key . '_media'] = $resolved;
                     }
+                } else {
+                    $this->attachMediaToBlocks($value, $pageMedia, $libraryMedia);
                 }
             }
         }
