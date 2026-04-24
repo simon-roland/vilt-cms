@@ -4,20 +4,16 @@ namespace RolandSolutions\ViltCms\Filament\Resources\Pages\Concerns;
 
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\ForceDeleteAction;
-use Filament\Actions\RestoreAction;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Validation\Rules\Unique;
 use RolandSolutions\ViltCms\Filament\Resources\Pages\PageResource;
 use RolandSolutions\ViltCms\Models\Page;
 use RolandSolutions\ViltCms\Models\PageContent;
-use RolandSolutions\ViltCms\Rules\ReservedLocaleSlug;
+use RolandSolutions\ViltCms\Rules\PageSlug;
 use RolandSolutions\ViltCms\Support\Locales;
 
 trait HasPageActions
@@ -77,6 +73,33 @@ trait HasPageActions
             ->color('gray')];
     }
 
+    protected function renamePageAction(): Action
+    {
+        return Action::make('rename_page')
+            ->label(__('cms::cms.page_rename'))
+            ->icon('heroicon-o-pencil')
+            ->color('gray')
+            ->visible(fn ($record) => $record && ! $record->page->trashed())
+            ->modalHeading(__('cms::cms.page_rename_heading'))
+            ->schema([
+                TextInput::make('name')
+                    ->label(__('cms::cms.page_rename_field'))
+                    ->default(fn ($record) => $record->page->name)
+                    ->required(),
+            ])
+            ->action(function ($record, array $data) {
+                $record->page->update(['name' => $data['name']]);
+                $record->setRelation('page', $record->page->fresh());
+
+                Notification::make()
+                    ->title(__('cms::cms.page_rename_success'))
+                    ->success()
+                    ->send();
+
+                $this->redirect(request()->url());
+            });
+    }
+
     protected function addLocaleAction(string $targetLocale, string $targetLabel): Action
     {
         $sourceOptions = fn ($record) => PageContent::where('page_id', $record->page_id)
@@ -98,22 +121,11 @@ trait HasPageActions
                     ->options($sourceOptions)
                     ->default('_blank')
                     ->required(),
-                TextInput::make('name')
-                    ->label(__('cms::cms.page_name'))
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', str($state)->slug()))
-                    ->required(),
                 TextInput::make('slug')
                     ->label(__('cms::cms.page_duplicate_slug'))
-                    ->rules([
-                        new ReservedLocaleSlug,
-                        fn (Get $get): \Closure => function (string $attribute, $value, \Closure $fail) use ($get) {
-                            $slug = str($value ?: $get('name') ?? '')->slug();
-                            if (blank($slug)) {
-                                $fail(__('validation.regex', ['attribute' => $attribute]));
-                            }
-                        },
-                    ])
+                    ->live(onBlur: true)
+                    ->default(fn ($record) => (string) str($record->page->name)->slug())
+                    ->rules([new PageSlug])
                     ->unique(
                         table: 'page_contents',
                         column: 'slug',
@@ -124,7 +136,6 @@ trait HasPageActions
             ->action(function ($record, array $data) use ($targetLocale) {
                 $attrs = [
                     'locale' => $targetLocale,
-                    'name' => $data['name'],
                     'slug' => $data['slug'],
                     'layout' => [],
                     'blocks' => null,
@@ -160,27 +171,20 @@ trait HasPageActions
             ->label(__('cms::cms.page_change_slug'))
             ->icon('heroicon-o-link')
             ->color('gray')
-            ->visible(fn ($record) => $record && ! $record->trashed() && ! $record->is_frontpage)
+            ->visible(fn ($record) => $record && ! $record->page->trashed() && ! $record->is_frontpage)
             ->modalHeading(__('cms::cms.page_change_slug_heading'))
             ->modalDescription(__('cms::cms.page_change_slug_description'))
             ->schema([
                 TextInput::make('slug')
                     ->label(__('cms::cms.page_change_slug_field'))
                     ->default(fn ($record) => $record->slug)
-                    ->rules([new ReservedLocaleSlug])
+                    ->rules([new PageSlug])
                     ->unique(
                         table: 'page_contents',
                         column: 'slug',
                         ignorable: fn ($record) => $record,
                         modifyRuleUsing: fn (Unique $rule, $record) => $rule->where('locale', $record->locale),
                     )
-                    ->rules([
-                        fn (): \Closure => function (string $attribute, $value, \Closure $fail) {
-                            if (blank(str($value)->slug())) {
-                                $fail(__('validation.regex', ['attribute' => $attribute]));
-                            }
-                        },
-                    ])
                     ->required(),
             ])
             ->action(function ($record, array $data) {
@@ -204,17 +208,18 @@ trait HasPageActions
             ->schema([
                 TextInput::make('name')
                     ->label(__('cms::cms.page_name'))
-                    ->default(fn ($record) => $record->name)
+                    ->default(fn ($record) => $record->page->name)
                     ->live(onBlur: true)
-                    ->afterStateUpdated(fn ($state, $set) => $set('slug', str($state)->slug()))
+                    ->afterStateUpdated(fn ($state, Set $set) => $set('slug', (string) str($state)->slug()))
                     ->required(),
                 TextInput::make('slug')
                     ->label(__('cms::cms.page_duplicate_slug'))
                     ->default(fn ($record) => $record->slug.'-copy')
+                    ->rules([new PageSlug])
                     ->required(),
             ])
             ->action(function ($record, array $data) {
-                $newPage = Page::create([]);
+                $newPage = Page::create(['name' => $data['name']]);
                 $allContents = PageContent::where('page_id', $record->page_id)->get();
 
                 $redirectTo = null;
@@ -228,7 +233,6 @@ trait HasPageActions
 
                     $newContent = $newPage->contents()->create([
                         'locale' => $content->locale,
-                        'name' => $isCurrentLocale ? $data['name'] : $content->name,
                         'slug' => $slug,
                         'layout' => $content->layout,
                         'blocks' => $content->blocks,
@@ -256,7 +260,7 @@ trait HasPageActions
             ->icon('heroicon-o-document-arrow-down')
             ->color('gray')
             ->visible(function ($record) {
-                if (! $record || $record->trashed()) {
+                if (! $record || $record->page->trashed()) {
                     return false;
                 }
 
@@ -306,7 +310,7 @@ trait HasPageActions
             ->requiresConfirmation()
             ->modalHeading(__('cms::cms.page_unpublish'))
             ->modalDescription(__('cms::cms.page_unpublish_confirm'))
-            ->visible(fn ($record) => $record && $record->isPublished() && ! $record->trashed())
+            ->visible(fn ($record) => $record && $record->isPublished() && ! $record->page->trashed())
             ->action(function ($record) {
                 $record->update([
                     'published_content' => null,
@@ -331,7 +335,7 @@ trait HasPageActions
             ->requiresConfirmation()
             ->modalHeading(__('cms::cms.page_set_as_frontpage'))
             ->modalDescription(__('cms::cms.page_set_as_frontpage_confirm'))
-            ->visible(fn ($record) => $record && ! $record->is_frontpage && $record->isPublished() && ! $record->trashed())
+            ->visible(fn ($record) => $record && ! $record->is_frontpage && $record->isPublished() && ! $record->page->trashed())
             ->action(function ($record) {
                 $record->update(['is_frontpage' => true]);
 
@@ -344,17 +348,114 @@ trait HasPageActions
             });
     }
 
+    protected function deleteLocaleAction(): Action
+    {
+        return Action::make('delete_locale')
+            ->label(__('cms::cms.page_delete_locale'))
+            ->icon('heroicon-o-trash')
+            ->color('danger')
+            ->requiresConfirmation()
+            ->modalHeading(__('cms::cms.page_delete_locale'))
+            ->modalDescription(fn ($record) => __('cms::cms.page_delete_locale_confirm', [
+                'locale' => Locales::all()[$record->locale] ?? $record->locale,
+            ]))
+            ->visible(function ($record) {
+                if (! $record || $record->page->trashed()) {
+                    return false;
+                }
+
+                return PageContent::where('page_id', $record->page_id)
+                    ->where('id', '!=', $record->id)
+                    ->exists();
+            })
+            ->action(function ($record) {
+                $sibling = PageContent::where('page_id', $record->page_id)
+                    ->where('id', '!=', $record->id)
+                    ->orderByRaw('CASE WHEN locale = ? THEN 0 ELSE 1 END, id ASC', [Locales::default()])
+                    ->first();
+
+                $record->delete();
+
+                Notification::make()
+                    ->title(__('cms::cms.page_delete_locale_success'))
+                    ->success()
+                    ->send();
+
+                $this->redirect(PageResource::getUrl('edit', ['record' => $sibling]));
+            });
+    }
+
+    protected function deletePageAction(): Action
+    {
+        return Action::make('delete_page')
+            ->label(__('cms::cms.page_delete_page'))
+            ->icon('heroicon-o-archive-box-x-mark')
+            ->color('danger')
+            ->requiresConfirmation()
+            ->modalHeading(__('cms::cms.page_delete_page'))
+            ->modalDescription(__('cms::cms.page_delete_page_confirm'))
+            ->visible(fn ($record) => $record && ! $record->page->trashed())
+            ->action(function ($record) {
+                $record->page->delete();
+
+                Notification::make()
+                    ->title(__('cms::cms.page_delete_page_success'))
+                    ->success()
+                    ->send();
+
+                $this->redirect(PageResource::getUrl('index'));
+            });
+    }
+
+    protected function restorePageAction(): Action
+    {
+        return Action::make('restore_page')
+            ->label(__('cms::cms.page_restore_page'))
+            ->icon('heroicon-o-arrow-uturn-left')
+            ->color('gray')
+            ->requiresConfirmation()
+            ->visible(fn ($record) => $record && $record->page->trashed())
+            ->action(function ($record) {
+                $record->page->restore();
+
+                Notification::make()
+                    ->title(__('cms::cms.page_restore_page_success'))
+                    ->success()
+                    ->send();
+
+                $this->redirect(PageResource::getUrl('edit', ['record' => $record]));
+            });
+    }
+
+    protected function forceDeletePageAction(): Action
+    {
+        return Action::make('force_delete_page')
+            ->label(__('cms::cms.page_force_delete_page'))
+            ->icon('heroicon-o-trash')
+            ->color('danger')
+            ->requiresConfirmation()
+            ->modalHeading(__('cms::cms.page_force_delete_page'))
+            ->modalDescription(__('cms::cms.page_force_delete_page_confirm'))
+            ->visible(fn ($record) => $record && $record->page->trashed())
+            ->action(function ($record) {
+                $record->page->forceDelete();
+
+                Notification::make()
+                    ->title(__('cms::cms.page_force_delete_page_success'))
+                    ->success()
+                    ->send();
+
+                $this->redirect(PageResource::getUrl('index'));
+            });
+    }
+
     protected function secondaryActionsGroup(array $actions = []): ActionGroup
     {
         return ActionGroup::make(array_merge($actions, [
-            DeleteAction::make()
-                ->visible(fn ($record) => $record && ! $record->trashed()),
-
-            RestoreAction::make()
-                ->visible(fn ($record) => $record && $record->trashed()),
-
-            ForceDeleteAction::make()
-                ->visible(fn ($record) => $record && $record->trashed()),
+            $this->deleteLocaleAction(),
+            $this->deletePageAction(),
+            $this->restorePageAction(),
+            $this->forceDeletePageAction(),
         ]))->label(__('cms::cms.page_more_actions'));
     }
 

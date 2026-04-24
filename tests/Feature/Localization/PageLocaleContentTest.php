@@ -5,14 +5,13 @@ use RolandSolutions\ViltCms\Actions\PublishPage;
 use RolandSolutions\ViltCms\Models\Page;
 use RolandSolutions\ViltCms\Models\PageContent;
 
-function createPageWithContent(array $locales = ['en'], array $attrs = []): Page
+function createPageWithContent(array $locales = ['en'], array $attrs = [], string $name = 'Test page'): Page
 {
-    $page = Page::create([]);
+    $page = Page::create(['name' => $name.' '.uniqid()]);
 
     foreach ($locales as $locale) {
         $page->contents()->create(array_merge([
             'locale' => $locale,
-            'name' => ucfirst($locale).' page',
             'slug' => $locale.'-page-'.uniqid(),
             'layout' => [['type' => 'default', 'data' => ['id' => 'abc']]],
             'blocks' => [['type' => 'text', 'data' => ['body' => "Content in {$locale}"]]],
@@ -28,7 +27,6 @@ it('can add a blank locale to an existing page', function () {
 
     $daContent = $page->contents()->create([
         'locale' => 'da',
-        'name' => 'Dansk side',
         'slug' => 'dansk-side',
         'layout' => [],
         'blocks' => null,
@@ -49,7 +47,6 @@ it('can add a locale by copying content from another locale', function () {
 
     $daContent = $page->contents()->create([
         'locale' => 'da',
-        'name' => 'Dansk kopi',
         'slug' => 'dansk-kopi',
         'layout' => $enContent->layout,
         'blocks' => $enContent->blocks,
@@ -66,12 +63,11 @@ it('duplicating a page copies all locale contents', function () {
     $page = createPageWithContent(['en', 'da']);
     $allContents = $page->contents;
 
-    $newPage = Page::create([]);
+    $newPage = Page::create(['name' => $page->name.' (copy)']);
 
     foreach ($allContents as $content) {
         $newPage->contents()->create([
             'locale' => $content->locale,
-            'name' => $content->name.' Copy',
             'slug' => $content->slug.'-copy',
             'layout' => $content->layout,
             'blocks' => $content->blocks,
@@ -134,25 +130,24 @@ it('publishes locales independently', function () {
     expect($daContent->isPublished())->toBeFalse();
 
     // Now modify and publish DA
-    $daContent->update(['name' => 'Updated DA']);
+    $daContent->update(['meta' => ['title' => 'Updated DA title']]);
     PublishPage::make()->handle($daContent);
 
     $enContent->refresh();
     $daContent->refresh();
 
-    // EN published_content should be unchanged
-    expect($enContent->published_content['name'])->toBe('En page');
-    expect($daContent->published_content['name'])->toBe('Updated DA');
+    // EN published meta is unchanged; DA now has new meta
+    expect($enContent->published_content['meta']['title'])->toBe('En Title');
+    expect($daContent->published_content['meta']['title'])->toBe('Updated DA title');
 });
 
 it('scopes slug uniqueness to locale', function () {
-    $pageA = createPageWithContent(['en'], ['slug' => 'about']);
-    $pageB = Page::create([]);
+    createPageWithContent(['en'], ['slug' => 'about']);
+    $pageB = Page::create(['name' => 'B']);
 
     // Same slug in different locale should work
     $daContent = $pageB->contents()->create([
         'locale' => 'da',
-        'name' => 'Om os',
         'slug' => 'about',
         'layout' => [],
     ]);
@@ -160,11 +155,10 @@ it('scopes slug uniqueness to locale', function () {
     expect($daContent->exists)->toBeTrue();
 
     // Same slug in same locale should fail (DB unique constraint)
-    $pageC = Page::create([]);
+    $pageC = Page::create(['name' => 'C']);
 
     expect(fn () => $pageC->contents()->create([
         'locale' => 'en',
-        'name' => 'About duplicate',
         'slug' => 'about',
         'layout' => [],
     ]))->toThrow(QueryException::class);
@@ -186,4 +180,15 @@ it('lists pages from default locale with eager-loaded siblings', function () {
 
     $second = $results->first(fn ($r) => $r->page_id === $page2->id);
     expect($second->page->contents)->toHaveCount(1);
+});
+
+it('publish snapshot no longer stores per-locale name', function () {
+    $page = createPageWithContent(['en']);
+    $content = $page->contents()->first();
+
+    PublishPage::make()->handle($content);
+    $content->refresh();
+
+    expect($content->published_content)->toHaveKeys(['layout', 'blocks', 'meta']);
+    expect($content->published_content)->not->toHaveKey('name');
 });

@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('page_id')->constrained()->cascadeOnDelete();
             $table->string('locale', 10);
-            $table->string('name');
             $table->string('slug');
             $table->json('layout');
             $table->json('blocks')->nullable();
@@ -24,18 +23,16 @@ return new class extends Migration
             $table->timestamp('published_at')->nullable();
             $table->boolean('is_frontpage')->nullable();
             $table->timestamps();
-            $table->softDeletes();
 
             $table->unique(['locale', 'slug']);
             $table->unique(['locale', 'is_frontpage']);
         });
 
-        // Backfill existing pages into page_contents under the default locale.
+        // Backfill existing pages into page_contents under the default locale. `name` stays on `pages`.
         DB::table('pages')->orderBy('id')->each(function ($page) use ($defaultLocale) {
             DB::table('page_contents')->insert([
                 'page_id' => $page->id,
                 'locale' => $defaultLocale,
-                'name' => $page->name,
                 'slug' => $page->slug,
                 'layout' => $page->layout,
                 'blocks' => $page->blocks,
@@ -45,11 +42,10 @@ return new class extends Migration
                 'is_frontpage' => $page->is_frontpage,
                 'created_at' => $page->created_at,
                 'updated_at' => $page->updated_at,
-                'deleted_at' => $page->deleted_at,
             ]);
         });
 
-        // Strip per-locale columns from `pages` — it becomes a thin grouping entity.
+        // Strip per-locale columns from `pages` — `name` stays as a global identifier.
         Schema::table('pages', function (Blueprint $table) {
             $table->dropUnique('pages_slug_unique');
             $table->dropUnique('pages_is_frontpage_unique');
@@ -57,7 +53,6 @@ return new class extends Migration
 
         Schema::table('pages', function (Blueprint $table) {
             $table->dropColumn([
-                'name',
                 'slug',
                 'layout',
                 'blocks',
@@ -74,7 +69,6 @@ return new class extends Migration
         $defaultLocale = config('cms.default_locale', config('app.locale', 'en'));
 
         Schema::table('pages', function (Blueprint $table) {
-            $table->string('name')->nullable()->after('id');
             $table->string('slug')->nullable()->after('name');
             $table->json('layout')->nullable()->after('slug');
             $table->json('meta')->nullable()->after('layout');
@@ -90,7 +84,6 @@ return new class extends Migration
             ->orderBy('id')
             ->each(function ($row) {
                 DB::table('pages')->where('id', $row->page_id)->update([
-                    'name' => $row->name,
                     'slug' => $row->slug,
                     'layout' => $row->layout,
                     'meta' => $row->meta,
@@ -102,7 +95,6 @@ return new class extends Migration
             });
 
         Schema::table('pages', function (Blueprint $table) {
-            $table->string('name')->nullable(false)->change();
             $table->string('slug')->nullable(false)->change();
             $table->json('layout')->nullable(false)->change();
             $table->unique('slug');

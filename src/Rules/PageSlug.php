@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use RolandSolutions\ViltCms\Support\Locales;
 
-class ReservedLocaleSlug implements ValidationRule
+class PageSlug implements ValidationRule
 {
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
@@ -16,6 +16,12 @@ class ReservedLocaleSlug implements ValidationRule
 
         if (in_array($value, Locales::keys(), true)) {
             $fail(__('cms::cms.validation.reserved_locale_slug', ['slug' => $value]));
+
+            return;
+        }
+
+        if ((string) str($value)->slug() !== $value) {
+            $fail(__('validation.regex', ['attribute' => $attribute]));
         }
     }
 }

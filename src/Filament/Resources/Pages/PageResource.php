@@ -7,7 +7,6 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use RolandSolutions\ViltCms\Filament\Resources\Pages\Pages\CreatePage;
 use RolandSolutions\ViltCms\Filament\Resources\Pages\Pages\EditPage;
 use RolandSolutions\ViltCms\Filament\Resources\Pages\Pages\EditPublishedPage;
@@ -71,11 +70,5 @@ class PageResource extends Resource
             'edit' => EditPage::route('/{record}/edit'),
             'edit-published' => EditPublishedPage::route('/{record}/edit-published'),
         ];
-    }
-
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()
-            ->withTrashed();
     }
 }

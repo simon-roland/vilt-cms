@@ -63,10 +63,14 @@ it('backfills all page states into page_contents under the default locale', func
     // Run the Stage 1 migrations forward.
     $this->artisan('migrate')->assertSuccessful();
 
-    // pages should now only carry id + timestamps.
+    // pages keeps `name` as an internal identifier; per-locale columns are gone.
     expect(Schema::hasColumn('pages', 'slug'))->toBeFalse();
-    expect(Schema::hasColumn('pages', 'name'))->toBeFalse();
+    expect(Schema::hasColumn('pages', 'name'))->toBeTrue();
     expect(Schema::hasColumn('pages', 'is_frontpage'))->toBeFalse();
+
+    // page_contents has no `name` and no soft-deletes.
+    expect(Schema::hasColumn('page_contents', 'name'))->toBeFalse();
+    expect(Schema::hasColumn('page_contents', 'deleted_at'))->toBeFalse();
 
     // page_contents should carry all four original pages under locale 'en'.
     $contents = DB::table('page_contents')->orderBy('page_id')->get();
@@ -85,8 +89,12 @@ it('backfills all page states into page_contents under the default locale', func
     $frontpage = $contents->firstWhere('page_id', $frontpageId);
     expect((bool) $frontpage->is_frontpage)->toBeTrue();
 
-    $trashed = $contents->firstWhere('page_id', $trashedId);
-    expect($trashed->deleted_at)->not->toBeNull();
+    // Soft-deleted pages retain their trashed state on `pages`; contents are untouched.
+    expect(DB::table('pages')->where('id', $trashedId)->value('deleted_at'))->not->toBeNull();
+
+    // Name survives on pages.
+    expect(DB::table('pages')->where('id', $publishedId)->value('name'))->toBe('Published');
+    expect(DB::table('pages')->where('id', $frontpageId)->value('name'))->toBe('Home');
 });
 
 it('rolls back cleanly, restoring pre-split shape and default-locale data', function () {

@@ -23,24 +23,4 @@ class Page extends Model
 
         return $this->contents->firstWhere('locale', $locale);
     }
-
-    protected static function booted(): void
-    {
-        static::deleted(function (Page $page) {
-            if ($page->isForceDeleting()) {
-                return;
-            }
-
-            $page->contents()
-                ->whereNull('deleted_at')
-                ->update(['deleted_at' => $page->deleted_at]);
-        });
-
-        static::restoring(function (Page $page) {
-            $page->contents()
-                ->onlyTrashed()
-                ->where('deleted_at', $page->deleted_at)
-                ->restore();
-        });
-    }
 }

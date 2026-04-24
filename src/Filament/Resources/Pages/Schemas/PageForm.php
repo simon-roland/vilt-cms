@@ -9,15 +9,13 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\HtmlString;
 use Illuminate\Validation\Rules\Unique;
 use RolandSolutions\ViltCms\CmsServiceProvider;
 use RolandSolutions\ViltCms\Filament\Fields\MediaPicker;
 use RolandSolutions\ViltCms\Models\PageContent;
-use RolandSolutions\ViltCms\Rules\ReservedLocaleSlug;
+use RolandSolutions\ViltCms\Rules\PageSlug;
 use RolandSolutions\ViltCms\Support\Locales;
 
 class PageForm
@@ -88,39 +86,18 @@ class PageForm
                         );
                     }),
 
-                TextInput::make('name')
-                    ->label(__('cms::cms.page_name'))
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(fn (Set $set, ?string $state, ?PageContent $record) => $record === null ? $set('slug', str($state)->slug()) : null)
-                    ->required(),
                 TextInput::make('slug')
-                    ->rules([
-                        new ReservedLocaleSlug],
-                        fn (Get $get): \Closure => function (string $attribute, $value, \Closure $fail) use ($get) {
-                            $slug = str($value ?: $get('name') ?? '')->slug();
-                            if (blank($slug)) {
-                                $fail(__('validation.regex', ['attribute' => $attribute]));
-                            }
-                        }
-                    )
+                    ->rules([new PageSlug])
                     ->unique(
                         table: 'page_contents',
                         column: 'slug',
                         ignorable: fn (?PageContent $record) => $record,
-                        modifyRuleUsing: fn (Unique $rule) => $rule->where('locale', Locales::default()),
+                        modifyRuleUsing: fn (Unique $rule, ?PageContent $record) => $rule->where('locale', $record?->locale ?? Locales::default()),
                     )
-                    ->disabled(fn (?PageContent $record) => $record !== null)
-                    ->dehydrated(fn (?PageContent $record) => $record === null)
-                    ->helperText(function (?PageContent $record) {
-                        if ($record === null) {
-                            return __('cms::cms.page_slug_helper');
-                        }
-                        if ($record->is_frontpage) {
-                            return __('cms::cms.page_slug_frontpage_notice');
-                        }
-
-                        return null;
-                    })
+                    ->disabled()
+                    ->dehydrated(false)
+                    ->visible(fn (?PageContent $record) => $record !== null && ! $record->is_frontpage)
+                    ->helperText(__('cms::cms.page_slug_helper'))
                     ->required(),
                 Builder::make('layout')
                     ->blocks(CmsServiceProvider::getLayouts())

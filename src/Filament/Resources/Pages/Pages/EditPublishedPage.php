@@ -11,6 +11,7 @@ use RolandSolutions\ViltCms\Filament\Resources\Pages\Concerns\HasPageActions;
 use RolandSolutions\ViltCms\Filament\Resources\Pages\PageResource;
 use RolandSolutions\ViltCms\Filament\Resources\Pages\Schemas\PageForm;
 use RolandSolutions\ViltCms\Models\PageContent;
+use RolandSolutions\ViltCms\Support\Locales;
 
 class EditPublishedPage extends EditRecord
 {
@@ -18,9 +19,21 @@ class EditPublishedPage extends EditRecord
 
     protected static string $resource = PageResource::class;
 
-    public function getHeading(): string|Htmlable
+    public function getTitle(): string|Htmlable
     {
-        return __('cms::cms.page_edit_published_heading');
+        return $this->getRecord()->page->name;
+    }
+
+    public function getSubheading(): string|Htmlable|null
+    {
+        if (count(Locales::all()) <= 1) {
+            return __('cms::cms.page_edit_published_heading');
+        }
+
+        $record = $this->getRecord();
+        $label = Locales::all()[$record->locale] ?? $record->locale;
+
+        return $label.' · '.__('cms::cms.page_edit_published_heading');
     }
 
     public function form(Schema $schema): Schema
@@ -33,8 +46,6 @@ class EditPublishedPage extends EditRecord
         /** @var PageContent $record */
         $record = $this->getRecord();
 
-        // Backward compat: old snapshots only have 'title', new ones have 'name'
-        $data['name'] = $record->published_content['name'] ?? $record->published_content['title'] ?? $record->name;
         $data['layout'] = $record->published_content['layout'] ?? $record->layout;
         $data['blocks'] = $record->published_content['blocks'] ?? $record->blocks;
         $data['meta'] = $record->published_content['meta'] ?? $record->meta;
@@ -46,7 +57,6 @@ class EditPublishedPage extends EditRecord
     {
         $record->update([
             'published_content' => [
-                'name' => $data['name'],
                 'layout' => $data['layout'] ?? null,
                 'blocks' => $data['blocks'] ?? null,
                 'meta' => $data['meta'] ?? null,
@@ -90,7 +100,7 @@ class EditPublishedPage extends EditRecord
                     ->label(__('cms::cms.view_page'))
                     ->icon('heroicon-o-arrow-top-right-on-square')
                     ->color('gray')
-                    ->visible(fn ($record) => $record && ! $record->trashed())
+                    ->visible(fn ($record) => $record && ! $record->page->trashed())
                     ->url(function ($record) {
                         $bothVersions = $record->isPublished() && $record->hasDraftChanges();
                         $base = $this->localeUrl($record);
@@ -99,6 +109,7 @@ class EditPublishedPage extends EditRecord
                     }),
 
                 $this->secondaryActionsGroup([
+                    $this->renamePageAction(),
                     $this->changeSlugAction(),
                     $this->setAsFrontpageAction(),
                     $this->duplicateAction(),
