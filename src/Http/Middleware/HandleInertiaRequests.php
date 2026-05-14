@@ -2,16 +2,16 @@
 
 namespace RolandSolutions\ViltCms\Http\Middleware;
 
+use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\URL;
+use Inertia\Middleware;
 use RolandSolutions\ViltCms\Actions\ReplacePageID;
 use RolandSolutions\ViltCms\Actions\ResolveSettingsMedia;
 use RolandSolutions\ViltCms\Models\Navigation;
 use RolandSolutions\ViltCms\Models\Page;
 use RolandSolutions\ViltCms\Models\SiteSettings;
 use RolandSolutions\ViltCms\Support\PreviewMode;
-use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\URL;
-use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
 
 class HandleInertiaRequests extends Middleware
@@ -33,7 +33,7 @@ class HandleInertiaRequests extends Middleware
         $nav = Navigation::firstWhere('type', $type);
 
         if ($nav) {
-            if (!PreviewMode::active()) {
+            if (! PreviewMode::active()) {
                 $publishedPageIds = array_flip(
                     Page::whereNotNull('published_content')->pluck('id')->all()
                 );
@@ -52,7 +52,7 @@ class HandleInertiaRequests extends Middleware
         $filtered = [];
 
         foreach ($items as $item) {
-            if (!is_array($item) || empty($item['type'])) {
+            if (! is_array($item) || empty($item['type'])) {
                 $filtered[] = $item;
 
                 continue;
@@ -62,7 +62,7 @@ class HandleInertiaRequests extends Middleware
                 $data = $item['data'] ?? [];
                 if (($data['link_type'] ?? '') === 'page') {
                     $pageId = $data['page_id'] ?? null;
-                    if ($pageId === null || !isset($publishedPageIds[$pageId])) {
+                    if ($pageId === null || ! isset($publishedPageIds[$pageId])) {
                         continue;
                     }
                 }
@@ -83,7 +83,9 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         return array_merge(parent::share($request), [
-            'ziggy' => (new Ziggy(null, URL::to('/')))->toArray(),
+            'ziggy' => (new Ziggy(null, URL::to('/')))
+                ->filter(['filament.*', 'livewire.*'], false)
+                ->toArray(),
             'title' => config('app.name'),
             'header' => $this->loadNavigation('header'),
             'footer' => $this->loadNavigation('footer'),
