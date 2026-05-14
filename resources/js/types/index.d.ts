@@ -134,4 +134,6 @@ export interface Media {
   sizes: string
   src: string
   srcset: string
+  width?: number | null
+  height?: number | null
 }
