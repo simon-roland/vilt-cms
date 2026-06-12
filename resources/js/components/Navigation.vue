@@ -1,7 +1,6 @@
 <script setup lang="ts">
-
-import Accordion from './Accordion.vue'
 import LinkItem from './LinkItem.vue'
+import NavigationDropdown from './NavigationDropdown.vue'
 import type { NavigationItem } from '../types'
 
 defineProps({
@@ -9,21 +8,17 @@ defineProps({
     type: Array as () => NavigationItem[],
     required: true,
   },
-  openDropdownId: {
+  activeSlug: {
     type: [String, null],
     default: null,
   },
-  type: {
-    type: String,
-    default: 'card',
-  },
-  activeSlug: {
-    type: String,
-    default: null,
+  // 'horizontal' floats dropdown panels below their triggers (desktop header);
+  // 'vertical' expands groups inline (mobile menus, footer columns).
+  variant: {
+    type: String as () => 'horizontal' | 'vertical',
+    default: 'horizontal',
   },
 })
-
-defineEmits(['update:openDropdownId'])
 </script>
 
 <template>
@@ -33,55 +28,11 @@ defineEmits(['update:openDropdownId'])
       :item="item.data"
       :active="item.data.page?.slug === activeSlug"
     />
-    <template v-else-if="item.type === 'dropdown'">
-      <div
-        v-if="type === 'card'"
-        class="relative"
-        @mouseenter="$emit('update:openDropdownId', item.data.id)"
-        @mouseleave="$emit('update:openDropdownId', null)"
-      >
-        <button class="flex items-center gap-2">
-          {{ item.data.label }}
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            :class="['size-4 transition-transform', { 'rotate-180': openDropdownId === item.data.id }]"
-          >
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
-        </button>
-        <div v-show="openDropdownId === item.data.id" class="absolute top-full left-0 grid gap-2 w-40 pt-2">
-          <LinkItem
-            v-for="link in item.data.items"
-            :key="link.data.id"
-            :item="link.data"
-            :active="link.data.page?.slug === activeSlug"
-            class="hover:bg-secondary hover:text-primary text-secondary transition-colors duration-75 p-1 rounded-md text-center"
-            @click="$emit('update:openDropdownId', null)"
-          />
-        </div>
-      </div>
-      <Accordion v-if="type === 'accordion'">
-        <template #title>
-          <span class="">
-            {{ item.data.label }}
-          </span>
-        </template>
-        <div class="grid gap-3 pt-3">
-          <LinkItem
-            v-for="link in item.data.items"
-            :key="link.data.id"
-            :item="link.data"
-            :active="link.data.page?.slug === activeSlug"
-            class="hover:brightness-125 text-secondary transition-colors duration-75 pl-2 text-base"
-          />
-        </div>
-      </Accordion>
-    </template>
+    <NavigationDropdown
+      v-else-if="item.type === 'dropdown'"
+      :item="item.data"
+      :active-slug="activeSlug"
+      :variant="variant === 'horizontal' ? 'dropdown' : 'disclosure'"
+    />
   </template>
 </template>

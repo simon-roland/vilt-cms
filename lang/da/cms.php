@@ -173,6 +173,7 @@ return [
     'block_button_text' => 'Knaptekst',
     'block_style' => 'Stil',
     'block_dropdown' => 'Dropdown',
+    'block_dropdown_items' => 'Punkter',
     'block_gallery' => 'Galleri',
     'block_headline' => 'Overskrift',
     'block_images' => 'Billeder',

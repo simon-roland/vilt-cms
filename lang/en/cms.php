@@ -173,6 +173,7 @@ return [
     'block_button_text' => 'Button text',
     'block_style' => 'Style',
     'block_dropdown' => 'Dropdown',
+    'block_dropdown_items' => 'Items',
     'block_gallery' => 'Gallery',
     'block_headline' => 'Headline',
     'block_images' => 'Images',

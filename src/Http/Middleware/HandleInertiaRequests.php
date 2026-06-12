@@ -86,9 +86,17 @@ class HandleInertiaRequests extends Middleware
                 }
                 $filtered[] = $item;
             } elseif ($item['type'] === 'dropdown') {
-                if (isset($item['data']['items']) && is_array($item['data']['items'])) {
-                    $item['data']['items'] = $this->filterNavItems($item['data']['items'], $publishedPageIds);
+                $children = $item['data']['items'] ?? [];
+                $item['data']['items'] = is_array($children)
+                    ? $this->filterNavItems($children, $publishedPageIds)
+                    : [];
+
+                // A group whose links were all filtered out would render as a
+                // dead menu item — drop it entirely.
+                if (empty($item['data']['items'])) {
+                    continue;
                 }
+
                 $filtered[] = $item;
             } else {
                 $filtered[] = $item;

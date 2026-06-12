@@ -110,7 +110,7 @@ export interface Link {
 export interface Dropdown {
   id: string
   label: string
-  items: LinkBlock[]
+  items: NavigationItem[]
 }
 
 export interface PageLink {

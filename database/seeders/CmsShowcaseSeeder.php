@@ -35,28 +35,18 @@ class CmsShowcaseSeeder extends Seeder
                 $this->createPageContent($home, $locale, $copy['home'], isFrontpage: true);
                 $this->createPageContent($about, $locale, $copy['about']);
 
+                // The "More" group contains a nested group to showcase that
+                // dropdowns can hold other dropdowns.
                 $this->createNavigation('header', $locale, [
                     $this->pageLink($copy['nav']['home'], $home->id),
                     $this->pageLink($copy['nav']['about'], $about->id),
-                    [
-                        'type' => 'dropdown',
-                        'data' => [
-                            'id' => Str::uuid()->toString(),
-                            'label' => $copy['nav']['more'],
-                            'items' => [
-                                [
-                                    'type' => 'link',
-                                    'data' => [
-                                        'id' => Str::uuid()->toString(),
-                                        'label' => $copy['nav']['example'],
-                                        'link_type' => 'url',
-                                        'url' => 'https://example.com',
-                                        'target' => '_blank',
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
+                    $this->dropdown($copy['nav']['more'], [
+                        $this->urlLink($copy['nav']['example'], 'https://example.com'),
+                        $this->dropdown($copy['nav']['resources'], [
+                            $this->urlLink('Laravel', 'https://laravel.com'),
+                            $this->urlLink('Filament', 'https://filamentphp.com'),
+                        ]),
+                    ]),
                 ]);
 
                 $this->createNavigation('footer', $locale, [
@@ -117,6 +107,32 @@ class CmsShowcaseSeeder extends Seeder
                 'link_type' => 'page',
                 'page_id' => $pageId,
                 'target' => '_self',
+            ],
+        ];
+    }
+
+    private function urlLink(string $label, string $url): array
+    {
+        return [
+            'type' => 'link',
+            'data' => [
+                'id' => Str::uuid()->toString(),
+                'label' => $label,
+                'link_type' => 'url',
+                'url' => $url,
+                'target' => '_blank',
+            ],
+        ];
+    }
+
+    private function dropdown(string $label, array $items): array
+    {
+        return [
+            'type' => 'dropdown',
+            'data' => [
+                'id' => Str::uuid()->toString(),
+                'label' => $label,
+                'items' => $items,
             ],
         ];
     }
@@ -208,6 +224,7 @@ class CmsShowcaseSeeder extends Seeder
                     'about' => 'Om os',
                     'more' => 'Mere',
                     'example' => 'Eksempel',
+                    'resources' => 'Ressourcer',
                 ],
             ];
         }
@@ -272,6 +289,7 @@ class CmsShowcaseSeeder extends Seeder
                 'about' => 'About',
                 'more' => 'More',
                 'example' => 'Example',
+                'resources' => 'Resources',
             ],
         ];
     }

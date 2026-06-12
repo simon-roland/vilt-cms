@@ -41,6 +41,21 @@ it('translates the danish showcase content', function () {
     expect($header->items[0]['data']['label'])->toBe('Hjem');
 });
 
+it('seeds a nested dropdown in the header navigation', function () {
+    (new CmsShowcaseSeeder)->run();
+
+    $header = Navigation::where('locale', 'en')->where('type', 'header')->first();
+    $more = collect($header->items)->firstWhere('type', 'dropdown');
+
+    expect($more)->not->toBeNull();
+
+    $nested = collect($more['data']['items'])->firstWhere('type', 'dropdown');
+
+    expect($nested)->not->toBeNull()
+        ->and($nested['data']['label'])->toBe('Resources')
+        ->and($nested['data']['items'])->toHaveCount(2);
+});
+
 it('serves the seeded content on the frontend in both locales', function () {
     (new CmsShowcaseSeeder)->run();
 

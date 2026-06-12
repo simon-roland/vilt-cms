@@ -12,12 +12,12 @@ A CMS package for the **VILT stack** — Vue · Inertia · Laravel · Tailwind. 
 - **Page builder** — pages with a layout slot + N content blocks, draft/publish workflow, frontpage designation, SEO meta, soft-delete, and page duplication
 - **Localization** — multi-locale content with per-locale drafts, publishing, slugs, and frontpages; domain → locale mapping; localized navigations and site settings; automatic `hreflang` tags
 - **Media library** — uploads, folder organisation, grid/list browser, responsive WebP conversions, bulk operations
-- **Navigation** — header and footer nav builder with links and dropdowns (block types are customisable), one navigation set per locale
+- **Navigation** — header and footer nav builder with links and nestable dropdown groups (block types are customisable), one navigation set per locale
 - **Site settings** — global key/value store with optional per-locale overrides and a Filament admin page; fields auto-discovered from your app; shared on every Inertia request
 - **User management** — admin user CRUD
 - **Filament 5 admin** — all resources wired up and ready via `CmsPlugin`
 - **Inertia middleware base** — shared props (title, ziggy, navigation, locale) with overridable hooks
-- **Vue plugin + components** — `createCms()`, `Wrapper`, `Head`, `Navigation`, `LinkItem`, `Blocks`, `Accordion`
+- **Vue plugin + components** — `createCms()`, `Wrapper`, `Head`, `Navigation`, `NavigationDropdown`, `LinkItem`, `Blocks`, `Accordion`
 - **Block / layout / field generators** — `cms:make-block`, `cms:make-layout`, and `cms:make-field`
 
 ## Requirements
@@ -515,7 +515,9 @@ protected function extraProps(Request $request): array
 
 ## Customising navigation form blocks
 
-By default the navigation builder offers two block types: **Link** and **Dropdown**. You can replace this set by creating `app/Cms/NavigationFormSchema.php`:
+By default the navigation builder offers two block types: **Link** and **Dropdown**. Dropdowns can contain links *and other dropdowns*, up to three levels deep (`Dropdown::MAX_DEPTH`) — the frontend components render arbitrary depth, so deeper custom block sets are safe. On the frontend, page links without published content in the visitor's locale are filtered out, and any dropdown left empty by that filtering is dropped with them.
+
+You can replace the block set by creating `app/Cms/NavigationFormSchema.php`:
 
 ```php
 namespace App\Cms;

@@ -98,6 +98,57 @@ it('drops links whose target has no published content in the current locale', fu
         ->and($items[0]['data']['label'])->toBe('Extern');
 });
 
+it('filters page links inside nested dropdowns', function () {
+    $page = Page::create(['name' => 'Unpublished']);
+    $page->contents()->create([
+        'locale' => 'en',
+        'slug' => 'unpublished',
+        'layout' => [], 'blocks' => [], 'meta' => [],
+    ]);
+
+    makeNav('en', NavigationType::Header, [
+        ['type' => 'dropdown', 'data' => ['id' => 'd1', 'label' => 'More', 'items' => [
+            ['type' => 'link', 'data' => ['label' => 'Extern', 'link_type' => 'url', 'url' => 'https://example.com']],
+            ['type' => 'dropdown', 'data' => ['id' => 'd2', 'label' => 'Nested', 'items' => [
+                ['type' => 'link', 'data' => ['label' => 'Draft', 'link_type' => 'page', 'page_id' => $page->id]],
+                ['type' => 'link', 'data' => ['label' => 'Survives', 'link_type' => 'url', 'url' => 'https://example.org']],
+            ]]],
+        ]]],
+    ]);
+
+    $items = loadNav('en', 'header');
+
+    $nested = $items[0]['data']['items'][1]['data']['items'];
+
+    expect($nested)->toHaveCount(1)
+        ->and($nested[0]['data']['label'])->toBe('Survives');
+});
+
+it('drops dropdowns whose items were all filtered out, recursively', function () {
+    $page = Page::create(['name' => 'Unpublished']);
+    $page->contents()->create([
+        'locale' => 'en',
+        'slug' => 'unpublished',
+        'layout' => [], 'blocks' => [], 'meta' => [],
+    ]);
+
+    makeNav('en', NavigationType::Header, [
+        ['type' => 'link', 'data' => ['label' => 'Extern', 'link_type' => 'url', 'url' => 'https://example.com']],
+        // Outer dropdown only contains a nested dropdown whose only link is
+        // unpublished — both levels should disappear.
+        ['type' => 'dropdown', 'data' => ['id' => 'd1', 'label' => 'More', 'items' => [
+            ['type' => 'dropdown', 'data' => ['id' => 'd2', 'label' => 'Nested', 'items' => [
+                ['type' => 'link', 'data' => ['label' => 'Draft', 'link_type' => 'page', 'page_id' => $page->id]],
+            ]]],
+        ]]],
+    ]);
+
+    $items = loadNav('en', 'header');
+
+    expect($items)->toHaveCount(1)
+        ->and($items[0]['data']['label'])->toBe('Extern');
+});
+
 it('allows the same type across different locales', function () {
     makeNav('en', NavigationType::Header, []);
     makeNav('da', NavigationType::Header, []);

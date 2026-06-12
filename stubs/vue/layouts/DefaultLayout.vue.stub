@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { usePage } from '@inertiajs/vue3'
+import { router, usePage } from '@inertiajs/vue3'
 import Blocks from '@cms/components/Blocks.vue'
 import type { CmsPage, PageProps } from '@cms/types'
 import Navigation from '@/cms/components/Navigation.vue'
-import { computed } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 
 const props = defineProps({
   page: {
@@ -14,6 +14,15 @@ const props = defineProps({
 
 const pageProps = usePage<PageProps>().props
 const activeSlug = computed(() => props.page.is_frontpage ? null : props.page.slug)
+
+const mobileOpen = ref(false)
+let offNavigate: (() => void) | undefined
+
+onMounted(() => {
+  offNavigate = router.on('navigate', () => (mobileOpen.value = false))
+})
+
+onBeforeUnmount(() => offNavigate?.())
 </script>
 
 <template>
@@ -21,10 +30,46 @@ const activeSlug = computed(() => props.page.is_frontpage ? null : props.page.sl
     <header class="border-b border-border">
       <div class="container flex items-center justify-between h-16 max-w-5xl">
         <a href="/" class="text-lg font-semibold">{{ pageProps.title }}</a>
-        <nav class="flex items-center gap-6">
+
+        <nav class="hidden md:flex items-center gap-6">
           <Navigation :items="pageProps.header" :active-slug="activeSlug" />
         </nav>
+
+        <button
+          type="button"
+          class="md:hidden p-2 -mr-2"
+          :aria-expanded="mobileOpen"
+          aria-label="Toggle menu"
+          @click="mobileOpen = !mobileOpen"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="size-6"
+          >
+            <template v-if="mobileOpen">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </template>
+            <template v-else>
+              <line x1="4" y1="6" x2="20" y2="6" />
+              <line x1="4" y1="12" x2="20" y2="12" />
+              <line x1="4" y1="18" x2="20" y2="18" />
+            </template>
+          </svg>
+        </button>
       </div>
+
+      <nav v-show="mobileOpen" class="md:hidden border-t border-border">
+        <div class="container grid gap-4 py-4 max-w-5xl">
+          <Navigation :items="pageProps.header" :active-slug="activeSlug" variant="vertical" />
+        </div>
+      </nav>
     </header>
 
     <main class="flex-1">
