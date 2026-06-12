@@ -214,7 +214,7 @@ Authenticated users see a fixed **CMS toolbar** at the top of every frontend pag
 - **Centre** — the page name and a relative "Edited X ago" timestamp
 - **Right** — a **locale switcher** (when more than one locale is configured), and a **Draft / Published toggle** when both versions of the page exist, or a status pill ("Draft" or "Published") when only one version exists
 
-Clicking **Draft** or **Published** in the toggle stores the choice in the session and reloads the page to render the appropriate version. When draft preview is active, navigation includes links to unpublished pages; in published mode those links are filtered out, matching what guests see.
+Clicking **Draft** or **Published** in the toggle stores the choice in the session (per locale) and reloads the page to render the appropriate version. The toggle controls which *content* version renders; navigation always includes links to draft pages while you are logged in, since you can open those pages directly. Guests only ever see links to published pages.
 
 Guests never see the toolbar and always receive published content only.
 

@@ -12,7 +12,12 @@ const props = defineProps({
   },
 })
 
-const pageProps = usePage<PageProps>().props
+// Read shared props through the page object: Inertia replaces the props
+// object on every visit, so a captured `.props` would go stale when this
+// component instance is reused across navigations.
+const inertiaPage = usePage<PageProps>()
+const pageProps = computed(() => inertiaPage.props)
+
 const activeSlug = computed(() => props.page.is_frontpage ? null : props.page.slug)
 
 const mobileOpen = ref(false)

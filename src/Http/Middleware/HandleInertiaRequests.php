@@ -48,7 +48,10 @@ class HandleInertiaRequests extends Middleware
             return [];
         }
 
-        if (! PreviewMode::active()) {
+        // Logged-in users keep links to draft pages — they can open those
+        // pages directly (see PageController), so the nav must match. Guests
+        // only see published links unless a PreviewMode resolver says otherwise.
+        if (! auth()->check() && ! PreviewMode::active()) {
             $publishedPageIds = array_flip(
                 PageContent::query()
                     ->where('locale', $locale)

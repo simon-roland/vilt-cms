@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\QueryException;
+use Illuminate\Foundation\Auth\User;
 use RolandSolutions\ViltCms\Enum\NavigationType;
 use RolandSolutions\ViltCms\Http\Middleware\HandleInertiaRequests;
 use RolandSolutions\ViltCms\Models\Navigation;
@@ -96,6 +97,29 @@ it('drops links whose target has no published content in the current locale', fu
     // Page-link dropped because no published content in 'da'; URL link survives.
     expect($items)->toHaveCount(1)
         ->and($items[0]['data']['label'])->toBe('Extern');
+});
+
+it('keeps draft page links in the nav for logged-in users', function () {
+    $page = Page::create(['name' => 'Draft only']);
+    $page->contents()->create([
+        'locale' => 'en',
+        'slug' => 'draft-only',
+        'layout' => [], 'blocks' => [], 'meta' => [],
+    ]);
+
+    makeNav('en', NavigationType::Header, [
+        ['type' => 'link', 'data' => ['label' => 'Draft', 'link_type' => 'page', 'page_id' => $page->id]],
+    ]);
+
+    expect(loadNav('en', 'header'))->toBe([]);
+
+    $this->be(new class extends User {});
+
+    $items = loadNav('en', 'header');
+
+    expect($items)->toHaveCount(1)
+        ->and($items[0]['data']['label'])->toBe('Draft')
+        ->and($items[0]['data']['page']['slug'])->toBe('draft-only');
 });
 
 it('filters page links inside nested dropdowns', function () {

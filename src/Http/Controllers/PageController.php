@@ -172,7 +172,7 @@ class PageController extends Controller
             $cmsToolbar = [
                 'hasPublished' => $page->isPublished(),
                 'hasDraft' => $hasDraftChanges,
-                'previewMode' => session('cms_preview_mode', 'published'),
+                'previewMode' => PreviewMode::mode($locale),
                 'updatedAt' => $page->updated_at->toIso8601String(),
                 'editUrl' => FilamentPageResource::getUrl('edit', ['record' => $page]),
                 'pagesUrl' => FilamentPageResource::getUrl('index'),
