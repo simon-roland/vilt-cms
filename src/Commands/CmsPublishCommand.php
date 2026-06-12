@@ -23,6 +23,10 @@ class CmsPublishCommand extends Command
         $allGroups = ['ts', 'vue', 'css', 'config', 'php', 'settings-schema'];
         $groups = empty($only) ? $allGroups : array_intersect($allGroups, $only);
 
+        if ($unknown = array_diff($only, $allGroups)) {
+            $this->warn('Unknown group(s) ignored: '.implode(', ', $unknown).'. Valid groups: '.implode(', ', $allGroups));
+        }
+
         if (empty($groups)) {
             $this->error('No valid groups specified. Valid groups: '.implode(', ', $allGroups));
 

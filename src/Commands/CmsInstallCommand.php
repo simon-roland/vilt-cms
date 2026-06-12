@@ -33,6 +33,7 @@ class CmsInstallCommand extends Command
 
         $this->publishAndMigrate();
         $this->publishConfig();
+        $this->configureLocales();
         $this->publishBladeView();
         $this->publishAppCss();
         $this->publishMiddleware();
@@ -102,8 +103,13 @@ class CmsInstallCommand extends Command
     {
         $this->step('Publishing and running migrations');
         $this->callSilent('vendor:publish', ['--tag' => 'cms-migrations', '--force' => true]);
-        $this->callSilent('migrate');
-        $this->done('Migrations published and run');
+
+        try {
+            $this->callSilent('migrate', ['--force' => true]);
+            $this->done('Migrations published and run');
+        } catch (\Throwable $e) {
+            $this->manual('Run `php artisan migrate` once your database is configured — migrations failed: '.$e->getMessage());
+        }
     }
 
     private function publishConfig(): void
@@ -111,6 +117,108 @@ class CmsInstallCommand extends Command
         $this->step('Publishing config');
         $this->callSilent('vendor:publish', ['--tag' => 'cms-config', '--force' => true]);
         $this->done('config/cms.php published');
+    }
+
+    private function configureLocales(): void
+    {
+        $this->step('Configuring locales');
+
+        if (! $this->confirm('Will this site have content in multiple locales?', false)) {
+            $this->skip('Single locale — edit `locales` in config/cms.php later if this changes (see README → Localization)');
+
+            return;
+        }
+
+        $input = $this->ask('Locales as code:Label pairs, comma-separated (first becomes the default)', 'en:English,da:Dansk');
+
+        $locales = [];
+
+        foreach (explode(',', (string) $input) as $pair) {
+            [$code, $label] = array_pad(explode(':', trim($pair), 2), 2, null);
+            $code = strtolower(trim((string) $code));
+
+            if (! preg_match('/^[a-z0-9-]+$/', $code)) {
+                $this->warn("  Ignoring invalid locale code \"{$code}\" — use lowercase letters, digits, and dashes");
+
+                continue;
+            }
+
+            $label = trim((string) $label);
+            $locales[$code] = $label !== '' ? $label : strtoupper($code);
+        }
+
+        if (count($locales) < 2) {
+            $this->manual("Configure 'locales' and 'default_locale' in config/cms.php (see README → Localization)");
+
+            return;
+        }
+
+        $default = array_key_first($locales);
+
+        if (! $this->writeLocalesToConfig($locales, $default)) {
+            $this->manual("Set 'locales' => [...] and 'default_locale' => '{$default}' in config/cms.php");
+
+            return;
+        }
+
+        // Update the already-loaded config too — the showcase seeder runs
+        // in this same process and reads these keys.
+        config(['cms.locales' => $locales, 'cms.default_locale' => $default]);
+
+        $this->done('Locales configured: '.implode(', ', array_keys($locales))." (default: {$default})");
+    }
+
+    /**
+     * Rewrite the `locales` and `default_locale` entries of the freshly
+     * published config/cms.php. Returns false when either block can't be
+     * located (e.g. the file was customised), so the caller can fall back
+     * to a manual step instead of corrupting the file.
+     */
+    private function writeLocalesToConfig(array $locales, string $default): bool
+    {
+        $path = config_path('cms.php');
+
+        if (! file_exists($path)) {
+            return false;
+        }
+
+        $content = file_get_contents($path);
+
+        $entries = implode("\n", array_map(
+            fn (string $code) => "        '{$code}' => '".addslashes($locales[$code])."',",
+            array_keys($locales)
+        ));
+        $localesBlock = "'locales' => [\n{$entries}\n    ],";
+
+        $count = 0;
+        $content = preg_replace_callback(
+            "/'locales'\s*=>\s*\[[^\]]*\],/s",
+            fn () => $localesBlock,
+            $content,
+            1,
+            $count
+        );
+
+        if ($count !== 1) {
+            return false;
+        }
+
+        $defaultCount = 0;
+        $content = preg_replace_callback(
+            "/'default_locale'\s*=>\s*'[^']*'/",
+            fn () => "'default_locale' => '{$default}'",
+            $content,
+            1,
+            $defaultCount
+        );
+
+        if ($defaultCount !== 1) {
+            return false;
+        }
+
+        file_put_contents($path, $content);
+
+        return true;
     }
 
     private function publishBladeView(): void
@@ -143,8 +251,9 @@ class CmsInstallCommand extends Command
             return;
         }
 
-        // Look for the stock ->withMiddleware block
-        $pattern = '/->withMiddleware\(function\s*\(Middleware\s+\$middleware\)\s*:\s*void\s*\{\s*(\/\/\s*)?\}\)/s';
+        // Look for the stock ->withMiddleware block. The `: void` return type
+        // exists in newer skeletons only, so it's optional.
+        $pattern = '/->withMiddleware\(function\s*\(Middleware\s+\$middleware\)\s*(?::\s*void\s*)?\{\s*(\/\/\s*)?\}\)/s';
 
         if ($fresh && preg_match($pattern, $content)) {
             $replacement = <<<'PHP'
@@ -479,8 +588,22 @@ PHP;
 
         if (str_contains($content, 'view(\'welcome\')') || str_contains($content, 'view("welcome")')) {
             if ($fresh) {
-                file_put_contents($path, "<?php\n");
-                $this->done('Stock welcome route removed from routes/web.php');
+                // Remove only the welcome route statement, preserving anything
+                // else the file may contain.
+                $stripped = preg_replace(
+                    '/Route::get\(\s*[\'"]\/[\'"]\s*,\s*function\s*\(\)\s*\{\s*return\s+view\([\'"]welcome[\'"]\);\s*\}\s*\)\s*;\s*/s',
+                    '',
+                    $content,
+                    1,
+                    $count
+                );
+
+                if ($count === 1) {
+                    file_put_contents($path, $stripped);
+                    $this->done('Stock welcome route removed from routes/web.php');
+                } else {
+                    $this->manual('Remove the stock welcome route from routes/web.php — it conflicts with the CMS page routes');
+                }
 
                 $welcome = base_path('resources/views/welcome.blade.php');
                 if (file_exists($welcome)) {
@@ -545,11 +668,16 @@ PHP;
     {
         $this->step('Seeding showcase content');
 
-        $this->callSilent('db:seed', [
-            '--class' => CmsShowcaseSeeder::class,
-        ]);
+        try {
+            $this->callSilent('db:seed', [
+                '--class' => CmsShowcaseSeeder::class,
+                '--force' => true,
+            ]);
 
-        $this->done('Showcase content seeded');
+            $this->done('Showcase content seeded (one page set per configured locale)');
+        } catch (\Throwable $e) {
+            $this->manual('Seed showcase content manually with `php artisan db:seed --class="'.CmsShowcaseSeeder::class.'"` — seeding failed: '.$e->getMessage());
+        }
     }
 
     private function publishFilamentAssets(): void
@@ -637,7 +765,9 @@ PHP;
             return 'npm';
         }
 
-        return 'yarn';
+        // No lockfile (fresh project) — npm ships with Node, so it's the
+        // only manager guaranteed to exist.
+        return 'npm';
     }
 
     private function manual(string $step): void

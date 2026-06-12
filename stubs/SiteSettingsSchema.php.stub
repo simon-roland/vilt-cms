@@ -17,6 +17,13 @@ class SiteSettingsSchema
      *           \Filament\Forms\Components\TextInput::make('phone')
      *               ->label('Phone number'),
      *       ]),
+     *
+     * With multiple locales configured, chain ->translatable() on any field
+     * to make it overridable per locale (see README → Localization):
+     *
+     *   \Filament\Forms\Components\TextInput::make('tagline')
+     *       ->label('Tagline')
+     *       ->translatable(),
      */
     public static function extraTabs(): array
     {

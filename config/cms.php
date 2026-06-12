@@ -94,7 +94,6 @@ return [
     | What to do when a URL resolves to a page that has no PageContent in the
     | active locale. `redirect` sends the visitor to the active locale's
     | frontpage (404 if that locale has no frontpage). `404` always 404s.
-    | Consumed by LocaleDetectionMiddleware (Stage 5).
     */
     'missing_locale_behavior' => 'redirect',
 
@@ -103,8 +102,7 @@ return [
     | Navigation fallback
     |--------------------------------------------------------------------------
     | When no navigation exists for the current locale: `default_locale` falls
-    | back to the default locale's nav; `empty` serves an empty nav. Consumed
-    | by the navigation renderer (Stage 3).
+    | back to the default locale's nav; `empty` serves an empty nav.
     */
     'navigation_fallback' => 'default_locale',
 ];
