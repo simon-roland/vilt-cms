@@ -109,6 +109,14 @@ return [
     'navigation_plural_label' => 'Navigation',
     'navigation_menu_items' => 'Menu items',
     'navigation_add_item' => 'Add item',
+    'navigation_locale' => 'Locale',
+
+    // Locale domain mappings
+    'locale_domain_label' => 'Domain',
+    'locale_domain_plural_label' => 'Domains',
+    'locale_domain_locale' => 'Locale',
+    'locale_domain_domain' => 'Domain',
+    'locale_domain_domain_helper' => 'Exact host match, e.g. "example.com" or "www.example.dk". No protocol, no port.',
 
     // User resource
     'user_navigation_label' => 'Users',
@@ -139,6 +147,12 @@ return [
     'settings_body_start_scripts_helper' => 'Injected right after <body>. Use for Google Tag Manager <noscript> fallbacks.',
     'settings_body_end_scripts' => 'Body end scripts',
     'settings_body_end_scripts_helper' => 'Injected before </body>. Use for cookie declarations or deferred scripts.',
+
+    // Site-settings localization
+    'site_settings_editing_locale' => 'Editing locale',
+    'site_settings_global_label' => 'Global (default)',
+    'site_settings_translatable_hint' => 'Can be overridden per locale',
+    'site_settings_non_translatable_when_locale' => 'Global field — switch to \'Global\' to edit',
 
     // Media library
     'media_title' => 'Media Library',

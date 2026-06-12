@@ -12,6 +12,7 @@ use RolandSolutions\ViltCms\Filament\Pages\ManageSiteSettings;
 use RolandSolutions\ViltCms\Filament\Resources\Pages\PageResource as FilamentPageResource;
 use RolandSolutions\ViltCms\Http\Resources\PageResource;
 use RolandSolutions\ViltCms\Models\PageContent;
+use RolandSolutions\ViltCms\Support\Locales;
 use RolandSolutions\ViltCms\Support\PreviewMode;
 
 class PageController extends Controller
@@ -43,8 +44,15 @@ class PageController extends Controller
         return $this->renderPage($page, $useDraft);
     }
 
-    public function show(Request $request, $slug)
+    public function show(Request $request, ?string $locale, ?string $slug = null)
     {
+        // Route shapes: /{slug} (locale absent) or /{locale}/{slug}
+        // Laravel splices route params positionally when names don't match,
+        // so when only {slug} is present, it arrives in the `$locale` slot.
+        if ($slug === null) {
+            $slug = $locale;
+        }
+
         if ($redirect = $this->applyPreviewParam($request)) {
             return $redirect;
         }
@@ -63,11 +71,50 @@ class PageController extends Controller
 
         $page = $query->first();
 
-        if (! $page || $page->is_frontpage) {
-            return redirect()->route('pages.frontpage');
+        if (! $page) {
+            return $this->missingLocaleResponse();
+        }
+
+        if ($page->is_frontpage) {
+            return $this->frontpageRedirect();
         }
 
         return $this->renderPage($page, $useDraft);
+    }
+
+    private function missingLocaleResponse()
+    {
+        if (config('cms.missing_locale_behavior') === '404') {
+            abort(404);
+        }
+
+        $locale = app()->getLocale();
+
+        $query = PageContent::query()
+            ->where('locale', $locale)
+            ->where('is_frontpage', true);
+
+        if (! auth()->check() && ! PreviewMode::active()) {
+            $query->whereNotNull('published_content');
+        }
+
+        if (! $query->exists()) {
+            abort(404);
+        }
+
+        return $this->frontpageRedirect();
+    }
+
+    private function frontpageRedirect()
+    {
+        $locale = app()->getLocale();
+        $domainDefault = Locales::fromDomain(request()->getHost()) ?? Locales::default();
+
+        if ($locale === $domainDefault) {
+            return redirect()->route('pages.frontpage');
+        }
+
+        return redirect()->route('pages.frontpage.localized', ['locale' => $locale]);
     }
 
     private function wantsDraftPreview(): bool
@@ -145,7 +192,74 @@ class PageController extends Controller
 
         return inertia('Page', [
             'page' => PageResource::make($page),
+            'locale_variants' => $this->localeVariants($page),
             'cmsToolbar' => $cmsToolbar,
         ]);
+    }
+
+    /**
+     * Per-locale variants of the current page, used for hreflang alternates
+     * and locale switchers. `available` means a published PageContent exists.
+     * `url` is the switch target: the variant itself when reachable for the
+     * current visitor, otherwise that locale's frontpage, otherwise null.
+     *
+     * @return array<string, array{slug: ?string, available: bool, url: ?string}>|null
+     */
+    private function localeVariants(PageContent $page): ?array
+    {
+        $locales = Locales::all();
+
+        if (count($locales) < 2) {
+            return null;
+        }
+
+        $includeDrafts = auth()->check() || PreviewMode::active();
+
+        $siblings = PageContent::query()
+            ->where('page_id', $page->page_id)
+            ->get()
+            ->keyBy('locale');
+
+        $frontpages = PageContent::query()
+            ->where('is_frontpage', true)
+            ->when(! $includeDrafts, fn ($query) => $query->whereNotNull('published_content'))
+            ->get()
+            ->keyBy('locale');
+
+        $domainDefault = Locales::fromDomain(request()->getHost()) ?? Locales::default();
+
+        $variants = [];
+
+        foreach (array_keys($locales) as $locale) {
+            $sibling = $siblings->get($locale);
+            $reachable = $sibling !== null && ($includeDrafts || $sibling->isPublished());
+
+            if ($reachable) {
+                $url = $sibling->is_frontpage
+                    ? $this->localizedUrl('pages.frontpage', $locale, $domainDefault)
+                    : $this->localizedUrl('pages.show', $locale, $domainDefault, ['slug' => $sibling->slug]);
+            } elseif ($frontpages->has($locale)) {
+                $url = $this->localizedUrl('pages.frontpage', $locale, $domainDefault);
+            } else {
+                $url = null;
+            }
+
+            $variants[$locale] = [
+                'slug' => $sibling?->slug,
+                'available' => $sibling?->isPublished() ?? false,
+                'url' => $url,
+            ];
+        }
+
+        return $variants;
+    }
+
+    private function localizedUrl(string $route, string $locale, string $domainDefault, array $params = []): string
+    {
+        if ($locale === $domainDefault) {
+            return route($route, $params, false);
+        }
+
+        return route("{$route}.localized", ['locale' => $locale] + $params, false);
     }
 }

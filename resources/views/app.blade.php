@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    @php $cmsSettings = \RolandSolutions\ViltCms\Models\SiteSettings::getSingleton()->data ?? []; @endphp
+    @php $cmsSettings = \RolandSolutions\ViltCms\Models\SiteSettings::getResolved(app()->getLocale()); @endphp
     {!! $cmsSettings['head_scripts'] ?? '' !!}
     @vite('resources/js/app.ts')
     <x-inertia::head />

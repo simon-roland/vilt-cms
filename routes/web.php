@@ -26,13 +26,13 @@ Route::middleware(LocaleDetectionMiddleware::class)->group(function () use ($pag
         ->where('locale', $localePattern)
         ->name('pages.frontpage.localized');
 
-    Route::get('/{page}', [PageController::class, 'show'])
-        ->where('page', $pageSlugPattern)
+    Route::get('/{slug}', [PageController::class, 'show'])
+        ->where('slug', $pageSlugPattern)
         ->name('pages.show');
 
-    Route::get('/{locale}/{page}', [PageController::class, 'show'])
+    Route::get('/{locale}/{slug}', [PageController::class, 'show'])
         ->where('locale', $localePattern)
-        ->where('page', $pageSlugPattern)
+        ->where('slug', $pageSlugPattern)
         ->name('pages.show.localized');
 });
 

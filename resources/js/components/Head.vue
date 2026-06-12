@@ -45,12 +45,39 @@ const ogImage = computed(() => {
 })
 
 const faviconUrl = computed(() => (page.props.settings?.favicon_media as any)?.[0]?.src ?? null)
+
+// hreflang alternates — only published locale variants qualify
+const origin = computed(() => {
+  try {
+    return new URL(page.props.ziggy?.location ?? '').origin
+  } catch {
+    return ''
+  }
+})
+
+const hreflangs = computed(() => {
+  const variants = page.props.locale_variants
+  if (!variants) return []
+
+  return Object.entries(variants)
+    .filter(([, variant]) => variant.available && variant.url)
+    .map(([locale, variant]) => ({ locale, href: origin.value + variant.url }))
+})
+
+const xDefaultHref = computed(() => {
+  const variant = page.props.locale_variants?.[page.props.defaultLocale]
+  return variant?.available && variant.url ? origin.value + variant.url : null
+})
 </script>
 
 <template>
   <Head>
     <title>{{ title }}</title>
     <link rel="canonical" :href="canonicalUrl" />
+    <template v-if="hreflangs.length > 1">
+      <link v-for="alt in hreflangs" :key="alt.locale" rel="alternate" :hreflang="alt.locale" :href="alt.href" />
+      <link v-if="xDefaultHref" rel="alternate" hreflang="x-default" :href="xDefaultHref" />
+    </template>
     <link v-if="faviconUrl" rel="icon" :href="faviconUrl" />
     <meta name="robots" :content="meta.robots ?? 'index,follow'" />
     <meta v-if="meta.description" name="description" :content="meta.description" />

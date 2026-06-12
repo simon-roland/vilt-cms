@@ -1,11 +1,23 @@
 <script setup lang="ts">
+import { usePage } from '@inertiajs/vue3'
 import { computed } from 'vue'
-import type { CmsToolbarData } from '../types'
+import type { CmsToolbarData, PageProps } from '../types'
 
 const props = defineProps<{
   toolbar: CmsToolbarData
   pageTitle: string
 }>()
+
+const page = usePage<PageProps>()
+
+const locales = computed(() => page.props.locales ?? {})
+const currentLocale = computed(() => page.props.locale)
+const localeVariants = computed(() => page.props.locale_variants ?? null)
+const showLocaleSwitcher = computed(() => Object.keys(locales.value).length > 1)
+
+function localeUrl(locale: string): string | null {
+  return localeVariants.value?.[locale]?.url ?? null
+}
 
 function setPreviewMode(mode: 'draft' | 'published') {
   const csrfToken = (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement | null)?.content ?? ''
@@ -85,6 +97,28 @@ const showToggle = computed(() => props.toolbar.hasDraft && props.toolbar.hasPub
 
       <!-- Right: version toggle OR status label + edit button -->
       <div class="cms-toolbar__right">
+        <!-- Locale switcher: only when more than one locale is configured -->
+        <div v-if="showLocaleSwitcher" class="cms-toolbar__locales">
+          <template v-for="(label, code) in locales" :key="code">
+            <span
+              v-if="code === currentLocale"
+              class="cms-toolbar__locale cms-toolbar__locale--active"
+              :title="label"
+            >{{ String(code).toUpperCase() }}</span>
+            <a
+              v-else-if="localeUrl(String(code))"
+              class="cms-toolbar__locale"
+              :href="localeUrl(String(code))!"
+              :title="label"
+            >{{ String(code).toUpperCase() }}</a>
+            <span
+              v-else
+              class="cms-toolbar__locale cms-toolbar__locale--disabled"
+              :title="label"
+            >{{ String(code).toUpperCase() }}</span>
+          </template>
+        </div>
+
         <!-- Toggle pill: only when both versions exist -->
         <div v-if="showToggle" class="cms-toolbar__toggle">
           <button
@@ -276,6 +310,38 @@ const showToggle = computed(() => props.toolbar.hasDraft && props.toolbar.hasPub
 .cms-toolbar__toggle-btn--active {
   background: #1e293b;
   color: #f1f5f9;
+}
+
+.cms-toolbar__locales {
+  display: flex;
+  border: 1px solid #1e293b;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.cms-toolbar__locale {
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #64748b;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+
+a.cms-toolbar__locale:hover {
+  background: #1e293b;
+  color: #f1f5f9;
+}
+
+.cms-toolbar__locale--active {
+  background: #1e293b;
+  color: #f1f5f9;
+}
+
+.cms-toolbar__locale--disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .cms-toolbar__divider {

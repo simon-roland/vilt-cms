@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Schema;
  */
 beforeEach(function () {
     // Roll back the three Stage 1 migrations so we're in the pre-split state.
-    $this->artisan('migrate:rollback', ['--step' => 3])->assertSuccessful();
+    $this->artisan('migrate:rollback', ['--step' => 4])->assertSuccessful();
 });
 
 function seedOldStylePage(array $attrs): int
@@ -103,7 +103,7 @@ it('rolls back cleanly, restoring pre-split shape and default-locale data', func
     ]);
 
     $this->artisan('migrate')->assertSuccessful();
-    $this->artisan('migrate:rollback', ['--step' => 3])->assertSuccessful();
+    $this->artisan('migrate:rollback', ['--step' => 4])->assertSuccessful();
 
     expect(Schema::hasColumn('pages', 'slug'))->toBeTrue();
     expect(Schema::hasColumn('pages', 'is_frontpage'))->toBeTrue();

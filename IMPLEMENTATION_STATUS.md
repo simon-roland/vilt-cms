@@ -72,3 +72,54 @@ What shipped:
     - `tests/Feature/Models/PageContentFrontpageTest.php` — updated to seed via `makePage(['name' => ...])` since `PageContent` no longer has `name`.
     - `tests/Feature/Migrations/PageLocalizationMigrationTest.php` — expects `pages.name` to survive the split and `page_contents` to have no `name` / no `deleted_at`.
     - `tests/Feature/Validation/ReservedSlugTest.php` — asserts `PageSlug` rejects reserved keys, malformed slugs, and trailing-whitespace slugs.
+
+---
+
+## Stages 3 + 4 + 5 — Done ✅ (per plan.md)
+
+58/58 tests pass; Pint clean.
+
+**Stage 5 — Domain-Based Locale Detection:**
+
+- `locale_domain_mappings` migration + `LocaleDomainMapping` model (saves/deletes flush the in-process domain cache).
+- `Locales::fromDomain()` with per-host static cache + `flushDomainCache()`.
+- `LocaleDetectionMiddleware` full logic: domain default → URL prefix override → 301 de-prefixing redirect (query string preserved) → `app()->setLocale()`.
+- `PageController` consumes `cms.missing_locale_behavior` (`redirect` to the locale frontpage when one exists, else 404; or hard `404`).
+- `LocaleDomainMappingResource` (Filament CRUD, lowercase-normalized unique domains), registered only when >1 locales configured.
+- Tests: `LocaleDetectionMiddlewareTest` (domain mapping, fallback, 301 rules, prefix-wins-over-domain, missing-locale behaviors, cache invalidation).
+
+**Stage 3 — Navigation Localization:**
+
+- `NavigationForm`: locale Select (visible >1 locales, disabled on edit), compound `(type, locale)` unique validation.
+- `NavigationsTable`: locale badge column, locale+type default sort.
+- `HandleInertiaRequests::loadNavigation()`: per-locale lookup with `cms.navigation_fallback` (`default_locale`|`empty`); published-filter checks the **visitor** locale; `ReplacePageID` resolves slugs in the visitor locale.
+- Tests: `NavigationLocaleTest`.
+
+**Stage 4 — Site Settings Localization:**
+
+- `Field::macro('translatable')` + `Translatable` registry (reset per schema build to avoid cross-schema/long-running-runtime leakage).
+- `SiteSettings::global()` / `forLocale()` / `getResolved()` (deep merge, locale wins); `getSingleton()` kept as deprecated alias.
+- `ManageSiteSettings`: locale switcher select; non-translatable fields disabled (with hint) when editing a locale; **diff-on-save** — only values differing from global are stored per-locale (`Translatable::overrides()`), and a locale row with no remaining overrides is deleted so it keeps inheriting future global changes.
+- `app.blade.php`, Inertia share, and frontend all read `getResolved(app()->getLocale())`.
+- Tests: `SiteSettingsLocalizationTest`.
+
+**Cross-cutting hardening:**
+
+- Inertia shared props (`locale`, `defaultLocale`, `header`, `footer`, `settings`) are **lazy closures**, evaluated at response-render time — correct locale regardless of where `HandleInertiaRequests` sits relative to `LocaleDetectionMiddleware` in the consuming app's stack. The kernel-ordering caveat from Stage 1 is gone.
+- `tests/TestCase.php` now pushes `HandleInertiaRequests` into the `web` group (mirrors consuming apps), so feature tests assert real shared props.
+- Fixed `useHref()` (frontend): route param rename (`page` → `slug`) and locale-prefix awareness via the new shared `defaultLocale` prop.
+
+## Stage 6 — Done ✅ (6a hreflang + 6b switcher)
+
+- `PageController` shares a `locale_variants` prop (null when 1 locale): per configured locale `{slug, available, url}` — `available` = published content exists; `url` = the variant when reachable for the current visitor (drafts count for admins/preview), else that locale's frontpage, else `null`. URLs are domain-default-aware paths (2 extra queries, no N+1).
+- `Head.vue`: `<link rel="alternate" hreflang>` for available variants (only when ≥2) + `x-default` pointing at the domain-default locale.
+- `CmsToolbar.vue`: locale switcher (current highlighted, unreachable locales rendered disabled), visible only with >1 locales.
+- TS types: `PageProps.locale/locales/defaultLocale/locale_variants`, `LocaleVariant`.
+- Tests: `LocaleVariantsTest`.
+
+**Known follow-ups before release:**
+
+- Merge `main` into this branch — `main` has `613ce4a` (Ziggy route filtering) which this branch predates.
+- Site-settings UX: switching the editing locale discards unsaved changes without warning.
+- `SiteSettings::getResolved()` runs per call (blade + share each query); request-level memoization deliberately skipped for now.
+- Visitor-facing locale switcher beyond the admin toolbar is left to consuming apps via `locale_variants`/`locales` props (per roadmap).

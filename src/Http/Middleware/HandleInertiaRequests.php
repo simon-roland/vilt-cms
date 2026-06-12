@@ -11,6 +11,7 @@ use RolandSolutions\ViltCms\Actions\ResolveSettingsMedia;
 use RolandSolutions\ViltCms\Models\Navigation;
 use RolandSolutions\ViltCms\Models\PageContent;
 use RolandSolutions\ViltCms\Models\SiteSettings;
+use RolandSolutions\ViltCms\Support\Locales;
 use RolandSolutions\ViltCms\Support\PreviewMode;
 use Tighten\Ziggy\Ziggy;
 
@@ -31,26 +32,35 @@ class HandleInertiaRequests extends Middleware
     protected function loadNavigation(string $type): array
     {
         $locale = app()->getLocale();
+        $default = Locales::default();
 
         $nav = Navigation::where('type', $type)
             ->where('locale', $locale)
             ->first();
 
-        if ($nav) {
-            if (! PreviewMode::active()) {
-                $publishedPageIds = array_flip(
-                    PageContent::query()
-                        ->where('locale', $locale)
-                        ->whereNotNull('published_content')
-                        ->pluck('page_id')
-                        ->all()
-                );
-
-                $nav->items = $this->filterNavItems($nav->items, $publishedPageIds);
-            }
-
-            $nav->items = ReplacePageID::make()->handle($nav->items, $locale);
+        if (! $nav && $locale !== $default && config('cms.navigation_fallback') === 'default_locale') {
+            $nav = Navigation::where('type', $type)
+                ->where('locale', $default)
+                ->first();
         }
+
+        if (! $nav) {
+            return [];
+        }
+
+        if (! PreviewMode::active()) {
+            $publishedPageIds = array_flip(
+                PageContent::query()
+                    ->where('locale', $locale)
+                    ->whereNotNull('published_content')
+                    ->pluck('page_id')
+                    ->all()
+            );
+
+            $nav->items = $this->filterNavItems($nav->items, $publishedPageIds);
+        }
+
+        $nav->items = ReplacePageID::make()->handle($nav->items, $locale);
 
         return $nav->items ?? [];
     }
@@ -90,16 +100,22 @@ class HandleInertiaRequests extends Middleware
 
     public function share(Request $request): array
     {
+        // Locale-dependent props are closures: Inertia resolves them when the
+        // response renders, after LocaleDetectionMiddleware has set the app
+        // locale — regardless of where this middleware sits in the stack.
         return array_merge(parent::share($request), [
             'ziggy' => (new Ziggy(null, URL::to('/')))
                 ->filter(['filament.*', 'livewire.*'], false)
                 ->toArray(),
             'title' => config('app.name'),
-            'header' => $this->loadNavigation('header'),
-            'footer' => $this->loadNavigation('footer'),
-            'settings' => Arr::except(
+            'locale' => fn () => app()->getLocale(),
+            'locales' => Locales::all(),
+            'defaultLocale' => fn () => Locales::fromDomain($request->getHost()) ?? Locales::default(),
+            'header' => fn () => $this->loadNavigation('header'),
+            'footer' => fn () => $this->loadNavigation('footer'),
+            'settings' => fn () => Arr::except(
                 ResolveSettingsMedia::make()->handle(
-                    SiteSettings::getSingleton()->data ?? []
+                    SiteSettings::getResolved(app()->getLocale())
                 ),
                 ['head_scripts', 'body_start_scripts', 'body_end_scripts']
             ),

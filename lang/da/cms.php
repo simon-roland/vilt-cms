@@ -109,6 +109,14 @@ return [
     'navigation_plural_label' => 'Navigation',
     'navigation_menu_items' => 'Menupunkter',
     'navigation_add_item' => 'Tilføj menupunkt',
+    'navigation_locale' => 'Sprog',
+
+    // Locale domain mappings
+    'locale_domain_label' => 'Domæne',
+    'locale_domain_plural_label' => 'Domæner',
+    'locale_domain_locale' => 'Sprog',
+    'locale_domain_domain' => 'Domæne',
+    'locale_domain_domain_helper' => 'Nøjagtigt værtsmatch, fx "example.com" eller "www.example.dk". Ingen protokol, ingen port.',
 
     // User resource
     'user_navigation_label' => 'Brugere',
@@ -139,6 +147,12 @@ return [
     'settings_body_start_scripts_helper' => 'Indsættes lige efter <body>. Brug til Google Tag Manager <noscript>-fallback.',
     'settings_body_end_scripts' => 'Body slut-scripts',
     'settings_body_end_scripts_helper' => 'Indsættes før </body>. Brug til cookiedeklarationer eller udsatte scripts.',
+
+    // Site-settings localization
+    'site_settings_editing_locale' => 'Redigerer sprog',
+    'site_settings_global_label' => 'Globalt (standard)',
+    'site_settings_translatable_hint' => 'Kan overstyres per sprog',
+    'site_settings_non_translatable_when_locale' => 'Globalt felt — skift til \'Globalt\' for at redigere',
 
     // Media library
     'media_title' => 'Mediebibliotek',

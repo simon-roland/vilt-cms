@@ -2,6 +2,7 @@
 
 namespace RolandSolutions\ViltCms;
 
+use Filament\Forms\Components\Field;
 use Filament\Schemas\Components\Tabs;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -14,6 +15,7 @@ use RolandSolutions\ViltCms\Commands\MakeCmsLayoutCommand;
 use RolandSolutions\ViltCms\Filament\Blocks\BaseBlock;
 use RolandSolutions\ViltCms\Filament\Pages\Schemas\DefaultSiteSettingsSchema;
 use RolandSolutions\ViltCms\Filament\Resources\Navigations\Schemas\DefaultNavigationFormSchema;
+use RolandSolutions\ViltCms\Filament\Support\Translatable;
 use RolandSolutions\ViltCms\Livewire\MediaPickerField;
 use RolandSolutions\ViltCms\Models\Media;
 use Spatie\Image\Drivers\Gd\GdDriver;
@@ -141,6 +143,14 @@ class CmsServiceProvider extends ServiceProvider
         }
 
         Livewire::component('media-picker-field', MediaPickerField::class);
+
+        Field::macro('translatable', function () {
+            /** @var Field $this */
+            Translatable::mark($this->getName());
+
+            return $this->hint(__('cms::cms.site_settings_translatable_hint'))
+                ->hintIcon('heroicon-o-language');
+        });
 
         $this->discoverBlocks();
         $this->discoverLayouts();
