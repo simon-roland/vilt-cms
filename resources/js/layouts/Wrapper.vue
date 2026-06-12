@@ -5,9 +5,12 @@ import Head from '../components/Head.vue'
 import CmsToolbar from '../components/CmsToolbar.vue'
 import type { CmsToolbarData, CmsPage } from '../types'
 
-const props = usePage<{ cmsToolbar?: CmsToolbarData | null; page?: CmsPage }>().props
-const cmsToolbar = computed(() => props.cmsToolbar ?? null)
-const pageTitle = computed(() => props.page?.name ?? '')
+// This layout persists across Inertia visits and Inertia replaces the props
+// object on every visit — capturing `.props` here would freeze the toolbar on
+// the first page's data. Always read through the page object.
+const inertiaPage = usePage<{ cmsToolbar?: CmsToolbarData | null; page?: CmsPage }>()
+const cmsToolbar = computed(() => inertiaPage.props.cmsToolbar ?? null)
+const pageTitle = computed(() => inertiaPage.props.page?.name ?? '')
 
 watchEffect(() => {
   document.documentElement.style.setProperty(

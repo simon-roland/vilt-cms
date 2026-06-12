@@ -2,17 +2,17 @@
 
 namespace RolandSolutions\ViltCms\Filament\Resources\Navigations;
 
+use BackedEnum;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Table;
 use RolandSolutions\ViltCms\Filament\Resources\Navigations\Pages\CreateNavigation;
 use RolandSolutions\ViltCms\Filament\Resources\Navigations\Pages\EditNavigation;
 use RolandSolutions\ViltCms\Filament\Resources\Navigations\Pages\ListNavigations;
 use RolandSolutions\ViltCms\Filament\Resources\Navigations\Schemas\NavigationForm;
 use RolandSolutions\ViltCms\Filament\Resources\Navigations\Tables\NavigationsTable;
 use RolandSolutions\ViltCms\Models\Navigation;
-use BackedEnum;
-use Filament\Resources\Resource;
-use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Table;
 use UnitEnum;
 
 class NavigationResource extends Resource
@@ -23,9 +23,10 @@ class NavigationResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
-    protected static string | UnitEnum | null $navigationGroup = null;
+    protected static string|UnitEnum|null $navigationGroup = null;
 
     protected static ?string $modelLabel = null;
+
     protected static ?string $pluralModelLabel = null;
 
     public static function getModelLabel(): string

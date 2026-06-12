@@ -4,13 +4,13 @@ namespace RolandSolutions\ViltCms\Actions;
 
 use RolandSolutions\ViltCms\Models\Media;
 use RolandSolutions\ViltCms\Models\MediaLibrary;
-use RolandSolutions\ViltCms\Models\Page;
+use RolandSolutions\ViltCms\Models\PageContent;
 
 class AddMediaToPage extends Action
 {
     private const UUID_PATTERN = '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i';
 
-    public function handle(Page $page)
+    public function handle(PageContent $page)
     {
         // Existing: page-attached inline media (legacy support)
         $pageMedia = $page->media->groupBy(function ($media) {
@@ -48,7 +48,7 @@ class AddMediaToPage extends Action
         foreach ($blocks as $block) {
             $fields = is_array($block['data'] ?? null) ? $block['data'] : $block;
 
-            if (!is_array($fields)) {
+            if (! is_array($fields)) {
                 continue;
             }
 
@@ -86,12 +86,12 @@ class AddMediaToPage extends Action
 
     protected function attachMediaToBlocks(&$blocks, $pageMedia, $libraryMedia)
     {
-        if (!is_array($blocks)) {
+        if (! is_array($blocks)) {
             return;
         }
 
         foreach ($blocks as &$block) {
-            if (!is_array($block)) {
+            if (! is_array($block)) {
                 continue;
             }
 
@@ -121,12 +121,12 @@ class AddMediaToPage extends Action
             // Single UUID → resolve to media array
             if (is_string($value) && preg_match(self::UUID_PATTERN, $value) && $libraryMedia->has($value)) {
                 $media = $libraryMedia->get($value);
-                $fields[$key . '_media'] = [
+                $fields[$key.'_media'] = [
                     $this->isImage($media) ? $media->toImageArray() : $media->getCmsUrl(),
                 ];
             }
             // Array of UUID strings → resolve each; otherwise recurse (nested blocks or repeater items)
-            elseif (is_array($value) && !empty($value)) {
+            elseif (is_array($value) && ! empty($value)) {
                 $allAreUuids = collect($value)->every(
                     fn ($v) => is_string($v) && preg_match(self::UUID_PATTERN, $v)
                 );
@@ -142,8 +142,8 @@ class AddMediaToPage extends Action
                         return null;
                     })->filter()->values()->all();
 
-                    if (!empty($resolved)) {
-                        $fields[$key . '_media'] = $resolved;
+                    if (! empty($resolved)) {
+                        $fields[$key.'_media'] = $resolved;
                     }
                 } else {
                     $this->attachMediaToBlocks($value, $pageMedia, $libraryMedia);

@@ -2,8 +2,8 @@
 
 namespace RolandSolutions\ViltCms\Filament\Resources\User\Pages;
 
-use RolandSolutions\ViltCms\Filament\Resources\User\UserResource;
 use Filament\Resources\Pages\CreateRecord;
+use RolandSolutions\ViltCms\Filament\Resources\User\UserResource;
 
 class CreateUser extends CreateRecord
 {

@@ -10,10 +10,17 @@ class HandleInertiaRequests extends BaseHandleInertiaRequests
     protected function extraProps(Request $request): array
     {
         return [
-            // Add site-specific shared props here.
-            // Note: 'settings' is already shared automatically from the CMS SiteSettings model.
-            // You can override it here if needed:
-            // 'settings' => array_merge($this->resolveSettings(), ['my_extra_key' => 'value']),
+            // Add site-specific shared props here, e.g.:
+            // 'user' => $request->user()?->only('id', 'name'),
+            //
+            // Already shared by the CMS: title, locale, locales, defaultLocale,
+            // header, footer, settings (resolved for the active locale), ziggy.
+            // To extend settings, return a closure so it resolves after the
+            // locale has been detected:
+            // 'settings' => fn () => array_merge(
+            //     \RolandSolutions\ViltCms\Models\SiteSettings::getResolved(app()->getLocale()),
+            //     ['my_extra_key' => 'value'],
+            // ),
         ];
     }
 }

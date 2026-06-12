@@ -2,8 +2,8 @@
 
 namespace RolandSolutions\ViltCms\Filament\Resources\Navigations\Pages;
 
-use RolandSolutions\ViltCms\Filament\Resources\Navigations\NavigationResource;
 use Filament\Resources\Pages\CreateRecord;
+use RolandSolutions\ViltCms\Filament\Resources\Navigations\NavigationResource;
 
 class CreateNavigation extends CreateRecord
 {

@@ -7,9 +7,11 @@ use Filament\Navigation\NavigationItem;
 use Filament\Panel;
 use RolandSolutions\ViltCms\Filament\Pages\ManageMediaLibrary;
 use RolandSolutions\ViltCms\Filament\Pages\ManageSiteSettings;
+use RolandSolutions\ViltCms\Filament\Resources\LocaleDomainMappings\LocaleDomainMappingResource;
 use RolandSolutions\ViltCms\Filament\Resources\Navigations\NavigationResource;
 use RolandSolutions\ViltCms\Filament\Resources\Pages\PageResource;
 use RolandSolutions\ViltCms\Filament\Resources\User\UserResource;
+use RolandSolutions\ViltCms\Support\Locales;
 
 class CmsPlugin implements Plugin
 {
@@ -25,12 +27,18 @@ class CmsPlugin implements Plugin
 
     public function register(Panel $panel): void
     {
+        $resources = [
+            PageResource::class,
+            NavigationResource::class,
+            UserResource::class,
+        ];
+
+        if (count(Locales::all()) > 1) {
+            $resources[] = LocaleDomainMappingResource::class;
+        }
+
         $panel
-            ->resources([
-                PageResource::class,
-                NavigationResource::class,
-                UserResource::class,
-            ])
+            ->resources($resources)
             ->pages([
                 ManageMediaLibrary::class,
                 ManageSiteSettings::class,
@@ -44,7 +52,5 @@ class CmsPlugin implements Plugin
             ]);
     }
 
-    public function boot(Panel $panel): void
-    {
-    }
+    public function boot(Panel $panel): void {}
 }

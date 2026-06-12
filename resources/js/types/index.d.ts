@@ -8,11 +8,21 @@ export interface PageProps {
   [key: string]: unknown
   ziggy: Config
   title: string
+  locale: string
+  locales: Record<string, string>
+  defaultLocale: string
   header: NavigationItem[]
   footer: NavigationItem[]
   settings: SiteSettings
   page: CmsPage
+  locale_variants?: Record<string, LocaleVariant> | null
   cmsToolbar?: CmsToolbarData | null
+}
+
+export interface LocaleVariant {
+  slug: string | null
+  available: boolean
+  url: string | null
 }
 
 export interface MinimalPage {
@@ -100,7 +110,7 @@ export interface Link {
 export interface Dropdown {
   id: string
   label: string
-  items: LinkBlock[]
+  items: NavigationItem[]
 }
 
 export interface PageLink {

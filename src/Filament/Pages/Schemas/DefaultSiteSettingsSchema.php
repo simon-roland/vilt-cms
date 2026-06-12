@@ -2,11 +2,11 @@
 
 namespace RolandSolutions\ViltCms\Filament\Pages\Schemas;
 
-use RolandSolutions\ViltCms\Filament\Fields\MediaPicker;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use RolandSolutions\ViltCms\Filament\Fields\MediaPicker;
 
 class DefaultSiteSettingsSchema
 {
@@ -17,7 +17,8 @@ class DefaultSiteSettingsSchema
                 ->schema([
                     TextInput::make('site_name')
                         ->label(__('cms::cms.settings_site_name'))
-                        ->required(),
+                        ->required()
+                        ->translatable(),
                     MediaPicker::make('logo')
                         ->label(__('cms::cms.settings_logo')),
                     MediaPicker::make('favicon')
@@ -46,7 +47,8 @@ class DefaultSiteSettingsSchema
             Tab::make(__('cms::cms.settings_section_seo'))
                 ->schema([
                     MediaPicker::make('og_image')
-                        ->label(__('cms::cms.settings_og_image')),
+                        ->label(__('cms::cms.settings_og_image'))
+                        ->translatable(),
                     TextInput::make('twitter_handle')
                         ->label(__('cms::cms.settings_twitter_handle'))
                         ->placeholder('@yoursite'),

@@ -23,8 +23,12 @@ class CmsPublishCommand extends Command
         $allGroups = ['ts', 'vue', 'css', 'config', 'php', 'settings-schema'];
         $groups = empty($only) ? $allGroups : array_intersect($allGroups, $only);
 
+        if ($unknown = array_diff($only, $allGroups)) {
+            $this->warn('Unknown group(s) ignored: '.implode(', ', $unknown).'. Valid groups: '.implode(', ', $allGroups));
+        }
+
         if (empty($groups)) {
-            $this->error('No valid groups specified. Valid groups: ' . implode(', ', $allGroups));
+            $this->error('No valid groups specified. Valid groups: '.implode(', ', $allGroups));
 
             return self::FAILURE;
         }
@@ -33,11 +37,11 @@ class CmsPublishCommand extends Command
         $this->newLine();
 
         $groupLabels = [
-            'ts'              => 'TypeScript entrypoint',
-            'vue'             => 'Vue components',
-            'css'             => 'CSS entrypoint',
-            'config'          => 'Config files',
-            'php'             => 'Starter PHP classes',
+            'ts' => 'TypeScript entrypoint',
+            'vue' => 'Vue components',
+            'css' => 'CSS entrypoint',
+            'config' => 'Config files',
+            'php' => 'Starter PHP classes',
             'settings-schema' => 'Site settings schema',
         ];
 

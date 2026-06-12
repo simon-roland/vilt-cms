@@ -29,6 +29,20 @@ class PreviewMode
             return (bool) (static::$resolver)();
         }
 
-        return auth()->check() && session('cms_preview_mode', 'published') === 'draft';
+        return auth()->check() && static::mode() === 'draft';
+    }
+
+    /**
+     * The stored preview mode ('draft' or 'published') for a locale.
+     * Stored per locale under cms_preview_mode.{locale}; anything malformed
+     * falls back to 'published'.
+     */
+    public static function mode(?string $locale = null): string
+    {
+        $locale ??= app()->getLocale();
+
+        $mode = session("cms_preview_mode.{$locale}", 'published');
+
+        return in_array($mode, ['draft', 'published'], true) ? $mode : 'published';
     }
 }

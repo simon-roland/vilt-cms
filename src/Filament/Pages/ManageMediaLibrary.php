@@ -2,18 +2,20 @@
 
 namespace RolandSolutions\ViltCms\Filament\Pages;
 
-use RolandSolutions\ViltCms\Models\Media;
-use RolandSolutions\ViltCms\Models\MediaFolder;
-use RolandSolutions\ViltCms\Models\MediaLibrary;
+use BackedEnum;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Schema;
+use Illuminate\Http\File;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
+use RolandSolutions\ViltCms\Models\Media;
+use RolandSolutions\ViltCms\Models\MediaFolder;
+use RolandSolutions\ViltCms\Models\MediaLibrary;
 use Spatie\MediaLibrary\Conversions\FileManipulator;
 use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
-use BackedEnum;
 use UnitEnum;
 
 class ManageMediaLibrary extends Page
@@ -187,7 +189,7 @@ class ManageMediaLibrary extends Page
         $this->form->fill();
     }
 
-    public function getMediaItems(): \Illuminate\Support\Collection
+    public function getMediaItems(): Collection
     {
         $allowed = ['name', 'size', 'created_at', 'mime_type'];
         $col = in_array($this->sortColumn, $allowed) ? $this->sortColumn : 'created_at';
@@ -211,7 +213,7 @@ class ManageMediaLibrary extends Page
         }
     }
 
-    public function getFolderTree(): \Illuminate\Support\Collection
+    public function getFolderTree(): Collection
     {
         return MediaFolder::whereNull('parent_id')
             ->orderBy('name')
@@ -226,7 +228,7 @@ class ManageMediaLibrary extends Page
         }
 
         $folder = MediaFolder::find($this->activeFolderId);
-        if (!$folder) {
+        if (! $folder) {
             return [];
         }
 
@@ -325,7 +327,7 @@ class ManageMediaLibrary extends Page
         }
 
         $folder = MediaFolder::find($id);
-        if (!$folder) {
+        if (! $folder) {
             return;
         }
 
@@ -353,7 +355,7 @@ class ManageMediaLibrary extends Page
     {
         $folder = MediaFolder::with('children')->find($id);
 
-        if (!$folder) {
+        if (! $folder) {
             return;
         }
 
@@ -513,7 +515,7 @@ class ManageMediaLibrary extends Page
             ->whereHasMorph('model', [MediaLibrary::class])
             ->first();
 
-        if (!$media) {
+        if (! $media) {
             return;
         }
 
@@ -550,7 +552,7 @@ class ManageMediaLibrary extends Page
             $filePath = array_values($filePath)[0] ?? null;
         }
 
-        if (!$filePath) {
+        if (! $filePath) {
             return;
         }
 
@@ -558,13 +560,13 @@ class ManageMediaLibrary extends Page
             ->whereHasMorph('model', [MediaLibrary::class])
             ->first();
 
-        if (!$media) {
+        if (! $media) {
             return;
         }
 
         $absolutePath = Storage::disk('local')->path($filePath);
         $newFileName = basename($filePath);
-        $fileObj = new \Illuminate\Http\File($absolutePath);
+        $fileObj = new File($absolutePath);
         $mimeType = $fileObj->getMimeType();
         $size = $fileObj->getSize();
 

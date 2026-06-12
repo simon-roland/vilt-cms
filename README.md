@@ -10,13 +10,14 @@ A CMS package for the **VILT stack** — Vue · Inertia · Laravel · Tailwind. 
 ## What's included
 
 - **Page builder** — pages with a layout slot + N content blocks, draft/publish workflow, frontpage designation, SEO meta, soft-delete, and page duplication
+- **Localization** — multi-locale content with per-locale drafts, publishing, slugs, and frontpages; domain → locale mapping; localized navigations and site settings; automatic `hreflang` tags
 - **Media library** — uploads, folder organisation, grid/list browser, responsive WebP conversions, bulk operations
-- **Navigation** — header and footer nav builder with links and dropdowns (block types are customisable)
-- **Site settings** — singleton key/value store with a Filament admin page; fields auto-discovered from your app; shared on every Inertia request
+- **Navigation** — header and footer nav builder with links and nestable dropdown groups (block types are customisable), one navigation set per locale
+- **Site settings** — global key/value store with optional per-locale overrides and a Filament admin page; fields auto-discovered from your app; shared on every Inertia request
 - **User management** — admin user CRUD
 - **Filament 5 admin** — all resources wired up and ready via `CmsPlugin`
-- **Inertia middleware base** — shared props (title, ziggy, navigation) with overridable hooks
-- **Vue plugin + components** — `createCms()`, `Wrapper`, `Head`, `Navigation`, `LinkItem`, `Blocks`, `Accordion`
+- **Inertia middleware base** — shared props (title, ziggy, navigation, locale) with overridable hooks
+- **Vue plugin + components** — `createCms()`, `Wrapper`, `Head`, `Navigation`, `NavigationDropdown`, `LinkItem`, `Blocks`, `Accordion`
 - **Block / layout / field generators** — `cms:make-block`, `cms:make-layout`, and `cms:make-field`
 
 ## Requirements
@@ -51,6 +52,7 @@ On a **fresh** Laravel project, the installer handles everything automatically:
 
 - Publishes and runs migrations
 - Publishes `config/cms.php` and `resources/views/app.blade.php`
+- Asks whether the site is multi-locale and writes your locales into `config/cms.php`
 - Creates `app/Http/Middleware/HandleInertiaRequests.php` and registers it
 - Creates a Filament panel and registers `CmsPlugin`
 - Adds `FilamentUser` to your `User` model
@@ -58,7 +60,7 @@ On a **fresh** Laravel project, the installer handles everything automatically:
 - Replaces `vite.config.js` with a Vue + Tailwind + `@cms` alias config
 - Publishes starter blocks, layouts, and Vue components to your app
 - Installs npm packages and builds assets
-- Seeds an example page and navigation via `CmsShowcaseSeeder`
+- Seeds showcase content via `CmsShowcaseSeeder` — a published frontpage and about page with SEO meta, header/footer navigations, and starter site settings, in **every configured locale** (Danish copy ships translated)
 - Prompts you to create a Filament admin user
 
 On an **existing** project, it prints manual steps for anything it cannot safely automate.
@@ -182,7 +184,7 @@ If you need to push a quick fix while a longer draft is in progress, click **Edi
 
 ### Frontpage
 
-Only one page is served at `/`. You designate it from the **More actions** menu on any published page — the previous frontpage loses its designation automatically. The current frontpage is indicated by a notice in the form header rather than an editable toggle, so the status can never drift out of sync with the publish state. Unpublishing a page that is the frontpage automatically clears the designation.
+Only one page per locale is served at that locale's root (`/` for the default locale, `/da` for a prefixed one). You designate it from the **More actions** menu on any published page — the previous frontpage in that locale loses its designation automatically. The current frontpage is indicated by a notice in the form header rather than an editable toggle, so the status can never drift out of sync with the publish state. Unpublishing a page that is the frontpage automatically clears the designation.
 
 ### Slugs
 
@@ -210,9 +212,9 @@ Authenticated users see a fixed **CMS toolbar** at the top of every frontend pag
 
 - **Left** — links to Site settings, the Pages list, New page, and an **Edit** button that jumps directly to the current page's draft editor in the admin
 - **Centre** — the page name and a relative "Edited X ago" timestamp
-- **Right** — a **Draft / Published toggle** when both versions of the page exist, or a status pill ("Draft" or "Published") when only one version exists
+- **Right** — a **locale switcher** (when more than one locale is configured), and a **Draft / Published toggle** when both versions of the page exist, or a status pill ("Draft" or "Published") when only one version exists
 
-Clicking **Draft** or **Published** in the toggle stores the choice in the session and reloads the page to render the appropriate version. When draft preview is active, navigation includes links to unpublished pages; in published mode those links are filtered out, matching what guests see.
+Clicking **Draft** or **Published** in the toggle stores the choice in the session (per locale) and reloads the page to render the appropriate version. The toggle controls which *content* version renders; navigation always includes links to draft pages while you are logged in, since you can open those pages directly. Guests only ever see links to published pages.
 
 Guests never see the toolbar and always receive published content only.
 
@@ -238,6 +240,85 @@ PreviewMode::resolveUsing(fn () => auth()->check() && auth()->user()->hasRole('e
 ```
 
 The callback runs on every content-rendering request, so keep it lightweight.
+
+---
+
+## Localization
+
+The CMS is single-locale out of the box. Enable multi-locale content by listing locales in `config/cms.php`:
+
+```php
+'locales' => [
+    'en' => 'English',
+    'da' => 'Dansk',
+],
+'default_locale' => 'en',
+```
+
+With one locale configured, all locale UI (switchers, badges, columns) stays hidden and nothing changes. With two or more, every part of the CMS becomes locale-aware.
+
+### URL strategy
+
+| URL | Serves |
+| --- | ------ |
+| `/about-us` | The page in the **default locale** (never prefixed) |
+| `/da/om-os` | The page in the `da` locale (always prefixed) |
+| `/da` | The Danish frontpage |
+| `/en/about-us` | 301 → `/about-us` (prefix matching the default locale is stripped) |
+
+Each locale's content has its own slug — the same page can be `/about-us` in English and `/da/om-os` in Danish. A slug can never collide with a configured locale key; this is enforced by validation everywhere slugs are edited.
+
+When a URL has no content in the active locale, `cms.missing_locale_behavior` decides what happens: `redirect` (default) sends the visitor to that locale's frontpage (404 if the locale has no frontpage), `404` always 404s.
+
+### Domain → locale mapping
+
+A **Domains** admin resource (visible only with >1 locales) maps hostnames to locales — e.g. `example.com → en`, `example.dk → da`. Matching is exact (no protocol, no port), and the matched locale becomes the *default* for that domain: unprefixed URLs serve it, and its prefix is stripped via 301. A URL prefix always wins over the domain default, so `example.dk/en/about-us` serves English. Unmapped domains fall back to `cms.default_locale`.
+
+Locale switching stays on the current domain — it changes the path prefix, not the host.
+
+### Editing pages per locale
+
+Content is created **on demand** — a page starts with one locale and grows:
+
+- The page editor header shows a **locale switcher** with a draft/published badge per locale. Missing locales open an "Add locale" modal offering a blank draft or a copy of an existing locale.
+- Draft/publish state, slugs, SEO meta, and frontpage designation are all **per locale** — publishing the Danish version doesn't touch the English one, and each locale may have (at most) one frontpage.
+- The page **name** is a global internal identifier (renamed via an action); visitor-facing titles live in each locale's SEO meta.
+- **Copy content from locale** overwrites the current draft from a sibling locale without touching the published version.
+- **Delete locale** permanently removes one locale's content (hidden when it would leave the page empty); **Delete page** soft-deletes the whole page with all its locales.
+
+### Navigation per locale
+
+Each navigation (header/footer) belongs to one locale — the list view shows a locale column and `(type, locale)` is unique. The frontend automatically loads the navigation matching the visitor's locale, and links to pages without published content in that locale are filtered out.
+
+When a locale has no navigation, `cms.navigation_fallback` applies: `default_locale` (default) serves the default locale's navigation with slugs resolved for the visitor's locale; `empty` serves nothing.
+
+### Translatable site settings
+
+Settings are global by default. Mark any field in your settings schema as overridable per locale with the `->translatable()` macro:
+
+```php
+TextInput::make('site_name')->translatable(),
+MediaPicker::make('og_image')->translatable(),
+```
+
+The Settings page gains an **Editing locale** selector. When a locale is selected, non-translatable fields are disabled, and only values that actually **differ from the global value** are stored as overrides — untouched fields keep inheriting future global changes. Setting a field back to the global value removes the override. The frontend always receives the merged result for the active locale.
+
+`site_name` and `og_image` are translatable in the default schema.
+
+### Frontend props & SEO
+
+Every Inertia response shares:
+
+| Prop | Contents |
+| ---- | -------- |
+| `locale` | The active locale code |
+| `locales` | All configured locales (`{ code: label }`) |
+| `defaultLocale` | The unprefixed locale for the current domain |
+| `locale_variants` | Per locale: `{ slug, available, url }` for the current page (`null` with 1 locale) |
+
+`available` means a published version exists; `url` is the ready-to-use switch target — the variant itself when reachable, otherwise that locale's frontpage, otherwise `null`. The `Head` component renders `<link rel="alternate" hreflang>` tags (plus `x-default`) automatically from these variants, and the CMS toolbar shows a locale switcher for editors. Build a visitor-facing language switcher from the same props.
+
+The package's `LocaleDetectionMiddleware` is applied to all CMS routes automatically, and locale-dependent shared props are resolved lazily at render time — no middleware-ordering configuration is needed in your app.
 
 ---
 
@@ -273,7 +354,7 @@ Available groups:
 
 The CMS ships with a **Settings** admin page for storing global values that should be available on every frontend page — things like a site logo, favicon, social media links, and a default Open Graph image.
 
-Settings are saved in a single database row and shared automatically on every Inertia request as `$page.props.settings`. The admin page is tab-based, with tabs persisted in the query string so the browser remembers which tab you were on.
+Settings are shared automatically on every Inertia request as `$page.props.settings`. The admin page is tab-based, with tabs persisted in the query string so the browser remembers which tab you were on. With multiple locales configured, individual fields can be overridden per locale — see [Translatable site settings](#translatable-site-settings).
 
 ### Default tabs and fields
 
@@ -374,10 +455,32 @@ return [
         'md' => 'Medium',
         'lg' => 'Large',
     ],
+
+    // URL path segment of your Filament panel, so the CMS page router
+    // doesn't intercept admin URLs. Match your panel's ->path() setting.
+    'panel_path' => env('CMS_PANEL_PATH', 'admin'),
+
+    // Supported content locales keyed by locale code. Keys must be valid
+    // URL segments. A single entry disables all locale UI.
+    'locales' => [
+        'en' => 'English',
+    ],
+
+    // Served when no locale prefix is in the URL and the domain is unmapped.
+    // The default locale never carries a path prefix.
+    'default_locale' => 'en',
+
+    // When a URL has no content in the active locale:
+    // 'redirect' → that locale's frontpage (404 if none), '404' → always 404.
+    'missing_locale_behavior' => 'redirect',
+
+    // When no navigation exists for the current locale:
+    // 'default_locale' → fall back to the default locale's nav, 'empty' → none.
+    'navigation_fallback' => 'default_locale',
 ];
 ```
 
-`buttons` and `padding` default to empty arrays — the corresponding selectors are hidden if the array is empty.
+`buttons` and `padding` default to empty arrays — the corresponding selectors are hidden if the array is empty. The locale keys are covered in detail in [Localization](#localization).
 
 ---
 
@@ -390,6 +493,8 @@ php artisan vendor:publish --tag=cms-lang
 ```
 
 Published to `lang/vendor/cms/`. Activate Danish with `APP_LOCALE=da` in your `.env`.
+
+On the frontend, the detected content locale also drives `app()->setLocale()`, so Laravel's translator, validation messages, and Blade strings follow the visitor's locale automatically.
 
 ---
 
@@ -410,7 +515,9 @@ protected function extraProps(Request $request): array
 
 ## Customising navigation form blocks
 
-By default the navigation builder offers two block types: **Link** and **Dropdown**. You can replace this set by creating `app/Cms/NavigationFormSchema.php`:
+By default the navigation builder offers two block types: **Link** and **Dropdown**. Dropdowns can contain links *and other dropdowns*, up to three levels deep (`Dropdown::MAX_DEPTH`) — the frontend components render arbitrary depth, so deeper custom block sets are safe. On the frontend, page links without published content in the visitor's locale are filtered out, and any dropdown left empty by that filtering is dropped with them.
+
+You can replace the block set by creating `app/Cms/NavigationFormSchema.php`:
 
 ```php
 namespace App\Cms;

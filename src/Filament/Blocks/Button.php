@@ -2,14 +2,14 @@
 
 namespace RolandSolutions\ViltCms\Filament\Blocks;
 
+use Filament\Forms\Components\Builder\Block;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ToggleButtons;
 use RolandSolutions\ViltCms\Filament\Fields\ID;
 use RolandSolutions\ViltCms\Filament\Fields\LinkType;
 use RolandSolutions\ViltCms\Filament\Fields\Page;
 use RolandSolutions\ViltCms\Filament\Fields\Target;
 use RolandSolutions\ViltCms\Filament\Fields\URL;
-use Filament\Forms\Components\Builder\Block;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\ToggleButtons;
 
 class Button extends BaseBlock
 {
